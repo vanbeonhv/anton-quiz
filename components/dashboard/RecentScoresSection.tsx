@@ -1,4 +1,4 @@
-import { LeaderboardTable } from '@/components/quiz/LeaderboardTable'
+import { LeaderboardTable } from '@/components/dashboard/LeaderboardTable'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LeaderboardSkeleton } from '@/components/shared/LoadingState'
 

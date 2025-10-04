@@ -1,15 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Trophy, Medal, Award } from 'lucide-react'
-
-interface LeaderboardEntry {
-  rank: number
-  userEmail: string
-  quizTitle: string
-  score: number
-  totalQuestions: number
-  completedAt: Date
-}
+import { LeaderboardEntry } from '@/types'
 
 interface LeaderboardTableProps {
   entries: LeaderboardEntry[]
