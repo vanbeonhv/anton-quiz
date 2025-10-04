@@ -47,16 +47,18 @@ export function DailyQuizCard({ onClick, canTake, nextResetTime }: DailyQuizCard
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           {/* Timer Circle */}
-          <div className="w-16 h-16 border-4 border-white/30 rounded-full flex items-center justify-center relative">
-            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-              {canTake ? (
-                <div className="text-lg font-bold">✓</div>
-              ) : (
-                <Clock className="w-6 h-6" />
-              )}
+          <div className="flex flex-col items-center gap-1">
+            <div className="w-12 h-12 border-4 border-white/30 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                {canTake ? (
+                  <div className="text-lg font-bold">✓</div>
+                ) : (
+                  <Clock className="w-6 h-6" />
+                )}
+              </div>
             </div>
-            {!canTake && (
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 text-xs font-medium bg-white/20 px-2 py-1 rounded-full">
+            {!canTake && timeLeft && (
+              <div className="text-xs font-medium bg-white/20 px-2 py-1 rounded-full whitespace-nowrap">
                 {timeLeft}
               </div>
             )}
