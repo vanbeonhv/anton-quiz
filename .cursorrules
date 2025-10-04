@@ -40,7 +40,7 @@
 
 ### Auth
 - Check user session on protected routes
-- Admin check: email in ADMIN_EMAILS env var
+- Admin check: email in NEXT_PUBLIC_ADMIN_EMAILS env var
 - Store userId from Supabase auth
 
 ## Code Style
@@ -173,7 +173,7 @@ export default async function ProtectedPage() {
 ### Admin Check
 ```typescript
 const isAdmin = (email: string) => {
-  const adminEmails = process.env.ADMIN_EMAILS?.split(',') || []
+  const adminEmails = process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(',') || []
   return adminEmails.includes(email)
 }
 ```

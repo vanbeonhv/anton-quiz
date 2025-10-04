@@ -523,7 +523,7 @@ Build scoreboard and admin pages.
 3. Create lib/utils/admin.ts:
 ```typescript
 export function isAdmin(email: string): boolean {
-  const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim()) || []
+  const adminEmails = process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(',').map(e => e.trim()) || []
   return adminEmails.includes(email)
 }
 ```
@@ -595,7 +595,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGc...
 DATABASE_URL=postgresql://postgres:...
 
 # Admin
-ADMIN_EMAILS=admin@example.com,admin2@example.com
+NEXT_PUBLIC_ADMIN_EMAILS=admin@example.com,admin2@example.com
 
 # GitHub OAuth (from GitHub Developer Settings)
 GITHUB_CLIENT_ID=xxxxx
