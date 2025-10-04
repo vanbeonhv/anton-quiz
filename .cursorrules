@@ -1,0 +1,250 @@
+# Anton Quiz App V2 - Cursor AI Instructions
+
+## Project Context
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript (strict mode)
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Data Fetching**: React Query (TanStack Query)
+- **Database**: PostgreSQL via Supabase
+- **ORM**: Prisma
+- **Auth**: Supabase Auth (GitHub OAuth + Email/Password)
+- **Deploy**: Vercel
+- use PNPM instead of NPM
+
+## Tech Stack Rules
+
+### Next.js
+- ALWAYS use App Router (not Pages Router)
+- Use Server Components by default
+- Only use 'use client' when necessary (forms, interactive components)
+- Use Server Actions for mutations
+- API Routes for complex queries only
+
+### TypeScript
+- Strict mode enabled
+- NO 'any' types - always define proper types
+- Use Zod for runtime validation
+- Define types in `/types` folder
+
+### Styling
+- Use Tailwind utility classes ONLY
+- NO custom CSS files (except globals.css for theme)
+- Use theme colors defined in tailwind.config.ts
+- Follow the design system in DESIGN.md
+
+### Database
+- Use Prisma Client for all database operations
+- ALWAYS use async/await
+- Handle errors with try/catch
+- Use transactions for multi-step operations
+
+### Auth
+- Check user session on protected routes
+- Admin check: email in ADMIN_EMAILS env var
+- Store userId from Supabase auth
+
+## Code Style
+
+### File Structure
+```
+/app
+  /(main)/page.tsx          # Dashboard (protected)
+  /quiz/[id]/page.tsx       # Quiz page (protected)
+  /scoreboard/page.tsx      # Scoreboard (protected)
+  /admin/page.tsx           # Admin CRUD (admin only)
+  /login/page.tsx           # Login page (public)
+  /api/...                  # API routes
+/components
+  /ui/                      # shadcn components
+  /quiz/                    # Quiz-specific components
+  /shared/                  # Shared components
+  /layout/                  # Layout components (Header, Footer)
+/lib
+  /supabase/
+    /client.ts              # Browser Supabase client
+    /server.ts              # Server Supabase client
+  /db.ts                    # Prisma client singleton
+  /queries.ts               # React Query hooks
+  /utils/
+    /quiz.ts                # Quiz helper functions
+    /admin.ts               # Admin helper functions
+/types
+  /index.ts                 # Shared TypeScript types
+/prisma
+  /schema.prisma            # Database schema
+  /seed.ts                  # Seed data
+```
+
+### Naming Conventions
+- **Components**: PascalCase (`QuizCard.tsx`)
+- **Utilities**: camelCase (`formatDate.ts`)
+- **Types**: PascalCase with descriptive names (`QuizWithQuestions`)
+- **Database models**: PascalCase singular (`Quiz`, not `Quizzes`)
+- **API routes**: kebab-case folders (`/api/quiz-attempts`)
+
+### Component Patterns
+```typescript
+// Server Component (default)
+export default async function DashboardPage() {
+  const data = await fetchData()
+  return <div>...</div>
+}
+
+// Client Component (interactive)
+'use client'
+export function QuizForm() {
+  const [state, setState] = useState()
+  return <form>...</form>
+}
+
+// Always destructure props with TypeScript
+interface Props {
+  title: string
+  count: number
+}
+
+export function Component({ title, count }: Props) {
+  return <div>{title}: {count}</div>
+}
+```
+
+### Error Handling
+```typescript
+// ALWAYS handle errors
+try {
+  const data = await prisma.quiz.findMany()
+  return data
+} catch (error) {
+  console.error('Failed to fetch quizzes:', error)
+  throw new Error('Failed to fetch quizzes')
+}
+
+// Client-side with React Query
+const { data, error, isLoading } = useQuery({
+  queryKey: ['quizzes'],
+  queryFn: fetchQuizzes
+})
+
+if (error) return <ErrorState />
+if (isLoading) return <LoadingState />
+```
+
+## UI/UX Guidelines
+
+### Loading States
+- Use Skeleton components from shadcn/ui
+- Show loading states for all async operations
+- Minimum 300ms loading to avoid flicker
+
+### Empty States
+- Always handle empty data gracefully
+- Show helpful messages ("No quizzes yet")
+- Provide action buttons when appropriate
+
+### Responsive Design
+- Mobile-first approach
+- Breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px)
+- Test on mobile viewport
+
+### Accessibility
+- Use semantic HTML
+- Include proper ARIA labels
+- Ensure keyboard navigation works
+- Maintain color contrast ratios
+
+## Common Patterns
+
+### Protected Routes
+```typescript
+// Server Component
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+
+export default async function ProtectedPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) redirect('/login')
+  
+  return <div>Protected content</div>
+}
+```
+
+### Admin Check
+```typescript
+const isAdmin = (email: string) => {
+  const adminEmails = process.env.ADMIN_EMAILS?.split(',') || []
+  return adminEmails.includes(email)
+}
+```
+
+### React Query Usage
+```typescript
+// Define query function
+const fetchQuizzes = async () => {
+  const res = await fetch('/api/quizzes')
+  if (!res.ok) throw new Error('Failed to fetch')
+  return res.json()
+}
+
+// Use in component
+const { data, error, isLoading } = useQuery({
+  queryKey: ['quizzes'],
+  queryFn: fetchQuizzes,
+  staleTime: 5 * 60 * 1000, // 5 minutes
+})
+```
+
+### Server Actions
+```typescript
+'use server'
+
+import { revalidatePath } from 'next/cache'
+
+export async function createQuiz(formData: FormData) {
+  const title = formData.get('title') as string
+  
+  try {
+    await prisma.quiz.create({
+      data: { title }
+    })
+    
+    revalidatePath('/admin')
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: 'Failed to create quiz' }
+  }
+}
+```
+
+## Performance
+
+### Optimization Rules
+- Use `loading.tsx` for route loading states
+- Implement pagination for long lists
+- Use React.memo() only when necessary
+- Optimize images with Next.js Image component
+- Use dynamic imports for heavy components
+
+### Caching Strategy
+- Use React Query cache (5 min default)
+- Revalidate paths after mutations
+- Use ISR for static content when possible
+
+## Security
+
+### Environment Variables
+- NEVER commit `.env.local`
+- Use `NEXT_PUBLIC_` prefix for client-side vars only
+- Validate env vars on app startup
+
+### Data Validation
+- Validate all user inputs with Zod
+- Sanitize data before database operations
+- Use parameterized queries (Prisma handles this)
+
+### Auth Security
+- Check auth on every protected route
+- Verify admin role server-side
+- Use HTTPS in production
+- Set secure session cookies
