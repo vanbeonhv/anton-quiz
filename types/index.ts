@@ -110,6 +110,7 @@ export interface SubmitQuizData {
 // ============================================
 
 export interface LeaderboardEntry {
+  rank: number
   attemptId: string
   userId: string
   userEmail: string
