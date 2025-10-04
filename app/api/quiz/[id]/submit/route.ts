@@ -20,6 +20,10 @@ export async function POST(
         const body = await request.json()
         const { answers } = body
 
+        // Check for bypass parameter in development
+        const { searchParams } = new URL(request.url)
+        const bypassCheck = searchParams.get('bypass') === 'true' && process.env.NODE_ENV === 'development'
+
         if (!answers || !Array.isArray(answers)) {
             return NextResponse.json(
                 { error: 'Invalid answers format' },
@@ -41,8 +45,8 @@ export async function POST(
             return NextResponse.json({ error: 'Quiz not found' }, { status: 404 })
         }
 
-        // Check daily quiz eligibility
-        if (quiz.type === 'DAILY') {
+        // Check daily quiz eligibility (skip in development with bypass)
+        if (quiz.type === 'DAILY' && !bypassCheck) {
             const now = new Date()
             const vietnamTime = new Date(now.toLocaleString('en-US', {
                 timeZone: 'Asia/Ho_Chi_Minh'

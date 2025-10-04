@@ -31,8 +31,19 @@ interface DailyQuizResults {
 
 export default function DailyQuizPage() {
   const router = useRouter()
+
+  // Check for bypass parameter in development
+  const [bypassCheck, setBypassCheck] = useState(false)
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search)
+      setBypassCheck(searchParams.get('bypass') === 'true' && process.env.NODE_ENV === 'development')
+    }
+  }, [])
+
   const { data: dailyCheck, isLoading: checkLoading, error: checkError } = useDailyQuizCheck()
-  
+
   const [quiz, setQuiz] = useState<{
     id: string
     title: string
@@ -51,12 +62,33 @@ export default function DailyQuizPage() {
   const [results, setResults] = useState<DailyQuizResults | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  // Load quiz when daily check is available
+  // Load quiz when daily check is available or bypassed
   React.useEffect(() => {
-    if (dailyCheck?.canTake && dailyCheck.quizId && !quiz) {
+    if (bypassCheck && !quiz) {
+      // In bypass mode, load the daily quiz directly
+      loadDailyQuizDirect()
+    } else if (dailyCheck?.canTake && dailyCheck.quizId && !quiz) {
       loadQuiz(dailyCheck.quizId)
     }
-  }, [dailyCheck, quiz])
+  }, [dailyCheck, quiz, bypassCheck]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const loadDailyQuizDirect = async () => {
+    setLoading(true)
+    try {
+      // Get daily quiz ID first
+      const checkRes = await fetch('/api/daily-quiz/check')
+      if (checkRes.ok) {
+        const checkData = await checkRes.json()
+        if (checkData.quizId) {
+          await loadQuiz(checkData.quizId)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load daily quiz:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const loadQuiz = async (quizId: string) => {
     setLoading(true)
@@ -73,7 +105,11 @@ export default function DailyQuizPage() {
   }
 
   const handleSubmit = async () => {
-    if (!quiz || !selectedAnswer || !dailyCheck?.quizId || submitting) return
+    if (!quiz || !selectedAnswer || submitting) return
+
+    // Get quiz ID from dailyCheck or bypass mode
+    const quizId = dailyCheck?.quizId || quiz.id
+    if (!quizId) return
 
     setSubmitting(true)
     try {
@@ -84,7 +120,11 @@ export default function DailyQuizPage() {
         }]
       }
 
-      const res = await fetch(`/api/quiz/${dailyCheck.quizId}/submit`, {
+      const submitUrl = bypassCheck
+        ? `/api/quiz/${quizId}/submit?bypass=true`
+        : `/api/quiz/${quizId}/submit`
+
+      const res = await fetch(submitUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(submitData)
@@ -134,8 +174,8 @@ export default function DailyQuizPage() {
     )
   }
 
-  // Already completed today
-  if (!dailyCheck.canTake) {
+  // Already completed today (skip if bypassed)
+  if (!bypassCheck && !dailyCheck.canTake) {
     const nextReset = dailyCheck.nextResetTime ? new Date(dailyCheck.nextResetTime) : null
     const timeLeft = nextReset ? Math.max(0, nextReset.getTime() - Date.now()) : 0
     const hours = Math.floor(timeLeft / (1000 * 60 * 60))
@@ -242,7 +282,7 @@ export default function DailyQuizPage() {
                 <p className="text-text-primary mb-6">
                   {question.text}
                 </p>
-                
+
                 <div className="space-y-3">
                   {(['A', 'B', 'C', 'D'] as OptionKey[]).map((option) => (
                     <AnswerOption
@@ -253,7 +293,7 @@ export default function DailyQuizPage() {
                       showResult={true}
                       isCorrect={option === results.answers[0].question.correctAnswer}
                       isUserAnswer={option === results.answers[0].selectedAnswer}
-                      onClick={() => {}}
+                      onClick={() => { }}
                     />
                   ))}
                 </div>
@@ -272,13 +312,26 @@ export default function DailyQuizPage() {
             </div>
 
             {/* Back to Dashboard */}
-            <div className="text-center">
+            <div className="text-center space-y-4">
               <Button
                 onClick={() => router.push('/dashboard')}
                 className="bg-primary-green hover:bg-primary-green-dark"
               >
                 Back to Dashboard
               </Button>
+
+              {/* Development reset button */}
+              {process.env.NODE_ENV === 'development' && (
+                <div>
+                  <Button
+                    onClick={() => window.location.href = '/daily-quiz?bypass=true'}
+                    variant="outline"
+                    className="text-sm"
+                  >
+                    🔧 Dev: Try Again
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         ) : (
