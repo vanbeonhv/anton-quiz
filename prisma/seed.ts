@@ -4,7 +4,7 @@ const prisma = new PrismaClient()
 
 async function main() {
   console.log('🌱 Seeding database...')
-  
+
   // Create Normal Quiz
   const reactQuiz = await prisma.quiz.create({
     data: {
@@ -67,8 +67,8 @@ async function main() {
       }
     }
   })
-  
-  // Create Daily Quiz
+
+  // Create Daily Quiz (only 1 question)
   const dailyQuiz = await prisma.quiz.create({
     data: {
       title: 'Daily Challenge',
@@ -85,32 +85,12 @@ async function main() {
             correctAnswer: 'A',
             explanation: 'TypeScript is a superset of JavaScript that adds optional static typing.',
             order: 1
-          },
-          {
-            text: 'Which keyword is used to define a variable that cannot be reassigned?',
-            optionA: 'var',
-            optionB: 'let',
-            optionC: 'const',
-            optionD: 'static',
-            correctAnswer: 'C',
-            explanation: 'The const keyword creates a read-only reference to a value.',
-            order: 2
-          },
-          {
-            text: 'What does API stand for?',
-            optionA: 'Application Programming Interface',
-            optionB: 'Advanced Programming Integration',
-            optionC: 'Automated Program Interaction',
-            optionD: 'Application Process Integration',
-            correctAnswer: 'A',
-            explanation: 'API stands for Application Programming Interface.',
-            order: 3
           }
         ]
       }
     }
   })
-  
+
   console.log('✅ Seeding completed!')
   console.log(`Created quizzes:`)
   console.log(`- ${reactQuiz.title} (${reactQuiz.type})`)

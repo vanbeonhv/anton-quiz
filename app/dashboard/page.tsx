@@ -21,9 +21,7 @@ export default function DashboardPage() {
   }
 
   const handleDailyQuizClick = () => {
-    if (dailyQuizCheck?.canTake && dailyQuizCheck.quizId) {
-      router.push(`/quiz/${dailyQuizCheck.quizId}`)
-    }
+    router.push('/daily-quiz')
   }
 
   // Filter out daily quizzes from regular quiz list

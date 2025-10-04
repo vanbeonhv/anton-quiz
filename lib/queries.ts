@@ -89,3 +89,48 @@ export function useDailyQuizCheck() {
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
   })
 }
+
+// Quiz with questions interface
+interface QuizWithQuestions {
+  id: string
+  title: string
+  description: string | null
+  type: 'NORMAL' | 'DAILY'
+  createdAt: Date
+  updatedAt: Date
+  questions: {
+    id: string
+    text: string
+    optionA: string
+    optionB: string
+    optionC: string
+    optionD: string
+    order: number
+  }[]
+}
+
+// Fetch quiz with questions
+export function useQuiz(quizId: string) {
+  return useQuery({
+    queryKey: ['quiz', quizId],
+    queryFn: async (): Promise<QuizWithQuestions> => {
+      const res = await fetch(`/api/quiz/${quizId}`)
+      if (!res.ok) throw new Error('Failed to fetch quiz')
+      return res.json()
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes
+  })
+}
+
+// Check specific quiz eligibility
+export function useQuizEligibility(quizId: string) {
+  return useQuery({
+    queryKey: ['quiz-eligibility', quizId],
+    queryFn: async (): Promise<DailyQuizCheck> => {
+      const res = await fetch(`/api/quiz/${quizId}/check-daily`)
+      if (!res.ok) throw new Error('Failed to check quiz eligibility')
+      return res.json()
+    },
+    staleTime: 1 * 60 * 1000, // 1 minute
+  })
+}

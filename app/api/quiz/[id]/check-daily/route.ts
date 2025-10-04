@@ -1,10 +1,13 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -13,15 +16,23 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Find daily quiz
-    const dailyQuiz = await prisma.quiz.findFirst({
-      where: { type: 'DAILY' }
+    const { id: quizId } = params
+
+    // Get quiz info
+    const quiz = await prisma.quiz.findUnique({
+      where: { id: quizId },
+      select: { id: true, type: true, title: true }
     })
 
-    if (!dailyQuiz) {
+    if (!quiz) {
+      return NextResponse.json({ error: 'Quiz not found' }, { status: 404 })
+    }
+
+    // If not a daily quiz, always allow
+    if (quiz.type !== 'DAILY') {
       return NextResponse.json({
-        canTake: false,
-        message: 'No daily quiz available'
+        canTake: true,
+        message: 'Quiz available'
       })
     }
 
@@ -43,7 +54,7 @@ export async function GET() {
     const recentAttempt = await prisma.quizAttempt.findFirst({
       where: {
         userId: user.id,
-        quizId: dailyQuiz.id,
+        quizId: quizId,
         completedAt: { gte: resetTime }
       }
     })
@@ -53,14 +64,13 @@ export async function GET() {
 
     return NextResponse.json({
       canTake: !recentAttempt,
-      quizId: dailyQuiz.id,
       nextResetTime: nextReset.toISOString(),
       message: recentAttempt ? 'Already completed today' : 'Available now'
     })
   } catch (error) {
-    console.error('Failed to check daily quiz:', error)
+    console.error('Failed to check daily quiz eligibility:', error)
     return NextResponse.json(
-      { error: 'Failed to check daily quiz' },
+      { error: 'Failed to check quiz eligibility' },
       { status: 500 }
     )
   }
