@@ -1,15 +1,7 @@
-import type { OptionKey, QuizResults } from '@/types'
-
-interface Question {
-  text: string
-  optionA: string
-  optionB: string
-  optionC: string
-  optionD: string
-}
+import type { OptionKey, QuizResults, QuestionForTaking } from '@/types'
 
 interface DailyQuizReviewProps {
-  question: Question
+  question: QuestionForTaking
   results: QuizResults
 }
 
@@ -46,7 +38,7 @@ export function DailyQuizReview({ question, results }: DailyQuizReviewProps) {
               {option}
             </div>
             <span className="flex-1 text-xs">
-              {question[`option${option}` as keyof Question] as string}
+              {question[`option${option}` as keyof QuestionForTaking] as string}
             </span>
             {option === answer.question.correctAnswer && (
               <span className="text-white text-sm">✓</span>

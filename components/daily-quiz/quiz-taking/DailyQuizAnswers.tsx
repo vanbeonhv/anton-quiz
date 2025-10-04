@@ -1,15 +1,8 @@
 import { AnswerOption } from '@/components/quiz/AnswerOption'
-import type { OptionKey } from '@/types'
-
-interface Question {
-  optionA: string
-  optionB: string
-  optionC: string
-  optionD: string
-}
+import type { OptionKey, QuestionForTaking } from '@/types'
 
 interface DailyQuizAnswersProps {
-  question: Question
+  question: QuestionForTaking
   selectedAnswer: OptionKey | null
   onAnswerSelect: (answer: OptionKey) => void
 }
@@ -21,7 +14,7 @@ export function DailyQuizAnswers({ question, selectedAnswer, onAnswerSelect }: D
         <AnswerOption
           key={option}
           label={option}
-          text={question[`option${option}` as keyof Question] as string}
+          text={question[`option${option}` as keyof QuestionForTaking] as string}
           selected={selectedAnswer === option}
           onClick={() => onAnswerSelect(option)}
         />
