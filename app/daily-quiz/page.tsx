@@ -8,26 +8,7 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { AnswerOption } from '@/components/quiz/AnswerOption'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, Clock } from 'lucide-react'
-import type { OptionKey } from '@/types'
-
-interface DailyQuizResults {
-  score: number
-  totalQuestions: number
-  answers: {
-    questionId: string
-    selectedAnswer: OptionKey
-    isCorrect: boolean
-    question: {
-      correctAnswer: OptionKey
-      explanation?: string
-      text: string
-      optionA: string
-      optionB: string
-      optionC: string
-      optionD: string
-    }
-  }[]
-}
+import type { OptionKey, QuizForTaking, QuizResults } from '@/types'
 
 export default function DailyQuizPage() {
   const router = useRouter()
@@ -44,22 +25,11 @@ export default function DailyQuizPage() {
 
   const { data: dailyCheck, isLoading: checkLoading, error: checkError } = useDailyQuizCheck()
 
-  const [quiz, setQuiz] = useState<{
-    id: string
-    title: string
-    questions: {
-      id: string
-      text: string
-      optionA: string
-      optionB: string
-      optionC: string
-      optionD: string
-    }[]
-  } | null>(null)
+  const [quiz, setQuiz] = useState<QuizForTaking | null>(null)
   const [loading, setLoading] = useState(false)
   const [selectedAnswer, setSelectedAnswer] = useState<OptionKey | null>(null)
   const [submitted, setSubmitted] = useState(false)
-  const [results, setResults] = useState<DailyQuizResults | null>(null)
+  const [results, setResults] = useState<QuizResults | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   // Load quiz when daily check is available or bypassed
@@ -291,16 +261,16 @@ export default function DailyQuizPage() {
                   <div
                     key={option}
                     className={`flex items-center gap-3 p-2 rounded-lg text-sm ${option === results.answers[0].question.correctAnswer
-                        ? 'bg-primary-green text-white'
-                        : option === results.answers[0].selectedAnswer && option !== results.answers[0].question.correctAnswer
-                          ? 'bg-primary-orange text-white'
-                          : 'bg-bg-peach text-text-secondary'
+                      ? 'bg-primary-green text-white'
+                      : option === results.answers[0].selectedAnswer && option !== results.answers[0].question.correctAnswer
+                        ? 'bg-primary-orange text-white'
+                        : 'bg-bg-peach text-text-secondary'
                       }`}
                   >
                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-semibold flex-shrink-0 ${option === results.answers[0].question.correctAnswer ||
-                        (option === results.answers[0].selectedAnswer && option !== results.answers[0].question.correctAnswer)
-                        ? 'border-white bg-white text-current'
-                        : 'border-current'
+                      (option === results.answers[0].selectedAnswer && option !== results.answers[0].question.correctAnswer)
+                      ? 'border-white bg-white text-current'
+                      : 'border-current'
                       }`}>
                       {option}
                     </div>

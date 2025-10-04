@@ -145,3 +145,28 @@ export interface DailyQuizCheck {
   nextResetTime?: string
   message: string
 }
+
+// For quiz taking (without sensitive data like correct answers)
+export interface QuizForTaking extends Quiz {
+  questions: Omit<Question, 'correctAnswer' | 'explanation' | 'createdAt' | 'quizId'>[]
+}
+
+// For quiz results with full question details
+export interface QuizResults {
+  score: number
+  totalQuestions: number
+  answers: {
+    questionId: string
+    selectedAnswer: OptionKey
+    isCorrect: boolean
+    question: {
+      correctAnswer: OptionKey
+      explanation?: string
+      text: string
+      optionA: string
+      optionB: string
+      optionC: string
+      optionD: string
+    }
+  }[]
+}
