@@ -251,68 +251,86 @@ export default function DailyQuizPage() {
         </div>
 
         {submitted && results ? (
-          /* Results View */
-          <div className="space-y-8">
-            {/* Score Summary */}
-            <div className="bg-bg-cream rounded-lg border border-bg-peach p-8 text-center">
-              <div className="w-16 h-16 bg-primary-orange rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-white font-bold text-2xl">📅</span>
+          /* Results View - Compact */
+          <div className="space-y-4">
+            {/* Compact Score Summary */}
+            <div className="bg-bg-cream rounded-lg border border-bg-peach p-4">
+              <div className="flex items-center gap-4 mb-3">
+                <div className="w-12 h-12 bg-primary-orange rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-lg">📅</span>
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-lg font-bold text-text-primary">
+                    Daily Challenge Complete!
+                  </h2>
+                  <div className="text-2xl font-bold">
+                    {results.score === 1 ? (
+                      <span className="text-primary-green">✓ Correct!</span>
+                    ) : (
+                      <span className="text-primary-orange">✗ Incorrect</span>
+                    )}
+                  </div>
+                </div>
               </div>
-              <h2 className="text-2xl font-bold text-text-primary mb-4">
-                Daily Challenge Complete!
-              </h2>
-              <div className="text-4xl font-bold mb-4">
-                {results.score === 1 ? (
-                  <span className="text-primary-green">✓ Correct!</span>
-                ) : (
-                  <span className="text-primary-orange">✗ Incorrect</span>
-                )}
-              </div>
-              <p className="text-text-secondary">
+              <p className="text-text-secondary text-sm text-center">
                 Come back tomorrow for a new challenge!
               </p>
             </div>
 
-            {/* Question Review */}
-            <div className="space-y-6">
-              <div className="bg-bg-cream rounded-lg border border-bg-peach p-6">
-                <h3 className="text-lg font-semibold text-text-primary mb-4">
-                  Question Review
-                </h3>
-                <p className="text-text-primary mb-6">
-                  {question.text}
-                </p>
+            {/* Compact Question Review */}
+            <div className="bg-bg-cream rounded-lg border border-bg-peach p-4">
+              <h3 className="text-base font-semibold text-text-primary mb-3">
+                Question Review
+              </h3>
+              <p className="text-text-primary mb-4 text-sm">
+                {question.text}
+              </p>
 
-                <div className="space-y-3">
-                  {(['A', 'B', 'C', 'D'] as OptionKey[]).map((option) => (
-                    <AnswerOption
-                      key={option}
-                      label={option}
-                      text={question[`option${option}` as keyof typeof question] as string}
-                      selected={false}
-                      showResult={true}
-                      isCorrect={option === results.answers[0].question.correctAnswer}
-                      isUserAnswer={option === results.answers[0].selectedAnswer}
-                      onClick={() => { }}
-                    />
-                  ))}
-                </div>
-
-                {results.answers[0].question.explanation && (
-                  <div className="bg-primary-green-light border border-primary-green rounded-lg p-4 mt-6">
-                    <h4 className="font-semibold text-primary-green-dark mb-2">
-                      Explanation:
-                    </h4>
-                    <p className="text-text-secondary">
-                      {results.answers[0].question.explanation}
-                    </p>
+              <div className="space-y-2">
+                {(['A', 'B', 'C', 'D'] as OptionKey[]).map((option) => (
+                  <div
+                    key={option}
+                    className={`flex items-center gap-3 p-2 rounded-lg text-sm ${option === results.answers[0].question.correctAnswer
+                        ? 'bg-primary-green text-white'
+                        : option === results.answers[0].selectedAnswer && option !== results.answers[0].question.correctAnswer
+                          ? 'bg-primary-orange text-white'
+                          : 'bg-bg-peach text-text-secondary'
+                      }`}
+                  >
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-semibold flex-shrink-0 ${option === results.answers[0].question.correctAnswer ||
+                        (option === results.answers[0].selectedAnswer && option !== results.answers[0].question.correctAnswer)
+                        ? 'border-white bg-white text-current'
+                        : 'border-current'
+                      }`}>
+                      {option}
+                    </div>
+                    <span className="flex-1 text-xs">
+                      {question[`option${option}` as keyof typeof question] as string}
+                    </span>
+                    {option === results.answers[0].question.correctAnswer && (
+                      <span className="text-white text-sm">✓</span>
+                    )}
+                    {option === results.answers[0].selectedAnswer && option !== results.answers[0].question.correctAnswer && (
+                      <span className="text-white text-sm">✗</span>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
+
+              {results.answers[0].question.explanation && (
+                <div className="bg-primary-green-light border border-primary-green rounded-lg p-3 mt-3">
+                  <h4 className="font-semibold text-primary-green-dark mb-1 text-sm">
+                    Explanation:
+                  </h4>
+                  <p className="text-text-secondary text-xs">
+                    {results.answers[0].question.explanation}
+                  </p>
+                </div>
+              )}
             </div>
 
-            {/* Back to Dashboard */}
-            <div className="text-center space-y-4">
+            {/* Compact Action Buttons */}
+            <div className="flex gap-3 justify-center">
               <Button
                 onClick={() => router.push('/dashboard')}
                 className="bg-primary-green hover:bg-primary-green-dark"
@@ -322,15 +340,13 @@ export default function DailyQuizPage() {
 
               {/* Development reset button */}
               {process.env.NODE_ENV === 'development' && (
-                <div>
-                  <Button
-                    onClick={() => window.location.href = '/daily-quiz?bypass=true'}
-                    variant="outline"
-                    className="text-sm"
-                  >
-                    🔧 Dev: Try Again
-                  </Button>
-                </div>
+                <Button
+                  onClick={() => window.location.href = '/daily-quiz?bypass=true'}
+                  variant="outline"
+                  size="sm"
+                >
+                  🔧 Try Again
+                </Button>
               )}
             </div>
           </div>
