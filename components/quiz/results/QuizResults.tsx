@@ -1,7 +1,7 @@
 import { QuizScoreSummary } from './QuizScoreSummary'
 import { QuizQuestionReview } from './QuizQuestionReview'
 import { QuizResultsActions } from './QuizResultsActions'
-import type { OptionKey, QuestionForTaking, QuizResults as QuizResultsType } from '@/types'
+import type { QuestionForTaking, QuizResults as QuizResultsType } from '@/types'
 
 interface Quiz {
   questions: QuestionForTaking[]
