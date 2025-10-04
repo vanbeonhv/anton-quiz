@@ -47,3 +47,45 @@ export function useScoreboard(filter: LeaderboardFilter = 'all-time', limit: num
 export function useRecentScores(limit: number = 5) {
   return useScoreboard('all-time', limit)
 }
+
+// User stats interface
+interface UserStats {
+  expPoints: number
+  ranking: number
+  totalUsers: number
+}
+
+// Fetch user stats
+export function useUserStats() {
+  return useQuery({
+    queryKey: ['user-stats'],
+    queryFn: async (): Promise<UserStats> => {
+      const res = await fetch('/api/user/stats')
+      if (!res.ok) throw new Error('Failed to fetch user stats')
+      return res.json()
+    },
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  })
+}
+
+// Daily quiz check interface
+interface DailyQuizCheck {
+  canTake: boolean
+  quizId?: string
+  nextResetTime?: string
+  message: string
+}
+
+// Check daily quiz eligibility
+export function useDailyQuizCheck() {
+  return useQuery({
+    queryKey: ['daily-quiz-check'],
+    queryFn: async (): Promise<DailyQuizCheck> => {
+      const res = await fetch('/api/daily-quiz/check')
+      if (!res.ok) throw new Error('Failed to check daily quiz')
+      return res.json()
+    },
+    staleTime: 1 * 60 * 1000, // 1 minute
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+  })
+}
