@@ -1,0 +1,130 @@
+// Quiz App Database Schema
+// Based on docs/SCHEMA.md
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// QUIZ MODELS
+// ============================================
+
+model Quiz {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  type        QuizType    @default(NORMAL)
+  
+  // Timestamps
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  questions   Question[]
+  attempts    QuizAttempt[]
+  
+  @@index([type])
+  @@index([createdAt])
+}
+
+enum QuizType {
+  NORMAL  // Can be taken multiple times anytime
+  DAILY   // Can only be taken once per day (resets 8 AM Vietnam time)
+}
+
+// ============================================
+// QUESTION MODELS
+// ============================================
+
+model Question {
+  id        String   @id @default(cuid())
+  quizId    String
+  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  
+  // Question content
+  text      String   @db.Text
+  
+  // Options stored as separate fields (A, B, C, D)
+  optionA   String
+  optionB   String
+  optionC   String
+  optionD   String
+  
+  // Correct answer stored as 'A', 'B', 'C', or 'D'
+  correctAnswer String  // Type: 'A' | 'B' | 'C' | 'D'
+  
+  // Optional explanation shown after submission
+  explanation   String? @db.Text
+  
+  // Question order in the quiz
+  order     Int
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  
+  // Relations
+  answers   Answer[]
+  
+  @@index([quizId])
+  @@index([quizId, order])
+}
+
+// ============================================
+// ATTEMPT & ANSWER MODELS
+// ============================================
+
+model QuizAttempt {
+  id          String   @id @default(cuid())
+  
+  // Quiz reference
+  quizId      String
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  
+  // User info (from Supabase Auth)
+  userId      String   // Supabase auth.users.id (UUID)
+  userEmail   String   // Cached for display purposes
+  
+  // Attempt results
+  score       Int      // Number of correct answers
+  totalQuestions Int   // Total questions in quiz at time of attempt
+  
+  // Timestamps
+  completedAt DateTime @default(now())
+  
+  // Relations
+  answers     Answer[]
+  
+  @@index([userId])
+  @@index([quizId])
+  @@index([completedAt])
+  @@index([userId, quizId, completedAt]) // For daily quiz check
+  @@index([score]) // For leaderboard sorting
+}
+
+model Answer {
+  id         String      @id @default(cuid())
+  
+  // References
+  attemptId  String
+  attempt    QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  
+  questionId String
+  question   Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  // User's selected answer ('A', 'B', 'C', or 'D')
+  selectedAnswer String    // Type: 'A' | 'B' | 'C' | 'D'
+  
+  // Result
+  isCorrect  Boolean
+  
+  // Timestamp
+  answeredAt DateTime    @default(now())
+  
+  @@index([attemptId])
+  @@index([questionId])
+}
