@@ -1,23 +1,19 @@
 import { useQuery } from '@tanstack/react-query'
-import type { LeaderboardEntry, LeaderboardFilter } from '@/types'
-
-// Quiz with stats interface
-interface QuizWithStats {
-  id: string
-  title: string
-  description: string | null
-  type: 'NORMAL' | 'DAILY'
-  createdAt: Date
-  updatedAt: Date
-  questionCount: number
-  attemptCount: number
-}
+import type { 
+  LeaderboardEntry, 
+  LeaderboardFilter, 
+  Quiz, 
+  Question, 
+  UserStats, 
+  DailyQuizCheck,
+  QuizWithComputedStats
+} from '@/types'
 
 // Fetch all quizzes
 export function useQuizzes() {
   return useQuery({
     queryKey: ['quizzes'],
-    queryFn: async (): Promise<QuizWithStats[]> => {
+    queryFn: async (): Promise<QuizWithComputedStats[]> => {
       const res = await fetch('/api/quizzes')
       if (!res.ok) throw new Error('Failed to fetch quizzes')
       return res.json()
@@ -48,13 +44,6 @@ export function useRecentScores(limit: number = 5) {
   return useScoreboard('all-time', limit)
 }
 
-// User stats interface
-interface UserStats {
-  expPoints: number
-  ranking: number
-  totalUsers: number
-}
-
 // Fetch user stats
 export function useUserStats() {
   return useQuery({
@@ -66,14 +55,6 @@ export function useUserStats() {
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
   })
-}
-
-// Daily quiz check interface
-interface DailyQuizCheck {
-  canTake: boolean
-  quizId?: string
-  nextResetTime?: string
-  message: string
 }
 
 // Check daily quiz eligibility
@@ -92,22 +73,8 @@ export function useDailyQuizCheck() {
 }
 
 // Quiz with questions interface
-interface QuizWithQuestions {
-  id: string
-  title: string
-  description: string | null
-  type: 'NORMAL' | 'DAILY'
-  createdAt: Date
-  updatedAt: Date
-  questions: {
-    id: string
-    text: string
-    optionA: string
-    optionB: string
-    optionC: string
-    optionD: string
-    order: number
-  }[]
+interface QuizWithQuestions extends Quiz {
+  questions: Omit<Question, 'correctAnswer' | 'explanation' | 'createdAt' | 'quizId'>[]
 }
 
 // Fetch quiz with questions

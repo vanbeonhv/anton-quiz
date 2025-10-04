@@ -66,6 +66,12 @@ export interface QuizWithStats extends Quiz {
   }
 }
 
+// For API responses with computed stats
+export interface QuizWithComputedStats extends Quiz {
+  questionCount: number
+  attemptCount: number
+}
+
 export interface QuizAttemptWithDetails extends QuizAttempt {
   quiz: Quiz
   answers: AnswerWithQuestion[]
@@ -122,3 +128,20 @@ export interface LeaderboardEntry {
 }
 
 export type LeaderboardFilter = 'all-time' | 'this-week'
+
+// ============================================
+// API RESPONSE TYPES
+// ============================================
+
+export interface UserStats {
+  expPoints: number
+  ranking: number
+  totalUsers: number
+}
+
+export interface DailyQuizCheck {
+  canTake: boolean
+  quizId?: string
+  nextResetTime?: string
+  message: string
+}
