@@ -85,8 +85,9 @@ export function useDailyQuizCheck() {
       if (!res.ok) throw new Error('Failed to check daily quiz')
       return res.json()
     },
-    staleTime: 1 * 60 * 1000, // 1 minute
-    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes - longer to prevent duplicate calls
+    refetchInterval: false, // Disable auto refetch to prevent duplicate calls
+    refetchOnWindowFocus: false, // Disable refetch on window focus
   })
 }
 
