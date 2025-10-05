@@ -37,14 +37,27 @@ enum QuizType {
   DAILY   // Can only be taken once per day (resets 8 AM Vietnam time)
 }
 
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum AttemptSource {
+  INDIVIDUAL  // Answered as standalone question
+  DAILY_QUIZ  // Answered as part of daily quiz
+  NORMAL_QUIZ // Answered as part of normal quiz
+}
+
 // ============================================
 // QUESTION MODELS
 // ============================================
 
 model Question {
   id        String   @id @default(cuid())
-  quizId    String
-  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  number    Int      @default(autoincrement()) // For display as "#1", "#2", etc.
+  quizId    String?  // Make optional - questions can exist without quiz
+  quiz      Quiz?    @relation(fields: [quizId], references: [id], onDelete: Cascade)
   
   // Question content
   text      String   @db.Text
@@ -61,17 +74,138 @@ model Question {
   // Optional explanation shown after submission
   explanation   String? @db.Text
   
-  // Question order in the quiz
-  order     Int
+  // Question order in the quiz (keep for backward compatibility)
+  order     Int?
+  
+  // New fields
+  difficulty    Difficulty @default(MEDIUM)
+  isActive      Boolean    @default(true)
   
   // Timestamps
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   
   // Relations
-  answers   Answer[]
+  answers           Answer[]           // Keep for quiz attempts
+  tags              QuestionTag[]
+  questionAttempts  QuestionAttempt[]  // New for individual attempts
   
   @@index([quizId])
   @@index([quizId, order])
+  @@index([number])     // For sorting by question number
+  @@index([difficulty]) // For filtering by difficulty
+  @@index([isActive])   // For filtering active questions
+}
+
+// ============================================
+// TAG MODELS
+// ============================================
+
+model Tag {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  description String?
+  
+  // Timestamps
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  // Relations
+  questions   QuestionTag[]
+  
+  @@index([name])
+}
+
+model QuestionTag {
+  id         String   @id @default(cuid())
+  questionId String
+  tagId      String
+  
+  // Relations
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  createdAt  DateTime @default(now())
+  
+  @@unique([questionId, tagId])
+  @@index([questionId])
+  @@index([tagId])
+}
+
+// ============================================
+// INDIVIDUAL QUESTION ATTEMPT MODELS
+// ============================================
+
+model QuestionAttempt {
+  id             String        @id @default(cuid())
+  
+  // Question reference
+  questionId     String
+  question       Question      @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  // User info (from Supabase Auth)
+  userId         String        // Supabase auth.users.id (UUID)
+  userEmail      String        // Cached for display purposes
+  
+  // User's selected answer ('A', 'B', 'C', or 'D')
+  selectedAnswer String        // Type: 'A' | 'B' | 'C' | 'D'
+  
+  // Result
+  isCorrect      Boolean
+  
+  // Context of the attempt
+  source         AttemptSource @default(INDIVIDUAL)
+  
+  // Timestamps
+  answeredAt     DateTime      @default(now())
+  
+  @@index([userId])
+  @@index([questionId])
+  @@index([answeredAt])
+  @@index([userId, questionId]) // For checking if user already answered
+  @@index([source])             // For filtering by attempt source
+}
+
+// ============================================
+// USER STATISTICS MODELS
+// ============================================
+
+model UserStats {
+  id                    String   @id @default(cuid())
+  
+  // User info (from Supabase Auth)
+  userId                String   @unique // Supabase auth.users.id (UUID)
+  userEmail             String   // Cached for display purposes
+  
+  // Overall statistics
+  totalQuestionsAnswered Int     @default(0)
+  totalCorrectAnswers    Int     @default(0)
+  
+  // Difficulty-based statistics
+  easyQuestionsAnswered    Int   @default(0)
+  easyCorrectAnswers       Int   @default(0)
+  mediumQuestionsAnswered  Int   @default(0)
+  mediumCorrectAnswers     Int   @default(0)
+  hardQuestionsAnswered    Int   @default(0)
+  hardCorrectAnswers       Int   @default(0)
+  
+  // Quiz statistics
+  totalQuizzesTaken      Int     @default(0)
+  dailyQuizzesTaken      Int     @default(0)
+  
+  // Streaks
+  currentStreak          Int     @default(0)
+  longestStreak          Int     @default(0)
+  lastAnsweredDate       DateTime?
+  
+  // Timestamps
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([totalCorrectAnswers]) // For leaderboard sorting
+  @@index([currentStreak])       // For streak leaderboard
 }
 
 // ============================================
