@@ -5,6 +5,10 @@
 export type QuizType = 'NORMAL' | 'DAILY'
 export type OptionKey = 'A' | 'B' | 'C' | 'D'
 
+// NEW ENUMS for Enhanced Scoreboard System
+export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD'
+export type AttemptSource = 'INDIVIDUAL' | 'DAILY_QUIZ' | 'NORMAL_QUIZ'
+
 // ============================================
 // DATABASE MODELS
 // ============================================
@@ -20,7 +24,8 @@ export interface Quiz {
 
 export interface Question {
   id: string
-  quizId: string
+  number: number    // For display as "#1", "#2", etc.
+  quizId?: string   // Make optional - questions can exist without quiz
   text: string
   optionA: string
   optionB: string
@@ -28,8 +33,10 @@ export interface Question {
   optionD: string
   correctAnswer: OptionKey
   explanation: string | null
-  order: number
+  difficulty: Difficulty
+  isActive: boolean
   createdAt: Date
+  updatedAt: Date
 }
 
 export interface QuizAttempt {
@@ -49,6 +56,45 @@ export interface Answer {
   selectedAnswer: OptionKey
   isCorrect: boolean
   answeredAt: Date
+}
+
+// NEW DATABASE MODELS for Enhanced Scoreboard System
+export interface Tag {
+  id: string
+  name: string
+  description?: string
+  color?: string
+  createdAt: Date
+}
+
+export interface QuestionTag {
+  id: string
+  questionId: string
+  tagId: string
+}
+
+export interface QuestionAttempt {
+  id: string
+  questionId: string
+  userId: string
+  userEmail: string
+  selectedAnswer: OptionKey
+  isCorrect: boolean
+  source: AttemptSource
+  quizAttemptId?: string
+  answeredAt: Date
+}
+
+export interface UserStats {
+  id: string
+  userId: string
+  userEmail: string
+  totalDailyPoints: number
+  dailyQuizStreak: number
+  lastDailyQuizDate?: Date
+  totalQuestionsAnswered: number
+  totalCorrectAnswers: number
+  updatedAt: Date
 }
 
 // ============================================
@@ -81,6 +127,30 @@ export interface AnswerWithQuestion extends Answer {
   question: Question
 }
 
+// NEW EXTENDED TYPES for Enhanced Scoreboard System
+export interface QuestionWithTags extends Omit<Question, 'order'> {
+  tags: Tag[]
+  userAttempt?: QuestionAttempt // If user has attempted this question
+}
+
+export interface TagWithStats extends Tag {
+  questionCount: number // Computed field
+}
+
+export interface UserStatsWithComputed extends UserStats {
+  accuracyPercentage: number // Computed field
+  tagStats: TagStats[] // Computed field
+}
+
+export interface TagStats {
+  tagId: string
+  tagName: string
+  totalQuestions: number
+  answeredQuestions: number
+  correctAnswers: number
+  accuracyPercentage: number
+}
+
 // ============================================
 // FORM DATA TYPES
 // ============================================
@@ -111,6 +181,25 @@ export interface SubmitQuizData {
   }[]
 }
 
+// NEW FORM DATA TYPES for Enhanced Scoreboard System
+export interface CreateTagData {
+  name: string
+  description?: string
+  color?: string
+}
+
+export interface SubmitQuestionAttemptData {
+  questionId: string
+  selectedAnswer: OptionKey
+}
+
+export interface QuestionFilters {
+  tags: string[]
+  difficulty: Difficulty[]
+  status: 'all' | 'solved' | 'unsolved'
+  search?: string
+}
+
 // ============================================
 // LEADERBOARD TYPES
 // ============================================
@@ -129,11 +218,33 @@ export interface LeaderboardEntry {
 
 export type LeaderboardFilter = 'all-time' | 'this-week'
 
+// NEW LEADERBOARD TYPES for Enhanced Scoreboard System
+export interface DailyPointsLeaderboardEntry {
+  rank: number
+  userId: string
+  userEmail: string
+  totalDailyPoints: number
+  dailyQuizStreak: number
+  updatedAt: Date
+}
+
+export interface QuestionsSolvedLeaderboardEntry {
+  rank: number
+  userId: string
+  userEmail: string
+  totalCorrectAnswers: number
+  totalQuestionsAnswered: number
+  accuracyPercentage: number
+  updatedAt: Date
+}
+
+export type ScoreboardType = 'daily-points' | 'questions-solved'
+
 // ============================================
 // API RESPONSE TYPES
 // ============================================
 
-export interface UserStats {
+export interface LegacyUserStats {
   expPoints: number
   ranking: number
   totalUsers: number
