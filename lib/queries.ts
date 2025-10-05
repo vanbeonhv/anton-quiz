@@ -48,13 +48,9 @@ export function useRecentScores(limit: number = 5) {
 // Fetch user stats
 export function useUserStats() {
   const { isAuthenticated } = useAuth()
-
-  console.log('🎯 useUserStats hook called, isAuthenticated:', isAuthenticated)
-
   return useQuery({
     queryKey: ['user-stats'],
     queryFn: async (): Promise<UserStats> => {
-      console.log('🔥 useUserStats API call triggered at', new Date().toISOString())
       const res = await fetch('/api/user/stats')
       if (!res.ok) throw new Error('Failed to fetch user stats')
       return res.json()

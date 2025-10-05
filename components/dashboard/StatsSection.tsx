@@ -2,8 +2,9 @@ import { UserStatsCard } from './UserStatsCard'
 
 interface StatsSectionProps {
   data?: {
-    expPoints: number
-    ranking: number
+    // Temporary field for type fix. Need to update design later. 
+    totalDailyPoints: number
+    totalCorrectAnswers: number
   }
   isLoading: boolean
 }
@@ -37,8 +38,8 @@ export function StatsSection({ data, isLoading }: StatsSectionProps) {
   return (
     <section className="mb-8">
       <UserStatsCard
-        expPoints={data?.expPoints || 0}
-        ranking={data?.ranking || 0}
+        expPoints={data?.totalDailyPoints || 0}
+        ranking={data?.totalCorrectAnswers || 0}
       />
     </section>
   )

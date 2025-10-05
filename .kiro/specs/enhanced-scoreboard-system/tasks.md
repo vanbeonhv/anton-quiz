@@ -36,22 +36,22 @@
     - Create sample UserStats entries
     - _Requirements: 1.1, 2.1, 3.1_
 
-- [ ] 4. Individual Question System Backend
-  - [ ] 4.1 Create question browsing API
+- [x] 4. Individual Question System Backend
+  - [x] 4.1 Create question browsing API
     - Implement GET /api/questions with filtering by tags, difficulty, status
     - Add search functionality by question text
     - Include pagination and sorting options
     - Return questions with tags and user attempt status
     - _Requirements: 2.1, 2.2, 5.1, 5.2, 5.3_
 
-  - [ ] 4.2 Create individual question API
+  - [x] 4.2 Create individual question API
     - Implement GET /api/questions/[id] for single question display
     - Implement POST /api/questions/[id]/attempt for submitting answers
     - Handle answer validation and scoring
     - Update UserStats when question is answered
     - _Requirements: 2.2, 2.3, 2.4, 6.1, 6.2_
 
-  - [ ] 4.3 Create tag management API
+  - [x] 4.3 Create tag management API
     - Implement GET /api/tags for listing all tags
     - Implement GET /api/tags/[id]/questions for questions by tag
     - Add tag statistics (question count, user progress)

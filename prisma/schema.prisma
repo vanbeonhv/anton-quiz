@@ -1,6 +1,3 @@
-// Quiz App Database Schema
-// Based on docs/SCHEMA.md
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,31 +7,150 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============================================
-// QUIZ MODELS
-// ============================================
-
 model Quiz {
-  id          String      @id @default(cuid())
+  id          String        @id @default(cuid())
   title       String
   description String?
-  type        QuizType    @default(NORMAL)
-  
-  // Timestamps
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  
-  // Relations
+  type        QuizType      @default(NORMAL)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   questions   Question[]
   attempts    QuizAttempt[]
-  
+
   @@index([type])
   @@index([createdAt])
 }
 
+model Question {
+  id               String            @id @default(cuid())
+  quizId           String?
+  text             String
+  optionA          String
+  optionB          String
+  optionC          String
+  optionD          String
+  correctAnswer    String
+  explanation      String?
+  order            Int?
+  createdAt        DateTime          @default(now())
+  difficulty       Difficulty        @default(MEDIUM)
+  isActive         Boolean           @default(true)
+  number           Int               @default(autoincrement())
+  updatedAt        DateTime          @default(now()) @updatedAt
+  answers          Answer[]
+  quiz             Quiz?             @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  questionAttempts QuestionAttempt[]
+  tags             QuestionTag[]
+
+  @@index([quizId])
+  @@index([quizId, order])
+  @@index([number])
+  @@index([difficulty])
+  @@index([isActive])
+}
+
+model Tag {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  description String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  questions   QuestionTag[]
+
+  @@index([name])
+}
+
+model QuestionTag {
+  id         String   @id @default(cuid())
+  questionId String
+  tagId      String
+  createdAt  DateTime @default(now())
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, tagId])
+  @@index([questionId])
+  @@index([tagId])
+}
+
+model QuestionAttempt {
+  id             String        @id @default(cuid())
+  questionId     String
+  userId         String
+  userEmail      String
+  selectedAnswer String
+  isCorrect      Boolean
+  source         AttemptSource @default(INDIVIDUAL)
+  answeredAt     DateTime      @default(now())
+  question       Question      @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([questionId])
+  @@index([answeredAt])
+  @@index([userId, questionId])
+  @@index([source])
+}
+
+model UserStats {
+  id                      String    @id @default(cuid())
+  userId                  String    @unique
+  userEmail               String
+  totalQuestionsAnswered  Int       @default(0)
+  totalCorrectAnswers     Int       @default(0)
+  easyQuestionsAnswered   Int       @default(0)
+  easyCorrectAnswers      Int       @default(0)
+  mediumQuestionsAnswered Int       @default(0)
+  mediumCorrectAnswers    Int       @default(0)
+  hardQuestionsAnswered   Int       @default(0)
+  hardCorrectAnswers      Int       @default(0)
+  totalQuizzesTaken       Int       @default(0)
+  dailyQuizzesTaken       Int       @default(0)
+  currentStreak           Int       @default(0)
+  longestStreak           Int       @default(0)
+  lastAnsweredDate        DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([totalCorrectAnswers])
+  @@index([currentStreak])
+}
+
+model QuizAttempt {
+  id             String   @id @default(cuid())
+  quizId         String
+  userId         String
+  userEmail      String
+  score          Int
+  totalQuestions Int
+  completedAt    DateTime @default(now())
+  answers        Answer[]
+  quiz           Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([quizId])
+  @@index([completedAt])
+  @@index([userId, quizId, completedAt])
+  @@index([score])
+}
+
+model Answer {
+  id             String      @id @default(cuid())
+  attemptId      String
+  questionId     String
+  selectedAnswer String
+  isCorrect      Boolean
+  answeredAt     DateTime    @default(now())
+  attempt        QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question       Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId])
+  @@index([questionId])
+}
+
 enum QuizType {
-  NORMAL  // Can be taken multiple times anytime
-  DAILY   // Can only be taken once per day (resets 8 AM Vietnam time)
+  NORMAL
+  DAILY
 }
 
 enum Difficulty {
@@ -44,221 +160,7 @@ enum Difficulty {
 }
 
 enum AttemptSource {
-  INDIVIDUAL  // Answered as standalone question
-  DAILY_QUIZ  // Answered as part of daily quiz
-  NORMAL_QUIZ // Answered as part of normal quiz
-}
-
-// ============================================
-// QUESTION MODELS
-// ============================================
-
-model Question {
-  id        String   @id @default(cuid())
-  number    Int      @default(autoincrement()) // For display as "#1", "#2", etc.
-  quizId    String?  // Make optional - questions can exist without quiz
-  quiz      Quiz?    @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  
-  // Question content
-  text      String   @db.Text
-  
-  // Options stored as separate fields (A, B, C, D)
-  optionA   String
-  optionB   String
-  optionC   String
-  optionD   String
-  
-  // Correct answer stored as 'A', 'B', 'C', or 'D'
-  correctAnswer String  // Type: 'A' | 'B' | 'C' | 'D'
-  
-  // Optional explanation shown after submission
-  explanation   String? @db.Text
-  
-  // Question order in the quiz (keep for backward compatibility)
-  order     Int?
-  
-  // New fields
-  difficulty    Difficulty @default(MEDIUM)
-  isActive      Boolean    @default(true)
-  
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-  
-  // Relations
-  answers           Answer[]           // Keep for quiz attempts
-  tags              QuestionTag[]
-  questionAttempts  QuestionAttempt[]  // New for individual attempts
-  
-  @@index([quizId])
-  @@index([quizId, order])
-  @@index([number])     // For sorting by question number
-  @@index([difficulty]) // For filtering by difficulty
-  @@index([isActive])   // For filtering active questions
-}
-
-// ============================================
-// TAG MODELS
-// ============================================
-
-model Tag {
-  id          String        @id @default(cuid())
-  name        String        @unique
-  description String?
-  
-  // Timestamps
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  
-  // Relations
-  questions   QuestionTag[]
-  
-  @@index([name])
-}
-
-model QuestionTag {
-  id         String   @id @default(cuid())
-  questionId String
-  tagId      String
-  
-  // Relations
-  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  
-  // Timestamps
-  createdAt  DateTime @default(now())
-  
-  @@unique([questionId, tagId])
-  @@index([questionId])
-  @@index([tagId])
-}
-
-// ============================================
-// INDIVIDUAL QUESTION ATTEMPT MODELS
-// ============================================
-
-model QuestionAttempt {
-  id             String        @id @default(cuid())
-  
-  // Question reference
-  questionId     String
-  question       Question      @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  
-  // User info (from Supabase Auth)
-  userId         String        // Supabase auth.users.id (UUID)
-  userEmail      String        // Cached for display purposes
-  
-  // User's selected answer ('A', 'B', 'C', or 'D')
-  selectedAnswer String        // Type: 'A' | 'B' | 'C' | 'D'
-  
-  // Result
-  isCorrect      Boolean
-  
-  // Context of the attempt
-  source         AttemptSource @default(INDIVIDUAL)
-  
-  // Timestamps
-  answeredAt     DateTime      @default(now())
-  
-  @@index([userId])
-  @@index([questionId])
-  @@index([answeredAt])
-  @@index([userId, questionId]) // For checking if user already answered
-  @@index([source])             // For filtering by attempt source
-}
-
-// ============================================
-// USER STATISTICS MODELS
-// ============================================
-
-model UserStats {
-  id                    String   @id @default(cuid())
-  
-  // User info (from Supabase Auth)
-  userId                String   @unique // Supabase auth.users.id (UUID)
-  userEmail             String   // Cached for display purposes
-  
-  // Overall statistics
-  totalQuestionsAnswered Int     @default(0)
-  totalCorrectAnswers    Int     @default(0)
-  
-  // Difficulty-based statistics
-  easyQuestionsAnswered    Int   @default(0)
-  easyCorrectAnswers       Int   @default(0)
-  mediumQuestionsAnswered  Int   @default(0)
-  mediumCorrectAnswers     Int   @default(0)
-  hardQuestionsAnswered    Int   @default(0)
-  hardCorrectAnswers       Int   @default(0)
-  
-  // Quiz statistics
-  totalQuizzesTaken      Int     @default(0)
-  dailyQuizzesTaken      Int     @default(0)
-  
-  // Streaks
-  currentStreak          Int     @default(0)
-  longestStreak          Int     @default(0)
-  lastAnsweredDate       DateTime?
-  
-  // Timestamps
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
-  
-  @@index([userId])
-  @@index([totalCorrectAnswers]) // For leaderboard sorting
-  @@index([currentStreak])       // For streak leaderboard
-}
-
-// ============================================
-// ATTEMPT & ANSWER MODELS
-// ============================================
-
-model QuizAttempt {
-  id          String   @id @default(cuid())
-  
-  // Quiz reference
-  quizId      String
-  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  
-  // User info (from Supabase Auth)
-  userId      String   // Supabase auth.users.id (UUID)
-  userEmail   String   // Cached for display purposes
-  
-  // Attempt results
-  score       Int      // Number of correct answers
-  totalQuestions Int   // Total questions in quiz at time of attempt
-  
-  // Timestamps
-  completedAt DateTime @default(now())
-  
-  // Relations
-  answers     Answer[]
-  
-  @@index([userId])
-  @@index([quizId])
-  @@index([completedAt])
-  @@index([userId, quizId, completedAt]) // For daily quiz check
-  @@index([score]) // For leaderboard sorting
-}
-
-model Answer {
-  id         String      @id @default(cuid())
-  
-  // References
-  attemptId  String
-  attempt    QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-  
-  questionId String
-  question   Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  
-  // User's selected answer ('A', 'B', 'C', or 'D')
-  selectedAnswer String    // Type: 'A' | 'B' | 'C' | 'D'
-  
-  // Result
-  isCorrect  Boolean
-  
-  // Timestamp
-  answeredAt DateTime    @default(now())
-  
-  @@index([attemptId])
-  @@index([questionId])
+  INDIVIDUAL
+  DAILY_QUIZ
+  NORMAL_QUIZ
 }
