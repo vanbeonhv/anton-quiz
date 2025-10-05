@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react'
 import { QuestionFilters, QuestionWithTags } from '@/types'
 import { QuestionsApiResponse, buildQuestionsQueryParams } from '@/types/api'
 import { Card, CardContent } from '@/components/ui/card'
-import { QuestionCard } from './QuestionCard'
+import { QuestionTable } from './QuestionTable'
 import { Pagination } from './Pagination'
 import { SortControls } from './SortControls'
-import { Loader2 } from 'lucide-react'
+
 
 interface QuestionGridProps {
   filters: QuestionFilters
@@ -97,40 +97,43 @@ export function QuestionGrid({ filters, onFiltersChange }: QuestionGridProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-primary-green mx-auto mb-4" />
-          <p className="text-text-muted">Loading questions...</p>
+      <div className="space-y-6">
+        {/* Controls bar skeleton */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-bg-white p-4 rounded-lg border border-bg-peach">
+          <div className="flex items-center gap-4">
+            <div className="w-24 h-4 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+          <div className="w-32 h-8 bg-gray-200 rounded animate-pulse"></div>
         </div>
+
+        {/* Question table loading */}
+        <QuestionTable 
+          questions={[]} 
+          isLoading={true}
+        />
       </div>
     )
   }
 
   if (error) {
     return (
-      <Card className="bg-bg-white border-bg-peach">
-        <CardContent className="p-6">
-          <div className="text-center text-red-600">
-            <p className="text-lg font-medium mb-2">Error Loading Questions</p>
-            <p className="text-sm">{error}</p>
+      <div className="space-y-6">
+        {/* Controls bar */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-bg-white p-4 rounded-lg border border-bg-peach">
+          <div className="flex items-center gap-4">
+            <p className="text-text-muted text-sm">Error loading questions</p>
           </div>
-        </CardContent>
-      </Card>
-    )
-  }
+        </div>
 
-  if (questions.length === 0 && pagination.total === 0) {
-    return (
-      <Card className="bg-bg-white border-bg-peach">
-        <CardContent className="p-6">
-          <div className="text-center text-text-muted">
-            <p className="text-lg font-medium mb-2">No Questions Found</p>
-            <p className="text-sm">
-              Try adjusting your filters or search terms to find questions.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+        <Card className="bg-bg-white border-bg-peach">
+          <CardContent className="p-6">
+            <div className="text-center text-red-600">
+              <p className="text-lg font-medium mb-2">Error Loading Questions</p>
+              <p className="text-sm">{error}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     )
   }
 
@@ -150,14 +153,11 @@ export function QuestionGrid({ filters, onFiltersChange }: QuestionGridProps) {
         />
       </div>
 
-      {/* Question grid */}
-      {questions.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {questions.map((question) => (
-            <QuestionCard key={question.id} question={question} />
-          ))}
-        </div>
-      )}
+      {/* Question table */}
+      <QuestionTable 
+        questions={questions} 
+        isLoading={false}
+      />
 
       {/* Pagination */}
       {pagination.totalPages > 0 && (

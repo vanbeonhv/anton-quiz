@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { CheckCircle } from 'lucide-react'
+import { CheckCircle, XCircle } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { QuestionWithTags, Difficulty } from '@/types'
@@ -49,6 +49,8 @@ export function QuestionCard({ question }: QuestionCardProps) {
   const remainingTagsCount = question.tags.length - 3
 
   const isSolved = question.userAttempt?.isCorrect === true
+  const isAttempted = question.userAttempt !== null && question.userAttempt !== undefined
+  const isAttemptedButNotSolved = isAttempted && !isSolved
 
   return (
     <Link href={`/questions/${question.id}`}>
@@ -70,6 +72,9 @@ export function QuestionCard({ question }: QuestionCardProps) {
             
             {isSolved && (
               <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+            )}
+            {isAttemptedButNotSolved && (
+              <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
             )}
           </div>
 
@@ -113,7 +118,7 @@ export function QuestionCard({ question }: QuestionCardProps) {
                   {isSolved ? 'Solved' : 'Attempted'}
                 </span>
                 <span className={`font-medium ${
-                  isSolved ? 'text-green-600' : 'text-red-600'
+                  isSolved ? 'text-green-600' : 'text-red-500'
                 }`}>
                   {isSolved ? '✓' : '✗'}
                 </span>

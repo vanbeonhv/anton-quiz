@@ -1,6 +1,8 @@
 export { QuestionBrowser } from './QuestionBrowser'
 export { QuestionGrid } from './QuestionGrid'
 export { QuestionCard } from './QuestionCard'
+export { QuestionTable } from './QuestionTable'
+export { QuestionRow } from './QuestionRow'
 export { FilterSidebar } from './FilterSidebar'
 export { Pagination } from './Pagination'
 export { SortControls } from './SortControls'

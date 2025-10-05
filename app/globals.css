@@ -76,3 +76,84 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Question Table Grid Layout */
+@layer components {
+  .question-table-grid {
+    display: grid;
+    grid-template-columns: 40px 80px 1fr 100px 120px 200px;
+    align-items: center;
+  }
+
+  /* Responsive breakpoints */
+  @media (max-width: 1023px) {
+    .question-table-grid {
+      grid-template-columns: 40px 80px 1fr 100px 200px;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .question-table-grid {
+      grid-template-columns: 40px 1fr;
+      grid-template-rows: auto;
+      gap: 0;
+    }
+    
+    /* Mobile stacked layout */
+    .question-table-grid .mobile-stacked-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 44px; /* Ensure consistent height */
+      justify-content: center;
+    }
+    
+    .question-table-grid .mobile-row-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .question-table-grid .mobile-row-bottom {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+    
+    .question-table-grid .mobile-question-number {
+      font-weight: 600;
+      color: #374151;
+      flex-shrink: 0;
+    }
+    
+    .question-table-grid .mobile-question-title {
+      flex: 1;
+      min-width: 0;
+      color: #111827;
+    }
+    
+    .question-table-grid .mobile-difficulty {
+      flex-shrink: 0;
+    }
+    
+    /* Hide desktop columns on mobile */
+    .question-table-grid > div:nth-child(n+3) {
+      display: none;
+    }
+  }
+
+  /* Tag display enhancements for compact formatting */
+  .question-table-grid .tag-container {
+    max-height: 24px; /* Ensure tags don't exceed row height */
+    overflow: hidden;
+  }
+  
+  .question-table-grid .tag-badge {
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
