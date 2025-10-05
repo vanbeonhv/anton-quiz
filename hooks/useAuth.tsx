@@ -26,17 +26,22 @@ export function useAuth() {
 
     // Listen for auth state changes and update query cache
     useEffect(() => {
+        let lastUserId: string | null = null
+
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             (event, session) => {
+                const currentUserId = session?.user?.id || null
+
                 // Update the query cache with new user data
                 queryClient.setQueryData(['auth', 'user'], session?.user ?? null)
 
-                // Invalidate related queries when user changes
-                if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+                // Only invalidate queries when user actually changes (not just auth state refresh)
+                if (event === 'SIGNED_OUT' || (event === 'SIGNED_IN' && currentUserId !== lastUserId)) {
                     queryClient.invalidateQueries({
                         queryKey: ['user-stats'],
                         exact: false
                     })
+                    lastUserId = currentUserId
                 }
             }
         )
@@ -52,11 +57,13 @@ export function useAuth() {
         window.location.href = '/login'
     }
 
+    const isAuthenticated = !!user
+
     return {
         user,
         isLoading,
         error,
         logout,
-        isAuthenticated: !!user
+        isAuthenticated
     }
 }

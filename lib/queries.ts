@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/hooks/useAuth'
-import type { 
-  LeaderboardEntry, 
-  LeaderboardFilter, 
-  Quiz, 
-  Question, 
-  UserStats, 
+import type {
+  LeaderboardEntry,
+  LeaderboardFilter,
+  Quiz,
+  Question,
+  UserStats,
   DailyQuizCheck,
   QuizWithComputedStats
 } from '@/types'
@@ -48,16 +48,21 @@ export function useRecentScores(limit: number = 5) {
 // Fetch user stats
 export function useUserStats() {
   const { isAuthenticated } = useAuth()
-  
+
+  console.log('🎯 useUserStats hook called, isAuthenticated:', isAuthenticated)
+
   return useQuery({
     queryKey: ['user-stats'],
     queryFn: async (): Promise<UserStats> => {
+      console.log('🔥 useUserStats API call triggered at', new Date().toISOString())
       const res = await fetch('/api/user/stats')
       if (!res.ok) throw new Error('Failed to fetch user stats')
       return res.json()
     },
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    staleTime: 5 * 60 * 1000, // Increase to 5 minutes
     enabled: isAuthenticated, // Only fetch when user is authenticated
+    refetchOnWindowFocus: false, // Disable refetch on window focus
+    refetchOnMount: false, // Disable refetch on component mount
   })
 }
 
