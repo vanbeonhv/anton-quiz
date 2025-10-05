@@ -209,6 +209,9 @@ export interface QuestionFilters {
   difficulty: Difficulty[]
   status: 'all' | 'solved' | 'unsolved'
   search?: string
+  sortBy?: 'newest' | 'difficulty' | 'most-attempted' | 'number'
+  page?: number
+  pageSize?: number
 }
 
 // ============================================
@@ -296,4 +299,17 @@ export interface QuizResults {
   score: number
   totalQuestions: number
   answers: QuizResultAnswer[]
+}
+
+// Pagination response type
+export interface PaginatedResponse<T> {
+  data: T[]
+  pagination: {
+    page: number
+    pageSize: number
+    total: number
+    totalPages: number
+    hasNext: boolean
+    hasPrev: boolean
+  }
 }

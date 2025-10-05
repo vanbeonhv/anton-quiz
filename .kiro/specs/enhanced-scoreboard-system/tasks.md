@@ -91,22 +91,22 @@
     - Test that Recent Scores still displays correctly
     - _Requirements: 3.1, 3.2, 3.3_
 
-- [ ] 7. Question Browser Frontend
-  - [ ] 7.1 Create Questions page layout
+- [x] 7. Question Browser Frontend
+  - [x] 7.1 Create Questions page layout
     - Build main questions page with filter sidebar
     - Implement tag filter checkboxes and difficulty radio buttons
     - Add search bar for question text
     - Create solved/unsolved status toggle
     - _Requirements: 2.1, 5.1, 5.2, 5.3_
 
-  - [ ] 7.2 Create QuestionCard component
+  - [x] 7.2 Create QuestionCard component
     - Display question number "#123", preview text, difficulty badge
     - Show tag chips (max 3, "+X more" if needed)
     - Add solved checkmark icon for completed questions
     - Implement click navigation to individual question page
     - _Requirements: 2.1, 5.4_
 
-  - [ ] 7.3 Implement filtering and pagination
+  - [x] 7.3 Implement filtering and pagination
     - Connect filters to API calls with proper query parameters
     - Add pagination controls with page size options
     - Implement sort options: newest, difficulty, most attempted

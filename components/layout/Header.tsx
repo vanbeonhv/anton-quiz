@@ -51,6 +51,28 @@ export function Header() {
               </div>
             ) : user ? (
               <>
+                {/* Main Navigation Links */}
+                <div className="hidden md:flex items-center gap-1 mr-2">
+                  <Link
+                    href="/dashboard"
+                    className="px-3 py-2 rounded-lg text-text-primary hover:text-primary-green hover:bg-primary-green-light transition-all duration-200 font-medium"
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    href="/questions"
+                    className="px-3 py-2 rounded-lg text-text-primary hover:text-primary-green hover:bg-primary-green-light transition-all duration-200 font-medium"
+                  >
+                    Questions
+                  </Link>
+                  <Link
+                    href="/scoreboard"
+                    className="px-3 py-2 rounded-lg text-text-primary hover:text-primary-green hover:bg-primary-green-light transition-all duration-200 font-medium"
+                  >
+                    Scoreboard
+                  </Link>
+                </div>
+
                 {/* Admin Link (if admin) */}
                 {isAdmin(user.email || '') && (
                   <Link
