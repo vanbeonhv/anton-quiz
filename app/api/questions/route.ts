@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
-import { Difficulty } from '@/types'
+import { QuestionsApiResponse, parseQuestionsSearchParams } from '@/types/api'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,19 +15,21 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
-    
-    // Parse query parameters
-    const tags = searchParams.get('tags')?.split(',').filter(Boolean) || []
-    const difficulty = searchParams.get('difficulty')?.split(',').filter(Boolean) as Difficulty[] || []
-    const status = searchParams.get('status') || 'all' // 'all' | 'solved' | 'unsolved'
-    const search = searchParams.get('search') || ''
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '20')
-    const sortBy = searchParams.get('sortBy') || 'newest' // 'newest' | 'difficulty' | 'number'
-    const sortOrder = searchParams.get('sortOrder') || 'desc' // 'asc' | 'desc'
+
+    // Parse and validate query parameters
+    const {
+      tags,
+      difficulty,
+      status,
+      search,
+      page,
+      pageSize,
+      sortBy,
+      sortOrder
+    } = parseQuestionsSearchParams(searchParams)
 
     // Calculate pagination
-    const skip = (page - 1) * limit
+    const skip = (page - 1) * pageSize
 
     // Build where clause
     let whereClause: any = {
@@ -112,7 +114,7 @@ export async function GET(request: NextRequest) {
         },
         orderBy,
         skip,
-        take: limit
+        take: pageSize
       }),
       prisma.question.count({ where: whereClause })
     ])
@@ -138,21 +140,23 @@ export async function GET(request: NextRequest) {
     }))
 
     // Calculate pagination metadata
-    const totalPages = Math.ceil(totalCount / limit)
+    const totalPages = Math.ceil(totalCount / pageSize)
     const hasNextPage = page < totalPages
     const hasPrevPage = page > 1
 
-    return NextResponse.json({
+    const response: QuestionsApiResponse = {
       questions: transformedQuestions,
       pagination: {
         page,
-        limit,
+        pageSize,
         totalCount,
         totalPages,
         hasNextPage,
         hasPrevPage
       }
-    })
+    }
+
+    return NextResponse.json(response)
   } catch (error) {
     console.error('Failed to fetch questions:', error)
     return NextResponse.json(

@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { QuestionFilters, QuestionWithTags, PaginatedResponse } from '@/types'
+import { QuestionFilters, QuestionWithTags } from '@/types'
+import { QuestionsApiResponse, buildQuestionsQueryParams } from '@/types/api'
 import { Card, CardContent } from '@/components/ui/card'
 import { QuestionCard } from './QuestionCard'
 import { Pagination } from './Pagination'
@@ -33,39 +34,33 @@ export function QuestionGrid({ filters, onFiltersChange }: QuestionGridProps) {
       setError(null)
 
       try {
-        // Build query parameters
-        const params = new URLSearchParams()
-        
-        if (filters.tags.length > 0) {
-          params.append('tags', filters.tags.join(','))
-        }
-        
-        if (filters.difficulty.length > 0) {
-          params.append('difficulty', filters.difficulty.join(','))
-        }
-        
-        if (filters.status !== 'all') {
-          params.append('status', filters.status)
-        }
-        
-        if (filters.search && filters.search.trim()) {
-          params.append('search', filters.search.trim())
-        }
-
-        // Add pagination and sorting
-        params.append('page', (filters.page || 1).toString())
-        params.append('pageSize', (filters.pageSize || 12).toString())
-        params.append('sortBy', filters.sortBy || 'number')
+        // Build query parameters using type-safe utility
+        const params = buildQuestionsQueryParams({
+          tags: filters.tags.length > 0 ? filters.tags : undefined,
+          difficulty: filters.difficulty.length > 0 ? filters.difficulty : undefined,
+          status: filters.status,
+          search: filters.search,
+          page: filters.page || 1,
+          pageSize: filters.pageSize || 12,
+          sortBy: filters.sortBy || 'number'
+        })
 
         const response = await fetch(`/api/questions?${params.toString()}`)
-        
+
         if (!response.ok) {
           throw new Error('Failed to load questions')
         }
 
-        const data: PaginatedResponse<QuestionWithTags> = await response.json()
-        setQuestions(data.data || [])
-        setPagination(data.pagination)
+        const data: QuestionsApiResponse = await response.json()
+        setQuestions(data.questions || [])
+        setPagination({
+          page: data.pagination.page,
+          pageSize: data.pagination.pageSize,
+          total: data.pagination.totalCount,
+          totalPages: data.pagination.totalPages,
+          hasNext: data.pagination.hasNextPage,
+          hasPrev: data.pagination.hasPrevPage
+        })
       } catch (err) {
         console.error('Error loading questions:', err)
         setError('Failed to load questions. Please try again.')
@@ -148,10 +143,10 @@ export function QuestionGrid({ filters, onFiltersChange }: QuestionGridProps) {
             {pagination.total} question{pagination.total !== 1 ? 's' : ''} found
           </p>
         </div>
-        
-        <SortControls 
-          sortBy={filters.sortBy || 'number'} 
-          onSortChange={handleSortChange} 
+
+        <SortControls
+          sortBy={filters.sortBy || 'number'}
+          onSortChange={handleSortChange}
         />
       </div>
 
