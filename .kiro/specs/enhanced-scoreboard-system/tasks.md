@@ -78,14 +78,14 @@
     - Include recent activity timeline
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 6. Daily Quiz Integration
-  - [ ] 6.1 Update daily quiz submission logic
+- [x] 6. Daily Quiz Integration
+  - [x] 6.1 Update daily quiz submission logic
     - Modify quiz submission to create both QuizAttempt and QuestionAttempt records
     - Update UserStats when daily quiz is completed
     - Ensure daily quiz attempts count toward both metrics
     - _Requirements: 3.4, 4.2, 4.3, 4.4_
 
-  - [ ] 6.2 Maintain backward compatibility
+  - [x] 6.2 Maintain backward compatibility
     - Ensure existing quiz system continues to work
     - Keep existing API responses intact for dashboard
     - Test that Recent Scores still displays correctly
