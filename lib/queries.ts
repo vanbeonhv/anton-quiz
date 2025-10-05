@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useAuth } from '@/hooks/useAuth'
 import type { 
   LeaderboardEntry, 
   LeaderboardFilter, 
@@ -46,6 +47,8 @@ export function useRecentScores(limit: number = 5) {
 
 // Fetch user stats
 export function useUserStats() {
+  const { isAuthenticated } = useAuth()
+  
   return useQuery({
     queryKey: ['user-stats'],
     queryFn: async (): Promise<UserStats> => {
@@ -54,6 +57,7 @@ export function useUserStats() {
       return res.json()
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
+    enabled: isAuthenticated, // Only fetch when user is authenticated
   })
 }
 
