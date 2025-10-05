@@ -1,10 +1,11 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useQuizzes, useRecentScores, useUserStats, useDailyQuizCheck } from '@/lib/queries'
+import { useQuizzes, useRecentScores, useUserStats, useDailyQuizCheck, useRandomQuestions } from '@/lib/queries'
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader'
 import { StatsSection } from '@/components/dashboard/StatsSection'
 import { PracticeSection } from '@/components/dashboard/PracticeSection'
+import { QuickPracticeSection } from '@/components/dashboard/QuickPracticeSection'
 import { QuizTopicsSection } from '@/components/dashboard/QuizTopicsSection'
 import { RecentScoresSection } from '@/components/dashboard/RecentScoresSection'
 
@@ -14,6 +15,7 @@ export default function DashboardPage() {
   const { data: recentScores, isLoading: scoresLoading } = useRecentScores()
   const { data: userStats, isLoading: statsLoading } = useUserStats()
   const { data: dailyQuizCheck, isLoading: dailyLoading } = useDailyQuizCheck()
+  const { data: randomQuestions, isLoading: randomLoading, refetch: refetchRandomQuestions } = useRandomQuestions(4)
 
   const handleQuizClick = (quizId: string) => {
     router.push(`/quiz/${quizId}`)
@@ -41,6 +43,12 @@ export default function DashboardPage() {
           data={dailyQuizCheck}
           isLoading={dailyLoading}
           onDailyQuizClick={handleDailyQuizClick}
+        />
+
+        <QuickPracticeSection
+          data={randomQuestions}
+          isLoading={randomLoading}
+          onRefresh={() => refetchRandomQuestions()}
         />
 
         <QuizTopicsSection

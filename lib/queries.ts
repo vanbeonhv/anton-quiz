@@ -7,7 +7,10 @@ import type {
   Question,
   UserStats,
   DailyQuizCheck,
-  QuizWithComputedStats
+  QuizWithComputedStats,
+  DailyPointsLeaderboardEntry,
+  QuestionsSolvedLeaderboardEntry,
+  QuestionWithTags
 } from '@/types'
 
 // Fetch all quizzes
@@ -43,6 +46,42 @@ export function useScoreboard(filter: LeaderboardFilter = 'all-time', limit: num
 // Fetch recent scores for dashboard
 export function useRecentScores(limit: number = 5) {
   return useScoreboard('all-time', limit)
+}
+
+// Fetch daily points leaderboard
+export function useDailyPointsLeaderboard(filter: string = 'all-time', limit: number = 100) {
+  return useQuery({
+    queryKey: ['daily-points-leaderboard', filter, limit],
+    queryFn: async (): Promise<DailyPointsLeaderboardEntry[]> => {
+      const params = new URLSearchParams({
+        type: 'daily-points',
+        filter,
+        limit: limit.toString()
+      })
+      const res = await fetch(`/api/scoreboard?${params}`)
+      if (!res.ok) throw new Error('Failed to fetch daily points leaderboard')
+      return res.json()
+    },
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  })
+}
+
+// Fetch questions solved leaderboard
+export function useQuestionsSolvedLeaderboard(filter: string = 'all-time', limit: number = 100) {
+  return useQuery({
+    queryKey: ['questions-solved-leaderboard', filter, limit],
+    queryFn: async (): Promise<QuestionsSolvedLeaderboardEntry[]> => {
+      const params = new URLSearchParams({
+        type: 'questions-solved',
+        filter,
+        limit: limit.toString()
+      })
+      const res = await fetch(`/api/scoreboard?${params}`)
+      if (!res.ok) throw new Error('Failed to fetch questions solved leaderboard')
+      return res.json()
+    },
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  })
 }
 
 // Fetch user stats
@@ -105,5 +144,41 @@ export function useQuizEligibility(quizId: string) {
       return res.json()
     },
     staleTime: 1 * 60 * 1000, // 1 minute
+  })
+}
+
+// Fetch user profile statistics
+export function useUserProfileStats(userId?: string) {
+  return useQuery({
+    queryKey: ['user-profile-stats', userId],
+    queryFn: async () => {
+      if (!userId) throw new Error('User ID is required')
+      
+      const res = await fetch(`/api/user/${userId}/stats`)
+      if (!res.ok) throw new Error('Failed to fetch user profile statistics')
+      return res.json()
+    },
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  })
+}
+
+// Fetch random questions for quick practice
+export function useRandomQuestions(limit: number = 4) {
+  const { isAuthenticated } = useAuth()
+  return useQuery({
+    queryKey: ['random-questions', limit],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        limit: limit.toString(),
+        random: 'true'
+      })
+      const res = await fetch(`/api/questions?${params}`)
+      if (!res.ok) throw new Error('Failed to fetch random questions')
+      return res.json()
+    },
+    enabled: isAuthenticated,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchOnWindowFocus: false,
   })
 }

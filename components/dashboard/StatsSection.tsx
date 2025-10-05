@@ -35,9 +35,8 @@ export function StatsSection({ data, isLoading }: StatsSectionProps) {
   return (
     <section className="mb-8">
       <UserStatsCard
-        // Temporary field for type fix. Need to update design later. 
-        expPoints={data?.totalCorrectAnswers || 0}
-        ranking={data?.longestStreak || 0}
+        dailyPoints={data?.dailyQuizzesTaken || 0}
+        questionsSolved={data?.totalCorrectAnswers || 0}
       />
     </section>
   )

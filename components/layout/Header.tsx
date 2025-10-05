@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -10,14 +11,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { User, LogOut, Settings, ChevronDown } from 'lucide-react'
+import { User, LogOut, Settings, ChevronDown, Menu, X } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { isAdmin } from '@/lib/utils/admin'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 
 export function Header() {
   const { user, isLoading: loading, logout } = useAuth()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen)
+  }
 
   return (
     <header className="sticky top-0 z-50 bg-bg-white/95 backdrop-blur-sm border-b border-bg-peach shadow-sm">
@@ -51,7 +56,7 @@ export function Header() {
               </div>
             ) : user ? (
               <>
-                {/* Main Navigation Links */}
+                {/* Main Navigation Links - Desktop */}
                 <div className="hidden md:flex items-center gap-1 mr-2">
                   <Link
                     href="/dashboard"
@@ -72,6 +77,21 @@ export function Header() {
                     Scoreboard
                   </Link>
                 </div>
+
+                {/* Mobile Menu Button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="md:hidden p-2"
+                  onClick={toggleMobileMenu}
+                  aria-label="Toggle mobile menu"
+                >
+                  {isMobileMenuOpen ? (
+                    <X className="w-5 h-5" />
+                  ) : (
+                    <Menu className="w-5 h-5" />
+                  )}
+                </Button>
 
                 {/* Admin Link (if admin) */}
                 {isAdmin(user.email || '') && (
@@ -180,14 +200,53 @@ export function Header() {
           </nav>
         </div>
       </div>
+
+      {/* Mobile Navigation Menu */}
+      {user && isMobileMenuOpen && (
+        <div className="md:hidden bg-bg-white border-b border-bg-peach shadow-lg">
+          <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
+            <Link
+              href="/dashboard"
+              className="block px-3 py-2 rounded-lg text-text-primary hover:text-primary-green hover:bg-primary-green-light transition-all duration-200 font-medium"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Dashboard
+            </Link>
+            <Link
+              href="/questions"
+              className="block px-3 py-2 rounded-lg text-text-primary hover:text-primary-green hover:bg-primary-green-light transition-all duration-200 font-medium"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Questions
+            </Link>
+            <Link
+              href="/scoreboard"
+              className="block px-3 py-2 rounded-lg text-text-primary hover:text-primary-green hover:bg-primary-green-light transition-all duration-200 font-medium"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Scoreboard
+            </Link>
+            <Link
+              href="/profile"
+              className="block px-3 py-2 rounded-lg text-text-primary hover:text-primary-green hover:bg-primary-green-light transition-all duration-200 font-medium"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Profile & Stats
+            </Link>
+            {isAdmin(user.email || '') && (
+              <Link
+                href="/admin"
+                className="block px-3 py-2 rounded-lg text-primary-orange hover:text-primary-orange-dark hover:bg-primary-orange-light transition-all duration-200 font-medium"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Admin
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   )
-}
-
-// Helper function to check if user is admin
-function isAdmin(email: string): boolean {
-  const adminEmails = process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(',').map(e => e.trim()) || []
-  return adminEmails.includes(email)
 }
 
 // Get display name for user (handles both GitHub and email users)

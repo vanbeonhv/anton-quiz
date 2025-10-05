@@ -113,14 +113,14 @@
     - Add loading states and error handling
     - _Requirements: 5.1, 5.2, 5.3_
 
-- [ ] 8. Individual Question Page Frontend
-  - [ ] 8.1 Create question display layout
+- [-] 8. Individual Question Page Frontend
+  - [x] 8.1 Create question display layout
     - Build breadcrumb navigation: Questions > [Tag] > Question #123
     - Display question header with number, difficulty badge, and tags
     - Show question text in clean typography
     - _Requirements: 2.2, 2.4_
 
-  - [ ] 8.2 Implement answer submission
+  - [x] 8.2 Implement answer submission
     - Create four answer options (A, B, C, D) with radio button behavior
     - Add submit button (disabled until answer selected)
     - Handle answer submission to API
@@ -133,67 +133,67 @@
     - Show related questions section (same tags)
     - _Requirements: 2.4_
 
-- [ ] 9. Enhanced Scoreboard Frontend
-  - [ ] 9.1 Update scoreboard page layout
+- [x] 9. Enhanced Scoreboard Frontend
+  - [x] 9.1 Update scoreboard page layout
     - Add tab navigation: "Daily Points" | "Questions Solved"
     - Implement time filter buttons: "All Time" | "This Week" | "This Month"
     - Create responsive layout for both desktop and mobile
     - _Requirements: 3.1, 3.2_
 
-  - [ ] 9.2 Create dual leaderboard tables
+  - [x] 9.2 Create dual leaderboard tables
     - Build Daily Points leaderboard with columns: Rank, User, Daily Points, Current Streak, Last Active
     - Build Questions Solved leaderboard with columns: Rank, User, Questions Solved, Accuracy, Total Attempted
     - Highlight current user's row with different background
     - Add top 3 badges (🥇🥈🥉)
     - _Requirements: 3.1, 3.2, 3.3_
 
-  - [ ] 9.3 Maintain Recent Scores component
+  - [x] 9.3 Maintain Recent Scores component
     - Keep existing Recent Scores component for dashboard unchanged
     - Ensure it continues to show recent QuizAttempt entries
     - Test backward compatibility with existing dashboard
     - _Requirements: 3.1, 3.2_
 
-- [ ] 10. User Statistics Page Frontend
-  - [ ] 10.1 Create user profile page layout
+- [x] 10. User Statistics Page Frontend
+  - [x] 10.1 Create user profile page layout
     - Build header with user email and join date
     - Create stats overview cards grid (2x2): Daily Points, Questions Solved, Current Streak, Global Rank
     - Add trend arrows and icons for visual appeal
     - _Requirements: 6.1, 6.2, 6.3_
 
-  - [ ] 10.2 Implement progress by tag section
+  - [x] 10.2 Implement progress by tag section
     - Create horizontal bar chart showing progress per tag
     - Display solved/total questions for each tag
     - Add color coding by accuracy (green > 80%, yellow 60-80%, red < 60%)
     - _Requirements: 6.5_
 
-  - [ ] 10.3 Create recent activity timeline
+  - [x] 10.3 Create recent activity timeline
     - Display list of recent question attempts and quiz completions
     - Show date, question/quiz name, result (correct/incorrect)
     - Limit to last 20 activities with pagination
     - Add placeholder achievement section for future enhancements
     - _Requirements: 6.4_
 
-- [ ] 11. Navigation and Integration
-  - [ ] 11.1 Update header navigation
+- [x] 11. Navigation and Integration
+  - [x] 11.1 Update header navigation
     - Add new "Questions" menu item in header
     - Update existing navigation to include user stats page
     - Ensure responsive navigation works on mobile
     - _Requirements: 2.1, 6.1_
 
-  - [ ] 11.2 Update dashboard integration
+  - [x] 11.2 Update dashboard integration
     - Add "Quick Practice" section with random questions by tag
     - Include user stats summary card showing daily points and questions solved
     - Keep existing quiz cards and Recent Scores sections
     - _Requirements: 2.1, 6.1, 6.2_
 
-- [ ] 12. Admin Panel Updates
-  - [ ] 12.1 Create tag management interface
+- [x] 12. Admin Panel Updates
+  - [x] 12.1 Create tag management interface
     - Add tag creation, editing, and deletion functionality
     - Implement tag assignment to questions
     - Create bulk tag operations for existing questions
     - _Requirements: 1.1, 1.2, 1.3_
 
-  - [ ] 12.2 Update question management
+  - [x] 12.2 Update question management
     - Add difficulty level selection to question creation/editing
     - Implement tag assignment interface for questions
     - Add question number display and management

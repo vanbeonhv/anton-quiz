@@ -28,6 +28,10 @@ export async function GET(request: NextRequest) {
       sortOrder
     } = parseQuestionsSearchParams(searchParams)
 
+    // Check for random parameter
+    const isRandom = searchParams.get('random') === 'true'
+    const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : pageSize
+
     // Calculate pagination
     const skip = (page - 1) * pageSize
 
@@ -96,9 +100,12 @@ export async function GET(request: NextRequest) {
         break
     }
 
-    // Get questions with pagination
-    const [questions, totalCount] = await Promise.all([
-      prisma.question.findMany({
+    // Get questions with pagination or random selection
+    let questions, totalCount
+
+    if (isRandom) {
+      // For random questions, we'll get all matching questions and then sample randomly
+      const allQuestions = await prisma.question.findMany({
         where: whereClause,
         include: {
           tags: {
@@ -111,13 +118,37 @@ export async function GET(request: NextRequest) {
             orderBy: { answeredAt: 'desc' },
             take: 1
           }
-        },
-        orderBy,
-        skip,
-        take: pageSize
-      }),
-      prisma.question.count({ where: whereClause })
-    ])
+        }
+      })
+
+      // Shuffle and take the requested limit
+      const shuffled = allQuestions.sort(() => 0.5 - Math.random())
+      questions = shuffled.slice(0, limit)
+      totalCount = allQuestions.length
+    } else {
+      // Regular pagination
+      [questions, totalCount] = await Promise.all([
+        prisma.question.findMany({
+          where: whereClause,
+          include: {
+            tags: {
+              include: {
+                tag: true
+              }
+            },
+            questionAttempts: {
+              where: { userId: user.id },
+              orderBy: { answeredAt: 'desc' },
+              take: 1
+            }
+          },
+          orderBy,
+          skip,
+          take: pageSize
+        }),
+        prisma.question.count({ where: whereClause })
+      ])
+    }
 
     // Transform the data to match our interface
     const transformedQuestions = questions.map(question => ({
@@ -146,7 +177,14 @@ export async function GET(request: NextRequest) {
 
     const response: QuestionsApiResponse = {
       questions: transformedQuestions,
-      pagination: {
+      pagination: isRandom ? {
+        page: 1,
+        pageSize: transformedQuestions.length,
+        totalCount,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPrevPage: false
+      } : {
         page,
         pageSize,
         totalCount,

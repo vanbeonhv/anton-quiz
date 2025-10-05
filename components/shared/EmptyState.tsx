@@ -1,7 +1,8 @@
 import { Button } from '@/components/ui/button'
+import { LucideIcon } from 'lucide-react'
 
 interface EmptyStateProps {
-  icon?: string
+  icon?: string | LucideIcon
   title: string
   description: string
   actionLabel?: string
@@ -15,11 +16,26 @@ export function EmptyState({
   actionLabel,
   onAction
 }: EmptyStateProps) {
+  const renderIcon = () => {
+    if (typeof icon === 'string') {
+      return (
+        <div className="text-6xl mb-4" role="img" aria-label="Empty state icon">
+          {icon}
+        </div>
+      )
+    } else {
+      const IconComponent = icon
+      return (
+        <div className="mb-4">
+          <IconComponent className="w-16 h-16 mx-auto text-text-muted opacity-50" />
+        </div>
+      )
+    }
+  }
+
   return (
     <div className="text-center py-12 px-4">
-      <div className="text-6xl mb-4" role="img" aria-label="Empty state icon">
-        {icon}
-      </div>
+      {renderIcon()}
       <h3 className="text-xl font-semibold text-text-primary mb-2">
         {title}
       </h3>
