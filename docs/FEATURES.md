@@ -78,7 +78,7 @@ pnpm install lucide-react
 
 ### Test Criteria
 - [ ] `pnpm run dev` starts without errors
-- [ ] App displays at http://localhost:3000
+- [ ] App displays at http://localhost:4000
 - [ ] Tailwind CSS working
 - [ ] No TypeScript errors
 - [ ] Header component renders
