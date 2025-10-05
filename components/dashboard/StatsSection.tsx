@@ -1,11 +1,8 @@
+import { UserStats } from '@/types'
 import { UserStatsCard } from './UserStatsCard'
 
 interface StatsSectionProps {
-  data?: {
-    // Temporary field for type fix. Need to update design later. 
-    totalDailyPoints: number
-    totalCorrectAnswers: number
-  }
+  data?: UserStats,
   isLoading: boolean
 }
 
@@ -38,8 +35,9 @@ export function StatsSection({ data, isLoading }: StatsSectionProps) {
   return (
     <section className="mb-8">
       <UserStatsCard
-        expPoints={data?.totalDailyPoints || 0}
-        ranking={data?.totalCorrectAnswers || 0}
+        // Temporary field for type fix. Need to update design later. 
+        expPoints={data?.totalCorrectAnswers || 0}
+        ranking={data?.longestStreak || 0}
       />
     </section>
   )

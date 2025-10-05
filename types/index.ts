@@ -89,11 +89,20 @@ export interface UserStats {
   id: string
   userId: string
   userEmail: string
-  totalDailyPoints: number
-  dailyQuizStreak: number
-  lastDailyQuizDate?: Date
   totalQuestionsAnswered: number
   totalCorrectAnswers: number
+  easyQuestionsAnswered: number
+  easyCorrectAnswers: number
+  mediumQuestionsAnswered: number
+  mediumCorrectAnswers: number
+  hardQuestionsAnswered: number
+  hardCorrectAnswers: number
+  totalQuizzesTaken: number
+  dailyQuizzesTaken: number
+  currentStreak: number
+  longestStreak: number
+  lastAnsweredDate?: Date
+  createdAt: Date
   updatedAt: Date
 }
 
@@ -140,6 +149,8 @@ export interface TagWithStats extends Tag {
 export interface UserStatsWithComputed extends UserStats {
   accuracyPercentage: number // Computed field
   tagStats: TagStats[] // Computed field
+  totalDailyPoints: number // Mapped from dailyQuizzesTaken
+  dailyQuizStreak: number // Mapped from currentStreak
 }
 
 export interface TagStats {
@@ -223,8 +234,8 @@ export interface DailyPointsLeaderboardEntry {
   rank: number
   userId: string
   userEmail: string
-  totalDailyPoints: number
-  dailyQuizStreak: number
+  totalDailyPoints: number // Mapped from dailyQuizzesTaken
+  dailyQuizStreak: number // Mapped from currentStreak
   updatedAt: Date
 }
 

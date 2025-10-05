@@ -57,21 +57,21 @@
     - Add tag statistics (question count, user progress)
     - _Requirements: 1.1, 5.1, 5.2, 6.5_
 
-- [ ] 5. Enhanced Scoreboard Backend
-  - [ ] 5.1 Update existing scoreboard API
+- [x] 5. Enhanced Scoreboard Backend
+  - [x] 5.1 Update existing scoreboard API
     - Enhance GET /api/scoreboard to support new query parameters
     - Add type parameter: 'daily-points' | 'questions-solved' | 'recent'
     - Maintain backward compatibility for dashboard Recent Scores
     - _Requirements: 3.1, 3.2, 3.3_
 
-  - [ ] 5.2 Create new leaderboard endpoints
+  - [x] 5.2 Create new leaderboard endpoints
     - Implement GET /api/scoreboard/daily-points for daily quiz points leaderboard
     - Implement GET /api/scoreboard/questions-solved for questions solved leaderboard
     - Add time filtering: all-time, this-week, this-month
     - Include user ranking and statistics
     - _Requirements: 3.1, 3.2, 3.3_
 
-  - [ ] 5.3 Create user statistics API
+  - [x] 5.3 Create user statistics API
     - Implement GET /api/user/[id]/stats for user profile statistics
     - Include daily points, questions solved, accuracy, streak
     - Add progress by tag/topic breakdown
