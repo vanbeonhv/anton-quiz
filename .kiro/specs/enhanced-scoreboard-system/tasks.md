@@ -29,7 +29,7 @@
     - Calculate initial UserStats from existing QuizAttempt data
     - _Requirements: 1.1, 2.1, 3.1_
 
-  - [ ] 3.2 Update seed data
+  - [x] 3.2 Update seed data
     - Add sample tags to seed file
     - Link sample questions to tags
     - Add difficulty levels to sample questions
