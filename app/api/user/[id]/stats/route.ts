@@ -40,7 +40,7 @@ export async function GET(
       accuracyPercentage,
       tagStats,
       // Map actual fields to expected interface fields
-      totalDailyPoints: userStats.dailyQuizzesTaken,
+      totalDailyPoints: userStats.totalQuestionsAnswered,
       dailyQuizStreak: userStats.currentStreak
     }
 
@@ -120,49 +120,18 @@ async function getRecentActivity(userId: string, limit: number) {
     }
   })
 
-  // Get recent quiz attempts
-  const quizAttempts = await prisma.quizAttempt.findMany({
-    where: { userId },
-    take: limit,
-    orderBy: { completedAt: 'desc' },
-    include: {
-      quiz: {
-        select: {
-          id: true,
-          title: true,
-          type: true
-        }
-      }
+  // Map question attempts to activities
+  const activities = questionAttempts.map(attempt => ({
+    type: 'question' as const,
+    id: attempt.id,
+    date: attempt.answeredAt,
+    isCorrect: attempt.isCorrect,
+    question: {
+      id: attempt.question.id,
+      number: attempt.question.number,
+      text: attempt.question.text.substring(0, 100) + '...'
     }
-  })
-
-  // Combine and sort activities
-  const activities = [
-    ...questionAttempts.map(attempt => ({
-      type: 'question' as const,
-      id: attempt.id,
-      date: attempt.answeredAt,
-      isCorrect: attempt.isCorrect,
-      source: attempt.source,
-      question: {
-        id: attempt.question.id,
-        number: attempt.question.number,
-        text: attempt.question.text.substring(0, 100) + '...'
-      }
-    })),
-    ...quizAttempts.map(attempt => ({
-      type: 'quiz' as const,
-      id: attempt.id,
-      date: attempt.completedAt,
-      score: attempt.score,
-      totalQuestions: attempt.totalQuestions,
-      quiz: {
-        id: attempt.quiz.id,
-        title: attempt.quiz.title,
-        type: attempt.quiz.type
-      }
-    }))
-  ]
+  }))
 
   // Sort by date descending and take the most recent activities
   return activities

@@ -90,6 +90,8 @@ export interface TagWithStats extends Tag {
 export interface UserStatsWithComputed extends UserStats {
   accuracyPercentage: number // Computed field
   tagStats: TagStats[] // Computed field
+  totalDailyPoints: number // Mapped from totalQuestionsAnswered
+  dailyQuizStreak: number // Mapped from currentStreak
 }
 
 export interface TagStats {

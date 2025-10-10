@@ -13,7 +13,6 @@ interface UpdateQuestionData {
   correctAnswer?: OptionKey
   explanation?: string
   difficulty?: Difficulty
-  quizId?: string | null
   tagIds?: string[]
   isActive?: boolean
 }
@@ -39,12 +38,6 @@ export async function GET(
         tags: {
           include: {
             tag: true
-          }
-        },
-        quiz: {
-          select: {
-            id: true,
-            title: true
           }
         },
         _count: {
@@ -110,15 +103,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Difficulty must be EASY, MEDIUM, or HARD' }, { status: 400 })
     }
 
-    // Verify quiz exists if provided
-    if (body.quizId) {
-      const quiz = await prisma.quiz.findUnique({
-        where: { id: body.quizId }
-      })
-      if (!quiz) {
-        return NextResponse.json({ error: 'Quiz not found' }, { status: 404 })
-      }
-    }
+
 
     // Verify tags exist if provided
     if (body.tagIds && body.tagIds.length > 0) {
@@ -140,7 +125,6 @@ export async function PUT(
     if (body.correctAnswer !== undefined) updateData.correctAnswer = body.correctAnswer
     if (body.explanation !== undefined) updateData.explanation = body.explanation?.trim() || null
     if (body.difficulty !== undefined) updateData.difficulty = body.difficulty
-    if (body.quizId !== undefined) updateData.quizId = body.quizId
     if (body.isActive !== undefined) updateData.isActive = body.isActive
 
     // Update question
@@ -174,12 +158,6 @@ export async function PUT(
         tags: {
           include: {
             tag: true
-          }
-        },
-        quiz: {
-          select: {
-            id: true,
-            title: true
           }
         }
       }
@@ -221,8 +199,7 @@ export async function DELETE(
       include: {
         _count: {
           select: {
-            questionAttempts: true,
-            answers: true
+            questionAttempts: true
           }
         }
       }
@@ -233,7 +210,7 @@ export async function DELETE(
     }
 
     // Check if question has attempts (might want to prevent deletion)
-    const hasAttempts = existingQuestion._count.questionAttempts > 0 || existingQuestion._count.answers > 0
+    const hasAttempts = existingQuestion._count.questionAttempts > 0
     
     if (hasAttempts) {
       // Instead of deleting, mark as inactive

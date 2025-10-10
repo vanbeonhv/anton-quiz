@@ -30,7 +30,6 @@ interface CreateQuestionData {
   correctAnswer: OptionKey
   explanation: string
   difficulty: Difficulty
-  quizId?: string
   tagIds: string[]
 }
 
@@ -194,7 +193,6 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
       correctAnswer: question.correctAnswer || 'A',
       explanation: question.explanation || '',
       difficulty: question.difficulty,
-      quizId: question.quizId || undefined,
       tagIds: question.tags.map(tag => tag.id)
     })
     setIsEditDialogOpen(true)

@@ -82,7 +82,7 @@ export function QuestionGrid({ filters, onFiltersChange }: QuestionGridProps) {
           <CardContent className="p-6">
             <div className="text-center text-red-600">
               <p className="text-lg font-medium mb-2">Error Loading Questions</p>
-              <p className="text-sm">{error}</p>
+              <p className="text-sm">{error?.message || 'An unexpected error occurred'}</p>
             </div>
           </CardContent>
         </Card>
