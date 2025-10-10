@@ -48,10 +48,26 @@ export async function GET(request: NextRequest) {
 
     // Filter by tags
     if (tags.length > 0) {
-      whereClause.tags = {
-        some: {
-          tag: {
-            name: { in: tags }
+      // Check if tags are IDs (cuid format) or names
+      const areTagIds = tags.every(tag => tag.match(/^c[a-z0-9]{24}$/))
+
+      if (areTagIds) {
+        // Filter by tag IDs
+        whereClause.tags = {
+          some: {
+            tagId: { in: tags }
+          }
+        }
+      } else {
+        // Filter by tag names
+        whereClause.tags = {
+          some: {
+            tag: {
+              name: {
+                in: tags,
+                mode: 'insensitive'
+              }
+            }
           }
         }
       }
@@ -103,10 +119,10 @@ export async function GET(request: NextRequest) {
 
     // Get questions with pagination or random selection
     let questions, totalCount
-    
+
     if (isRandom) {
       // For random questions, we'll get all matching questions and then sample randomly
-      const allQuestions  = await prisma.question.findMany({
+      const allQuestions = await prisma.question.findMany({
         where: whereClause,
         include: {
           tags: {
@@ -127,6 +143,8 @@ export async function GET(request: NextRequest) {
       questions = shuffled.slice(0, limit)
       totalCount = allQuestions.length
     } else {
+
+
       // Regular pagination
       [questions, totalCount] = await Promise.all([
         prisma.question.findMany({
