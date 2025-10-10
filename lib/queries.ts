@@ -10,7 +10,8 @@ import type {
   QuizWithComputedStats,
   DailyPointsLeaderboardEntry,
   QuestionsSolvedLeaderboardEntry,
-  QuestionWithTags
+  QuestionWithTags,
+  Tag
 } from '@/types'
 import { QuestionsApiResponse } from '@/types/api'
 
@@ -180,6 +181,20 @@ export function useRandomQuestions(limit: number = 4) {
     },
     enabled: isAuthenticated,
     staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchOnWindowFocus: false,
+  })
+}
+
+// Fetch all tags
+export function useTags() {
+  return useQuery({
+    queryKey: ['tags'],
+    queryFn: async (): Promise<Tag[]> => {
+      const res = await fetch('/api/tags')
+      if (!res.ok) throw new Error('Failed to fetch tags')
+      return res.json()
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes - tags don't change often
     refetchOnWindowFocus: false,
   })
 }

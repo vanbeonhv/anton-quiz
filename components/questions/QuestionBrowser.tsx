@@ -1,14 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Search, Filter, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { QuestionFilters, Tag } from '@/types'
+import { QuestionFilters } from '@/types'
 import { QuestionGrid } from './QuestionGrid'
 import { FilterSidebar } from './FilterSidebar'
+import { useTags } from '@/lib/queries'
 
 interface QuestionBrowserProps {
   filters: QuestionFilters
@@ -17,27 +18,9 @@ interface QuestionBrowserProps {
 
 export function QuestionBrowser({ filters, onFilterChange }: QuestionBrowserProps) {
   const [showMobileFilters, setShowMobileFilters] = useState(false)
-  const [tags, setTags] = useState<Tag[]>([])
-  const [isLoadingTags, setIsLoadingTags] = useState(true)
 
-  // Load available tags
-  useEffect(() => {
-    const loadTags = async () => {
-      try {
-        const response = await fetch('/api/tags')
-        if (response.ok) {
-          const tagsData = await response.json()
-          setTags(tagsData)
-        }
-      } catch (error) {
-        console.error('Failed to load tags:', error)
-      } finally {
-        setIsLoadingTags(false)
-      }
-    }
-
-    loadTags()
-  }, [])
+  // Load available tags using React Query
+  const { data: tags = [], isLoading: isLoadingTags } = useTags()
 
   const handleSearchChange = (value: string) => {
     onFilterChange({
@@ -58,10 +41,10 @@ export function QuestionBrowser({ filters, onFilterChange }: QuestionBrowserProp
     })
   }
 
-  const hasActiveFilters = filters.tags.length > 0 || 
-                          filters.difficulty.length > 0 || 
-                          filters.status !== 'all' || 
-                          (filters.search && filters.search.length > 0)
+  const hasActiveFilters = filters.tags.length > 0 ||
+    filters.difficulty.length > 0 ||
+    filters.status !== 'all' ||
+    (filters.search && filters.search.length > 0)
 
   return (
     <div className="flex flex-col lg:flex-row gap-6">
@@ -81,7 +64,7 @@ export function QuestionBrowser({ filters, onFilterChange }: QuestionBrowserProp
               </Badge>
             )}
           </Button>
-          
+
           {hasActiveFilters && (
             <Button
               variant="ghost"
