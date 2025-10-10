@@ -13,35 +13,70 @@ export async function GET() {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
-        // Get user's total score (exp points)
-        const userAttempts = await prisma.quizAttempt.findMany({
-            where: { userId: user.id },
-            select: { score: true }
+        // Get or create user stats from the UserStats table
+        let userStats = await prisma.userStats.findUnique({
+            where: { userId: user.id }
         })
 
-        const expPoints = userAttempts.reduce((total: number, attempt) => total + attempt.score, 0)
-
-        // Get user's ranking
-        const allUsersScores = await prisma.quizAttempt.groupBy({
-            by: ['userId'],
-            _sum: {
-                score: true
-            },
-            orderBy: {
-                _sum: {
-                    score: 'desc'
+        // If no stats exist, create them by calculating from question attempts
+        if (!userStats) {
+            const questionAttempts = await prisma.questionAttempt.findMany({
+                where: { userId: user.id },
+                include: {
+                    question: {
+                        select: { difficulty: true }
+                    }
                 }
-            }
-        })
+            })
 
-        const userRank = allUsersScores.findIndex((userScore) => userScore.userId === user.id) + 1
-        const ranking = userRank === 0 ? allUsersScores.length + 1 : userRank
+            const totalQuestionsAnswered = questionAttempts.length
+            const totalCorrectAnswers = questionAttempts.filter(attempt => attempt.isCorrect).length
 
-        return NextResponse.json({
-            expPoints,
-            ranking,
-            totalUsers: allUsersScores.length
-        })
+            // Calculate difficulty-based stats
+            const easyAttempts = questionAttempts.filter(attempt => attempt.question.difficulty === 'EASY')
+            const mediumAttempts = questionAttempts.filter(attempt => attempt.question.difficulty === 'MEDIUM')
+            const hardAttempts = questionAttempts.filter(attempt => attempt.question.difficulty === 'HARD')
+
+            const easyQuestionsAnswered = easyAttempts.length
+            const easyCorrectAnswers = easyAttempts.filter(attempt => attempt.isCorrect).length
+            const mediumQuestionsAnswered = mediumAttempts.length
+            const mediumCorrectAnswers = mediumAttempts.filter(attempt => attempt.isCorrect).length
+            const hardQuestionsAnswered = hardAttempts.length
+            const hardCorrectAnswers = hardAttempts.filter(attempt => attempt.isCorrect).length
+
+            // Get quiz attempts for quiz-related stats
+            const quizAttempts = await prisma.quizAttempt.findMany({
+                where: { userId: user.id },
+                include: { quiz: true }
+            })
+
+            const totalQuizzesTaken = quizAttempts.length
+            const dailyQuizzesTaken = quizAttempts.filter(attempt => attempt.quiz.type === 'DAILY').length
+
+            // Create the user stats record
+            userStats = await prisma.userStats.create({
+                data: {
+                    userId: user.id,
+                    userEmail: user.email || '',
+                    totalQuestionsAnswered,
+                    totalCorrectAnswers,
+                    easyQuestionsAnswered,
+                    easyCorrectAnswers,
+                    mediumQuestionsAnswered,
+                    mediumCorrectAnswers,
+                    hardQuestionsAnswered,
+                    hardCorrectAnswers,
+                    totalQuizzesTaken,
+                    dailyQuizzesTaken,
+                    currentStreak: 0, // TODO: Calculate streak
+                    longestStreak: 0, // TODO: Calculate streak
+                    lastAnsweredDate: questionAttempts.length > 0 ?
+                        new Date(Math.max(...questionAttempts.map(a => a.answeredAt.getTime()))) : null
+                }
+            })
+        }
+
+        return NextResponse.json(userStats)
     } catch (error) {
         console.error('Failed to fetch user stats:', error)
         return NextResponse.json(

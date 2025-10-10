@@ -1,4 +1,4 @@
-import { Award, Target } from 'lucide-react'
+import { Zap, CheckCircle } from 'lucide-react'
 
 interface UserStatsCardProps {
     dailyPoints: number
@@ -12,7 +12,7 @@ export function UserStatsCard({ dailyPoints, questionsSolved }: UserStatsCardPro
                 {/* Daily Points */}
                 <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-primary-orange-light rounded-full flex items-center justify-center">
-                        <Award className="w-6 h-6 text-primary-orange" fill="currentColor" />
+                        <Zap className="w-6 h-6 text-primary-orange" />
                     </div>
                     <div>
                         <div className="text-2xl font-bold">
@@ -27,7 +27,7 @@ export function UserStatsCard({ dailyPoints, questionsSolved }: UserStatsCardPro
                 {/* Questions Solved */}
                 <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-primary-orange-light rounded-full flex items-center justify-center">
-                        <Target className="w-6 h-6 text-primary-orange" fill="currentColor" />
+                        <CheckCircle className="w-6 h-6 text-primary-orange" />
                     </div>
                     <div className="text-right">
                         <div className="text-2xl font-bold">
