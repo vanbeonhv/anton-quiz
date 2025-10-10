@@ -5,9 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Zap, ArrowRight, Shuffle } from 'lucide-react'
 import { QuestionWithTags, Difficulty } from '@/types'
+import { QuestionsApiResponse } from '@/types/api'
+import { Tag } from '@prisma/client'
 
 interface QuickPracticeSectionProps {
-  data?: QuestionWithTags[]
+  data?: QuestionsApiResponse
   isLoading: boolean
   onRefresh: () => void
 }
@@ -85,7 +87,7 @@ export function QuickPracticeSection({ data, isLoading, onRefresh }: QuickPracti
         </Button>
       </div>
 
-      {!data || data.length === 0 ? (
+      {!data || data.questions.length === 0 ? (
         <Card className="bg-bg-cream border-bg-peach">
           <CardContent className="p-8 text-center">
             <div className="text-text-muted mb-4">
@@ -103,7 +105,7 @@ export function QuickPracticeSection({ data, isLoading, onRefresh }: QuickPracti
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {data.slice(0, 4).map((question) => (
+          {data.questions.slice(0, 4).map((question) => (
             <Card
               key={question.id}
               className="bg-bg-white border-bg-peach hover:border-primary-green hover:shadow-md transition-all duration-200 cursor-pointer group"
@@ -128,7 +130,7 @@ export function QuickPracticeSection({ data, isLoading, onRefresh }: QuickPracti
                   {/* Tags */}
                   {question.tags && question.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1">
-                      {question.tags.slice(0, 3).map((tag) => (
+                      {question.tags.slice(0, 3).map((tag: Tag) => (
                         <Badge
                           key={tag.id}
                           variant="secondary"
@@ -162,7 +164,7 @@ export function QuickPracticeSection({ data, isLoading, onRefresh }: QuickPracti
         </div>
       )}
 
-      {data && data.length > 0 && (
+      {data && data.questions.length > 0 && (
         <div className="mt-4 text-center">
           <Button
             variant="outline"

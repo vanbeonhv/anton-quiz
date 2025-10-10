@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
 import { QuestionsApiResponse, parseQuestionsSearchParams } from '@/types/api'
+import { QuestionWithTags, Tag } from '@/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -102,10 +103,10 @@ export async function GET(request: NextRequest) {
 
     // Get questions with pagination or random selection
     let questions, totalCount
-
+    
     if (isRandom) {
       // For random questions, we'll get all matching questions and then sample randomly
-      const allQuestions = await prisma.question.findMany({
+      const allQuestions  = await prisma.question.findMany({
         where: whereClause,
         include: {
           tags: {
@@ -163,7 +164,7 @@ export async function GET(request: NextRequest) {
       isActive: question.isActive,
       createdAt: question.createdAt,
       updatedAt: question.updatedAt,
-      tags: question.tags.map(qt => qt.tag),
+      tags: question.tags.map(qt => qt.tag) as Tag[],
       userAttempt: question.questionAttempts[0] || null,
       // Add computed fields for UI
       isSolved: question.questionAttempts.length > 0 && question.questionAttempts[0].isCorrect,

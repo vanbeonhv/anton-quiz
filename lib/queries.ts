@@ -12,6 +12,7 @@ import type {
   QuestionsSolvedLeaderboardEntry,
   QuestionWithTags
 } from '@/types'
+import { QuestionsApiResponse } from '@/types/api'
 
 // Fetch all quizzes
 export function useQuizzes() {
@@ -153,7 +154,7 @@ export function useUserProfileStats(userId?: string) {
     queryKey: ['user-profile-stats', userId],
     queryFn: async () => {
       if (!userId) throw new Error('User ID is required')
-      
+
       const res = await fetch(`/api/user/${userId}/stats`)
       if (!res.ok) throw new Error('Failed to fetch user profile statistics')
       return res.json()
@@ -166,7 +167,7 @@ export function useUserProfileStats(userId?: string) {
 // Fetch random questions for quick practice
 export function useRandomQuestions(limit: number = 4) {
   const { isAuthenticated } = useAuth()
-  return useQuery({
+  return useQuery<QuestionsApiResponse>({
     queryKey: ['random-questions', limit],
     queryFn: async () => {
       const params = new URLSearchParams({
@@ -175,7 +176,7 @@ export function useRandomQuestions(limit: number = 4) {
       })
       const res = await fetch(`/api/questions?${params}`)
       if (!res.ok) throw new Error('Failed to fetch random questions')
-      return res.json()
+      return res.json();
     },
     enabled: isAuthenticated,
     staleTime: 2 * 60 * 1000, // 2 minutes

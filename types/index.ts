@@ -31,8 +31,8 @@ export interface Question {
   optionB: string
   optionC: string
   optionD: string
-  correctAnswer: OptionKey
-  explanation: string | null
+  correctAnswer?: OptionKey
+  explanation?: string
   difficulty: Difficulty
   isActive: boolean
   createdAt: Date
@@ -137,9 +137,11 @@ export interface AnswerWithQuestion extends Answer {
 }
 
 // NEW EXTENDED TYPES for Enhanced Scoreboard System
-export interface QuestionWithTags extends Omit<Question, 'order'> {
+export interface QuestionWithTags extends Question { 
   tags: Tag[]
-  userAttempt?: QuestionAttempt // If user has attempted this question
+  userAttempt?: QuestionAttempt, // If user has attempted this question
+  isSolved?: boolean,
+  hasAttempted?: boolean
 }
 
 export interface TagWithStats extends Tag {

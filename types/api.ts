@@ -1,4 +1,4 @@
-import { Difficulty } from './index'
+import { Difficulty, QuestionWithTags } from './index'
 
 // Common API response wrapper
 export interface ApiResponse<T = any> {
