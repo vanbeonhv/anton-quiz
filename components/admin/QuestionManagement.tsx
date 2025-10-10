@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Trash2, Edit, Plus, HelpCircle, Search } from 'lucide-react'
-import { QuestionWithTags, Tag, Difficulty, OptionKey, PaginatedResponse } from '@/types'
+import { QuestionWithTags, Tag, Difficulty, OptionKey } from '@/types'
+import { useAdminQuestions } from '@/lib/queries'
 import { toast } from 'sonner'
 import BulkTagAssignment from './BulkTagAssignment'
 
@@ -34,24 +35,39 @@ interface CreateQuestionData {
 }
 
 export default function QuestionManagement({ tags, onRefresh }: QuestionManagementProps) {
-  const [questions, setQuestions] = useState<QuestionWithTags[]>([])
-  const [loading, setLoading] = useState(true)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [editingQuestion, setEditingQuestion] = useState<QuestionWithTags | null>(null)
-  const [pagination, setPagination] = useState({
+  const [page, setPage] = useState(1)
+  const pageSize = 10
+
+  // Filters
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | 'all'>('all')
+  const [selectedTagId, setSelectedTagId] = useState('all')
+
+  // Fetch questions using React Query
+  const {
+    data: questionsData,
+    isLoading: loading,
+    refetch: refetchQuestions
+  } = useAdminQuestions({
+    page,
+    pageSize,
+    search: searchTerm || undefined,
+    difficulty: selectedDifficulty,
+    tagId: selectedTagId
+  })
+
+  const questions = questionsData?.data || []
+  const pagination = questionsData?.pagination || {
     page: 1,
     pageSize: 10,
     total: 0,
     totalPages: 0,
     hasNext: false,
     hasPrev: false
-  })
-
-  // Filters
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | 'all'>('all')
-  const [selectedTagId, setSelectedTagId] = useState('all')
+  }
 
   const [formData, setFormData] = useState<CreateQuestionData>({
     text: '',
@@ -64,37 +80,6 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
     difficulty: 'MEDIUM',
     tagIds: []
   })
-
-  useEffect(() => {
-    fetchQuestions()
-  }, [pagination.page, searchTerm, selectedDifficulty, selectedTagId])
-
-  const fetchQuestions = async () => {
-    try {
-      const params = new URLSearchParams({
-        page: pagination.page.toString(),
-        pageSize: pagination.pageSize.toString()
-      })
-
-      if (searchTerm) params.append('search', searchTerm)
-      if (selectedDifficulty && selectedDifficulty !== 'all') params.append('difficulty', selectedDifficulty)
-      if (selectedTagId && selectedTagId !== 'all') params.append('tagId', selectedTagId)
-
-      const response = await fetch(`/api/admin/questions?${params}`)
-      if (!response.ok) {
-        throw new Error('Failed to fetch questions')
-      }
-
-      const data: PaginatedResponse<QuestionWithTags> = await response.json()
-      setQuestions(data.data)
-      setPagination(data.pagination)
-    } catch (error) {
-      console.error('Error fetching questions:', error)
-      toast.error('Failed to fetch questions')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleCreateQuestion = async () => {
     if (!formData.text.trim() || !formData.optionA.trim() || !formData.optionB.trim() ||
@@ -120,7 +105,7 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
       toast.success('Question created successfully')
       setIsCreateDialogOpen(false)
       resetForm()
-      fetchQuestions()
+      refetchQuestions()
       onRefresh?.()
     } catch (error) {
       console.error('Error creating question:', error)
@@ -149,7 +134,7 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
       setIsEditDialogOpen(false)
       setEditingQuestion(null)
       resetForm()
-      fetchQuestions()
+      refetchQuestions()
       onRefresh?.()
     } catch (error) {
       console.error('Error updating question:', error)
@@ -174,7 +159,7 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
 
       const result = await response.json()
       toast.success(result.message || 'Question deleted successfully')
-      fetchQuestions()
+      refetchQuestions()
       onRefresh?.()
     } catch (error) {
       console.error('Error deleting question:', error)
@@ -259,7 +244,7 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
               tags={tags}
               questions={questions}
               onComplete={() => {
-                fetchQuestions()
+                refetchQuestions()
                 onRefresh?.()
               }}
             />
@@ -395,7 +380,7 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })}
+                  onClick={() => setPage(page - 1)}
                   disabled={!pagination.hasPrev}
                 >
                   Previous
@@ -403,7 +388,7 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
+                  onClick={() => setPage(page + 1)}
                   disabled={!pagination.hasNext}
                 >
                   Next

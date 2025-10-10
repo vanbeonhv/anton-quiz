@@ -4,7 +4,10 @@ import type {
   UserStats,
   QuestionsSolvedLeaderboardEntry,
   Tag,
-  TagWithStats
+  TagWithStats,
+  QuestionWithTags,
+  PaginatedResponse,
+  Difficulty
 } from '@/types'
 import { QuestionsApiResponse } from '@/types/api'
 
@@ -120,6 +123,35 @@ export function useTagsWithStats() {
       return res.json()
     },
     staleTime: 5 * 60 * 1000, // 5 minutes - admin data might change more frequently
+    refetchOnWindowFocus: false,
+  })
+}
+
+// Fetch admin questions with filters and pagination
+export function useAdminQuestions(filters: {
+  page: number
+  pageSize: number
+  search?: string
+  difficulty?: Difficulty | 'all'
+  tagId?: string
+}) {
+  return useQuery({
+    queryKey: ['admin-questions', filters],
+    queryFn: async (): Promise<PaginatedResponse<QuestionWithTags>> => {
+      const params = new URLSearchParams({
+        page: filters.page.toString(),
+        pageSize: filters.pageSize.toString()
+      })
+
+      if (filters.search) params.append('search', filters.search)
+      if (filters.difficulty && filters.difficulty !== 'all') params.append('difficulty', filters.difficulty)
+      if (filters.tagId && filters.tagId !== 'all') params.append('tagId', filters.tagId)
+
+      const res = await fetch(`/api/admin/questions?${params}`)
+      if (!res.ok) throw new Error('Failed to fetch questions')
+      return res.json()
+    },
+    staleTime: 2 * 60 * 1000, // 2 minutes
     refetchOnWindowFocus: false,
   })
 }
