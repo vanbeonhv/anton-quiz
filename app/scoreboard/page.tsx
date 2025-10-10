@@ -1,16 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { ScoreboardTabs } from '@/components/scoreboard/ScoreboardTabs'
 import { TimeFilter } from '@/components/scoreboard/TimeFilter'
-import { DailyPointsLeaderboard } from '@/components/scoreboard/DailyPointsLeaderboard'
 import { QuestionsSolvedLeaderboard } from '@/components/scoreboard/QuestionsSolvedLeaderboard'
-import type { ScoreboardType } from '@/types'
 
 type TimeFilterType = 'all-time' | 'this-week' | 'this-month'
 
 export default function ScoreboardPage() {
-  const [activeTab, setActiveTab] = useState<ScoreboardType>('daily-points')
   const [timeFilter, setTimeFilter] = useState<TimeFilterType>('all-time')
 
   return (
@@ -25,14 +21,6 @@ export default function ScoreboardPage() {
           </p>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="mb-6">
-          <ScoreboardTabs 
-            activeTab={activeTab} 
-            onTabChange={setActiveTab} 
-          />
-        </div>
-
         {/* Time Filter */}
         <div className="mb-8">
           <TimeFilter 
@@ -43,11 +31,7 @@ export default function ScoreboardPage() {
 
         {/* Leaderboard Content */}
         <div className="space-y-6">
-          {activeTab === 'daily-points' ? (
-            <DailyPointsLeaderboard timeFilter={timeFilter} />
-          ) : (
-            <QuestionsSolvedLeaderboard timeFilter={timeFilter} />
-          )}
+          <QuestionsSolvedLeaderboard timeFilter={timeFilter} />
         </div>
       </div>
     </div>

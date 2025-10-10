@@ -81,7 +81,7 @@ export default function AdminPage() {
             Admin Panel
           </h1>
           <p className="text-text-secondary">
-            Manage tags and questions for the quiz system
+            Manage tags and questions for the practice system
           </p>
         </div>
 

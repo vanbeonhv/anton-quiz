@@ -7,23 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Quiz {
-  id          String        @id @default(cuid())
-  title       String
-  description String?
-  type        QuizType      @default(NORMAL)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  questions   Question[]
-  attempts    QuizAttempt[]
-
-  @@index([type])
-  @@index([createdAt])
-}
-
 model Question {
   id               String            @id @default(cuid())
-  quizId           String?
   text             String
   optionA          String
   optionB          String
@@ -31,19 +16,14 @@ model Question {
   optionD          String
   correctAnswer    String
   explanation      String?
-  order            Int?
   createdAt        DateTime          @default(now())
   difficulty       Difficulty        @default(MEDIUM)
   isActive         Boolean           @default(true)
   number           Int               @default(autoincrement())
   updatedAt        DateTime          @default(now()) @updatedAt
-  answers          Answer[]
-  quiz             Quiz?             @relation(fields: [quizId], references: [id], onDelete: Cascade)
   questionAttempts QuestionAttempt[]
   tags             QuestionTag[]
 
-  @@index([quizId])
-  @@index([quizId, order])
   @@index([number])
   @@index([difficulty])
   @@index([isActive])
@@ -74,21 +54,19 @@ model QuestionTag {
 }
 
 model QuestionAttempt {
-  id             String        @id @default(cuid())
+  id             String   @id @default(cuid())
   questionId     String
   userId         String
   userEmail      String
   selectedAnswer String
   isCorrect      Boolean
-  source         AttemptSource @default(INDIVIDUAL)
-  answeredAt     DateTime      @default(now())
-  question       Question      @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answeredAt     DateTime @default(now())
+  question       Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([questionId])
   @@index([answeredAt])
   @@index([userId, questionId])
-  @@index([source])
 }
 
 model UserStats {
@@ -103,8 +81,6 @@ model UserStats {
   mediumCorrectAnswers    Int       @default(0)
   hardQuestionsAnswered   Int       @default(0)
   hardCorrectAnswers      Int       @default(0)
-  totalQuizzesTaken       Int       @default(0)
-  dailyQuizzesTaken       Int       @default(0)
   currentStreak           Int       @default(0)
   longestStreak           Int       @default(0)
   lastAnsweredDate        DateTime?
@@ -116,51 +92,8 @@ model UserStats {
   @@index([currentStreak])
 }
 
-model QuizAttempt {
-  id             String   @id @default(cuid())
-  quizId         String
-  userId         String
-  userEmail      String
-  score          Int
-  totalQuestions Int
-  completedAt    DateTime @default(now())
-  answers        Answer[]
-  quiz           Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([quizId])
-  @@index([completedAt])
-  @@index([userId, quizId, completedAt])
-  @@index([score])
-}
-
-model Answer {
-  id             String      @id @default(cuid())
-  attemptId      String
-  questionId     String
-  selectedAnswer String
-  isCorrect      Boolean
-  answeredAt     DateTime    @default(now())
-  attempt        QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-  question       Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
-
-  @@index([attemptId])
-  @@index([questionId])
-}
-
-enum QuizType {
-  NORMAL
-  DAILY
-}
-
 enum Difficulty {
   EASY
   MEDIUM
   HARD
-}
-
-enum AttemptSource {
-  INDIVIDUAL
-  DAILY_QUIZ
-  NORMAL_QUIZ
 }

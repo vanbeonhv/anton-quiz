@@ -36,14 +36,14 @@ export function Header() {
             <div className="relative">
               <Image
                 src="/logo.svg"
-                alt="Anton Quiz Logo"
+                alt="Anton Questions Logo"
                 width={40}
                 height={40}
                 className="w-10 h-10 drop-shadow-sm"
               />
             </div>
             <h1 className="text-2xl font-bold text-text-primary tracking-tight">
-              Anton Quiz
+              Anton Questions
             </h1>
           </Link>
 

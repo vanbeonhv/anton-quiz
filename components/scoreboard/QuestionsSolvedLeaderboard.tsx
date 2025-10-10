@@ -47,15 +47,6 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
     return 'text-primary-orange'
   }
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(new Date(date))
-  }
-
   if (isLoading) {
     return <LeaderboardSkeleton />
   }
@@ -108,9 +99,9 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
             const isCurrentUser = user?.email === entry.userEmail
             const rankEmoji = getRankEmoji(entry.rank)
             const accuracyColor = getAccuracyColor(entry.accuracyPercentage)
-            
+
             return (
-              <TableRow 
+              <TableRow
                 key={`${entry.userId}-${entry.rank}`}
                 className={`
                   hover:bg-bg-peach/30 transition-colors
@@ -124,7 +115,7 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
                     {rankEmoji && <span className="text-lg">{rankEmoji}</span>}
                   </div>
                 </TableCell>
-                
+
                 <TableCell>
                   <div className="flex flex-col">
                     <span className={`font-medium ${isCurrentUser ? 'text-primary-green font-semibold' : 'text-text-primary'}`}>
@@ -138,7 +129,7 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
                     )}
                   </div>
                 </TableCell>
-                
+
                 <TableCell className="text-center">
                   <div className="flex flex-col items-center">
                     <span className="font-semibold text-text-primary text-lg">
@@ -149,7 +140,7 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
                     </span>
                   </div>
                 </TableCell>
-                
+
                 <TableCell className="text-center hidden sm:table-cell">
                   <div className="flex items-center justify-center gap-1">
                     <TrendingUp className={`w-4 h-4 ${accuracyColor}`} />
@@ -158,7 +149,7 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
                     </span>
                   </div>
                 </TableCell>
-                
+
                 <TableCell className="text-center hidden md:table-cell">
                   <div className="flex flex-col items-center">
                     <span className="font-medium text-text-primary">

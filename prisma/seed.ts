@@ -6,13 +6,10 @@ async function main() {
   console.log('🌱 Seeding database...')
 
   // Clean up existing data to prevent duplicates
-  console.log('Cleaning up existing quiz data...')
+  console.log('Cleaning up existing question data...')
   await prisma.questionTag.deleteMany({})
-  await prisma.answer.deleteMany({})
   await prisma.questionAttempt.deleteMany({})
-  await prisma.quizAttempt.deleteMany({})
   await prisma.question.deleteMany({})
-  await prisma.quiz.deleteMany({})
 
   // Create sample tags (using upsert to handle existing tags)
   console.log('Creating tags...')
@@ -61,109 +58,86 @@ async function main() {
     }
   })
 
-  // Create Normal Quiz with difficulty levels and tags
-  const reactQuiz = await prisma.quiz.create({
-    data: {
-      title: 'React Basics',
-      description: 'Test your knowledge of React fundamentals',
-      type: 'NORMAL',
-      questions: {
-        create: [
-          {
-            text: 'What is React?',
-            optionA: 'A JavaScript library for building user interfaces',
-            optionB: 'A database management system',
-            optionC: 'A CSS framework',
-            optionD: 'A server-side language',
-            correctAnswer: 'A',
-            explanation: 'React is a JavaScript library developed by Facebook for building user interfaces, particularly single-page applications.',
-            order: 1,
-            difficulty: 'EASY'
-          },
-          {
-            text: 'Which hook is used for state management in functional components?',
-            optionA: 'useEffect',
-            optionB: 'useState',
-            optionC: 'useContext',
-            optionD: 'useReducer',
-            correctAnswer: 'B',
-            explanation: 'useState is the most common hook for managing state in functional components.',
-            order: 2,
-            difficulty: 'EASY'
-          },
-          {
-            text: 'What does JSX stand for?',
-            optionA: 'JavaScript XML',
-            optionB: 'Java Syntax Extension',
-            optionC: 'JavaScript Extension',
-            optionD: 'Java Server Extension',
-            correctAnswer: 'A',
-            explanation: 'JSX stands for JavaScript XML. It allows us to write HTML in React.',
-            order: 3,
-            difficulty: 'MEDIUM'
-          },
-          {
-            text: 'Which method is used to update state in class components?',
-            optionA: 'this.updateState()',
-            optionB: 'this.setState()',
-            optionC: 'this.changeState()',
-            optionD: 'this.modifyState()',
-            correctAnswer: 'B',
-            explanation: 'In class components, setState() is used to update the component state.',
-            order: 4,
-            difficulty: 'MEDIUM'
-          },
-          {
-            text: 'What is the Virtual DOM?',
-            optionA: 'A copy of the real DOM kept in memory',
-            optionB: 'A new HTML specification',
-            optionC: 'A CSS framework',
-            optionD: 'A JavaScript engine',
-            correctAnswer: 'A',
-            explanation: 'The Virtual DOM is a lightweight copy of the actual DOM kept in memory, which React uses to optimize rendering.',
-            order: 5,
-            difficulty: 'HARD'
-          }
-        ]
+  // Create sample questions with difficulty levels and tags
+  console.log('Creating questions...')
+  
+  const questions = await Promise.all([
+    prisma.question.create({
+      data: {
+        text: 'What is React?',
+        optionA: 'A JavaScript library for building user interfaces',
+        optionB: 'A database management system',
+        optionC: 'A CSS framework',
+        optionD: 'A server-side language',
+        correctAnswer: 'A',
+        explanation: 'React is a JavaScript library developed by Facebook for building user interfaces, particularly single-page applications.',
+        difficulty: 'EASY'
       }
-    },
-    include: {
-      questions: true
-    }
-  })
-
-  // Create Daily Quiz with difficulty and tags
-  const dailyQuiz = await prisma.quiz.create({
-    data: {
-      title: 'Daily Challenge',
-      description: 'Complete your daily quiz challenge!',
-      type: 'DAILY',
-      questions: {
-        create: [
-          {
-            text: 'What is TypeScript?',
-            optionA: 'A superset of JavaScript with static typing',
-            optionB: 'A replacement for JavaScript',
-            optionC: 'A CSS preprocessor',
-            optionD: 'A database query language',
-            correctAnswer: 'A',
-            explanation: 'TypeScript is a superset of JavaScript that adds optional static typing.',
-            order: 1,
-            difficulty: 'MEDIUM'
-          }
-        ]
+    }),
+    prisma.question.create({
+      data: {
+        text: 'Which hook is used for state management in functional components?',
+        optionA: 'useEffect',
+        optionB: 'useState',
+        optionC: 'useContext',
+        optionD: 'useReducer',
+        correctAnswer: 'B',
+        explanation: 'useState is the most common hook for managing state in functional components.',
+        difficulty: 'EASY'
       }
-    },
-    include: {
-      questions: true
-    }
-  })
+    }),
+    prisma.question.create({
+      data: {
+        text: 'What does JSX stand for?',
+        optionA: 'JavaScript XML',
+        optionB: 'Java Syntax Extension',
+        optionC: 'JavaScript Extension',
+        optionD: 'Java Server Extension',
+        correctAnswer: 'A',
+        explanation: 'JSX stands for JavaScript XML. It allows us to write HTML in React.',
+        difficulty: 'MEDIUM'
+      }
+    }),
+    prisma.question.create({
+      data: {
+        text: 'Which method is used to update state in class components?',
+        optionA: 'this.updateState()',
+        optionB: 'this.setState()',
+        optionC: 'this.changeState()',
+        optionD: 'this.modifyState()',
+        correctAnswer: 'B',
+        explanation: 'In class components, setState() is used to update the component state.',
+        difficulty: 'MEDIUM'
+      }
+    }),
+    prisma.question.create({
+      data: {
+        text: 'What is the Virtual DOM?',
+        optionA: 'A copy of the real DOM kept in memory',
+        optionB: 'A new HTML specification',
+        optionC: 'A CSS framework',
+        optionD: 'A JavaScript engine',
+        correctAnswer: 'A',
+        explanation: 'The Virtual DOM is a lightweight copy of the actual DOM kept in memory, which React uses to optimize rendering.',
+        difficulty: 'HARD'
+      }
+    }),
+    prisma.question.create({
+      data: {
+        text: 'What is TypeScript?',
+        optionA: 'A superset of JavaScript with static typing',
+        optionB: 'A replacement for JavaScript',
+        optionC: 'A CSS preprocessor',
+        optionD: 'A database query language',
+        correctAnswer: 'A',
+        explanation: 'TypeScript is a superset of JavaScript that adds optional static typing.',
+        difficulty: 'MEDIUM'
+      }
+    })
+  ])
 
   // Link questions to tags
   console.log('Linking questions to tags...')
-
-  // React quiz questions
-  const reactQuestions = reactQuiz.questions
 
   // Helper function to create question-tag relationships safely
   const createQuestionTag = async (questionId: string, tagId: string) => {
@@ -180,28 +154,27 @@ async function main() {
   }
 
   // Question 1: "What is React?" - React, JavaScript
-  await createQuestionTag(reactQuestions[0].id, reactTag.id)
-  await createQuestionTag(reactQuestions[0].id, jsTag.id)
+  await createQuestionTag(questions[0].id, reactTag.id)
+  await createQuestionTag(questions[0].id, jsTag.id)
 
   // Question 2: "Which hook is used for state management" - React, React Hooks
-  await createQuestionTag(reactQuestions[1].id, reactTag.id)
-  await createQuestionTag(reactQuestions[1].id, hooksTag.id)
+  await createQuestionTag(questions[1].id, reactTag.id)
+  await createQuestionTag(questions[1].id, hooksTag.id)
 
   // Question 3: "What does JSX stand for?" - React, JavaScript
-  await createQuestionTag(reactQuestions[2].id, reactTag.id)
-  await createQuestionTag(reactQuestions[2].id, jsTag.id)
+  await createQuestionTag(questions[2].id, reactTag.id)
+  await createQuestionTag(questions[2].id, jsTag.id)
 
   // Question 4: "Which method is used to update state in class components?" - React
-  await createQuestionTag(reactQuestions[3].id, reactTag.id)
+  await createQuestionTag(questions[3].id, reactTag.id)
 
   // Question 5: "What is the Virtual DOM?" - React, DOM
-  await createQuestionTag(reactQuestions[4].id, reactTag.id)
-  await createQuestionTag(reactQuestions[4].id, domTag.id)
+  await createQuestionTag(questions[4].id, reactTag.id)
+  await createQuestionTag(questions[4].id, domTag.id)
 
-  // Daily quiz question: "What is TypeScript?" - TypeScript, JavaScript
-  const dailyQuestions = dailyQuiz.questions
-  await createQuestionTag(dailyQuestions[0].id, tsTag.id)
-  await createQuestionTag(dailyQuestions[0].id, jsTag.id)
+  // Question 6: "What is TypeScript?" - TypeScript, JavaScript
+  await createQuestionTag(questions[5].id, tsTag.id)
+  await createQuestionTag(questions[5].id, jsTag.id)
 
   // Create sample UserStats entries
   console.log('Creating sample user statistics...')
@@ -218,8 +191,6 @@ async function main() {
       mediumCorrectAnswers: 5,
       hardQuestionsAnswered: 3,
       hardCorrectAnswers: 2,
-      totalQuizzesTaken: 3,
-      dailyQuizzesTaken: 2,
       currentStreak: 2,
       longestStreak: 5,
       lastAnsweredDate: new Date('2024-01-15')
@@ -235,8 +206,6 @@ async function main() {
       mediumCorrectAnswers: 3,
       hardQuestionsAnswered: 1,
       hardCorrectAnswers: 0,
-      totalQuizzesTaken: 2,
-      dailyQuizzesTaken: 1,
       currentStreak: 1,
       longestStreak: 3,
       lastAnsweredDate: new Date('2024-01-14')
@@ -252,8 +221,6 @@ async function main() {
       mediumCorrectAnswers: 11,
       hardQuestionsAnswered: 5,
       hardCorrectAnswers: 3,
-      totalQuizzesTaken: 5,
-      dailyQuizzesTaken: 4,
       currentStreak: 4,
       longestStreak: 7,
       lastAnsweredDate: new Date('2024-01-16')
@@ -269,9 +236,7 @@ async function main() {
   }
 
   console.log('✅ Seeding completed!')
-  console.log(`Created quizzes:`)
-  console.log(`- ${reactQuiz.title} (${reactQuiz.type})`)
-  console.log(`- ${dailyQuiz.title} (${dailyQuiz.type})`)
+  console.log(`Created ${questions.length} sample questions`)
   console.log(`Created ${sampleUsers.length} sample user statistics`)
   console.log(`Created tags: React, JavaScript, TypeScript, React Hooks, DOM`)
 }

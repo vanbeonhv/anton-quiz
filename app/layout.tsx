@@ -16,8 +16,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "QuizApp - Test Your Knowledge",
-  description: "Interactive quiz application built with Next.js",
+  title: "Questions App - Practice Your Knowledge",
+  description: "Interactive questions practice application built with Next.js",
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },

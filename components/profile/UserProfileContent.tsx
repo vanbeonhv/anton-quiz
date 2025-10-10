@@ -17,7 +17,7 @@ interface QuestionActivity {
   id: string
   date: Date
   isCorrect: boolean
-  source: 'INDIVIDUAL' | 'DAILY_QUIZ' | 'NORMAL_QUIZ'
+  source: 'INDIVIDUAL'
   question: {
     id: string
     number: number
@@ -25,20 +25,7 @@ interface QuestionActivity {
   }
 }
 
-interface QuizActivity {
-  type: 'quiz'
-  id: string
-  date: Date
-  score: number
-  totalQuestions: number
-  quiz: {
-    id: string
-    title: string
-    type: 'NORMAL' | 'DAILY'
-  }
-}
-
-type Activity = QuestionActivity | QuizActivity
+type Activity = QuestionActivity
 
 export function UserProfileContent() {
   const { user } = useAuth()

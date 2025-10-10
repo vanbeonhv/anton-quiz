@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { QuestionFilters, Difficulty } from '@/types'
+import { QuestionFilters } from '@/types'
 import { QuestionBrowser } from '@/components/questions/QuestionBrowser'
 
 export default function QuestionsPage() {

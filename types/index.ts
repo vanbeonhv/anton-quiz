@@ -2,30 +2,19 @@
 // ENUMS
 // ============================================
 
-export type QuizType = 'NORMAL' | 'DAILY'
 export type OptionKey = 'A' | 'B' | 'C' | 'D'
 
 // NEW ENUMS for Enhanced Scoreboard System
 export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD'
-export type AttemptSource = 'INDIVIDUAL' | 'DAILY_QUIZ' | 'NORMAL_QUIZ'
+export type AttemptSource = 'INDIVIDUAL'
 
 // ============================================
 // DATABASE MODELS
 // ============================================
 
-export interface Quiz {
-  id: string
-  title: string
-  description: string | null
-  type: QuizType
-  createdAt: Date
-  updatedAt: Date
-}
-
 export interface Question {
   id: string
   number: number    // For display as "#1", "#2", etc.
-  quizId?: string   // Make optional - questions can exist without quiz
   text: string
   optionA: string
   optionB: string
@@ -37,25 +26,6 @@ export interface Question {
   isActive: boolean
   createdAt: Date
   updatedAt: Date
-}
-
-export interface QuizAttempt {
-  id: string
-  quizId: string
-  userId: string
-  userEmail: string
-  score: number
-  totalQuestions: number
-  completedAt: Date
-}
-
-export interface Answer {
-  id: string
-  attemptId: string
-  questionId: string
-  selectedAnswer: OptionKey
-  isCorrect: boolean
-  answeredAt: Date
 }
 
 // NEW DATABASE MODELS for Enhanced Scoreboard System
@@ -81,7 +51,6 @@ export interface QuestionAttempt {
   selectedAnswer: OptionKey
   isCorrect: boolean
   source: AttemptSource
-  quizAttemptId?: string
   answeredAt: Date
 }
 
@@ -97,8 +66,6 @@ export interface UserStats {
   mediumCorrectAnswers: number
   hardQuestionsAnswered: number
   hardCorrectAnswers: number
-  totalQuizzesTaken: number
-  dailyQuizzesTaken: number
   currentStreak: number
   longestStreak: number
   lastAnsweredDate?: Date
@@ -109,32 +76,6 @@ export interface UserStats {
 // ============================================
 // EXTENDED TYPES (with relations)
 // ============================================
-
-export interface QuizWithQuestions extends Quiz {
-  questions: Question[]
-}
-
-export interface QuizWithStats extends Quiz {
-  _count: {
-    questions: number
-    attempts: number
-  }
-}
-
-// For API responses with computed stats
-export interface QuizWithComputedStats extends Quiz {
-  questionCount: number
-  attemptCount: number
-}
-
-export interface QuizAttemptWithDetails extends QuizAttempt {
-  quiz: Quiz
-  answers: AnswerWithQuestion[]
-}
-
-export interface AnswerWithQuestion extends Answer {
-  question: Question
-}
 
 // NEW EXTENDED TYPES for Enhanced Scoreboard System
 export interface QuestionWithTags extends Question { 
@@ -151,8 +92,6 @@ export interface TagWithStats extends Tag {
 export interface UserStatsWithComputed extends UserStats {
   accuracyPercentage: number // Computed field
   tagStats: TagStats[] // Computed field
-  totalDailyPoints: number // Mapped from dailyQuizzesTaken
-  dailyQuizStreak: number // Mapped from currentStreak
 }
 
 export interface TagStats {
@@ -168,14 +107,7 @@ export interface TagStats {
 // FORM DATA TYPES
 // ============================================
 
-export interface CreateQuizData {
-  title: string
-  description?: string
-  type: QuizType
-}
-
 export interface CreateQuestionData {
-  quizId: string
   text: string
   optionA: string
   optionB: string
@@ -183,15 +115,8 @@ export interface CreateQuestionData {
   optionD: string
   correctAnswer: OptionKey
   explanation?: string
-  order: number
-}
-
-export interface SubmitQuizData {
-  quizId: string
-  answers: {
-    questionId: string
-    selectedAnswer: OptionKey
-  }[]
+  difficulty: Difficulty
+  tags?: string[]
 }
 
 // NEW FORM DATA TYPES for Enhanced Scoreboard System
@@ -239,8 +164,8 @@ export interface DailyPointsLeaderboardEntry {
   rank: number
   userId: string
   userEmail: string
-  totalDailyPoints: number // Mapped from dailyQuizzesTaken
-  dailyQuizStreak: number // Mapped from currentStreak
+  totalDailyPoints: number
+  dailyQuizStreak: number
   updatedAt: Date
 }
 
@@ -254,7 +179,7 @@ export interface QuestionsSolvedLeaderboardEntry {
   updatedAt: Date
 }
 
-export type ScoreboardType = 'daily-points' | 'questions-solved'
+export type ScoreboardType = 'questions-solved' | 'daily-points'
 
 // ============================================
 // API RESPONSE TYPES
@@ -266,23 +191,11 @@ export interface LegacyUserStats {
   totalUsers: number
 }
 
-export interface DailyQuizCheck {
-  canTake: boolean
-  quizId?: string
-  nextResetTime?: string
-  message: string
-}
+// Question without sensitive data for practice
+export type QuestionForPractice = Omit<Question, 'correctAnswer' | 'explanation'>
 
-// For quiz taking (without sensitive data like correct answers)
-export interface QuizForTaking extends Quiz {
-  questions: Omit<Question, 'correctAnswer' | 'explanation' | 'createdAt' | 'quizId'>[]
-}
-
-// Question without sensitive data for quiz taking
-export type QuestionForTaking = Omit<Question, 'correctAnswer' | 'explanation' | 'createdAt' | 'quizId'>
-
-// For quiz results with full question details
-export interface QuizResultAnswer {
+// For question results with full details
+export interface QuestionResultAnswer {
   questionId: string
   selectedAnswer: OptionKey
   isCorrect: boolean
@@ -295,12 +208,6 @@ export interface QuizResultAnswer {
     optionC: string
     optionD: string
   }
-}
-
-export interface QuizResults {
-  score: number
-  totalQuestions: number
-  answers: QuizResultAnswer[]
 }
 
 // Pagination response type

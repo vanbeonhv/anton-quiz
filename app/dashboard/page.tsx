@@ -1,32 +1,22 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useQuizzes, useRecentScores, useUserStats, useDailyQuizCheck, useRandomQuestions } from '@/lib/queries'
+import { useRecentScores, useUserStats } from '@/lib/queries'
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader'
 import { StatsSection } from '@/components/dashboard/StatsSection'
-import { PracticeSection } from '@/components/dashboard/PracticeSection'
-import { QuickPracticeSection } from '@/components/dashboard/QuickPracticeSection'
-import { QuizTopicsSection } from '@/components/dashboard/QuizTopicsSection'
 import { RecentScoresSection } from '@/components/dashboard/RecentScoresSection'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { data: quizzes, isLoading: quizzesLoading, error: quizzesError } = useQuizzes()
   const { data: recentScores, isLoading: scoresLoading } = useRecentScores()
   const { data: userStats, isLoading: statsLoading } = useUserStats()
-  const { data: dailyQuizCheck, isLoading: dailyLoading } = useDailyQuizCheck()
-  const { data: randomQuestions, isLoading: randomLoading, refetch: refetchRandomQuestions } = useRandomQuestions(4)
-
-  const handleQuizClick = (quizId: string) => {
-    router.push(`/quiz/${quizId}`)
-  }
-
-  const handleDailyQuizClick = () => {
-    router.push('/daily-quiz')
-  }
 
   const handleViewAllScores = () => {
     router.push('/scoreboard')
+  }
+
+  const handleViewQuestions = () => {
+    router.push('/questions')
   }
 
   return (
@@ -39,24 +29,26 @@ export default function DashboardPage() {
           isLoading={statsLoading}
         />
 
-        <PracticeSection
-          data={dailyQuizCheck}
-          isLoading={dailyLoading}
-          onDailyQuizClick={handleDailyQuizClick}
-        />
-
-        <QuickPracticeSection
-          data={randomQuestions}
-          isLoading={randomLoading}
-          onRefresh={() => refetchRandomQuestions()}
-        />
-
-        <QuizTopicsSection
-          data={quizzes}
-          isLoading={quizzesLoading}
-          error={quizzesError}
-          onQuizClick={handleQuizClick}
-        />
+        {/* Quick Actions */}
+        <div className="mb-8">
+          <div className="bg-bg-white rounded-xl shadow-sm border border-bg-peach p-6">
+            <h2 className="text-xl font-semibold text-text-primary mb-4">Quick Actions</h2>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={handleViewQuestions}
+                className="flex-1 bg-primary-green hover:bg-primary-green-dark text-white px-6 py-3 rounded-lg font-medium transition-colors"
+              >
+                Browse Questions
+              </button>
+              <button
+                onClick={handleViewAllScores}
+                className="flex-1 bg-primary-blue hover:bg-primary-blue-dark text-white px-6 py-3 rounded-lg font-medium transition-colors"
+              >
+                View Scoreboard
+              </button>
+            </div>
+          </div>
+        </div>
 
         <RecentScoresSection
           data={recentScores}

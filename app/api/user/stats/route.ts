@@ -44,15 +44,6 @@ export async function GET() {
             const hardQuestionsAnswered = hardAttempts.length
             const hardCorrectAnswers = hardAttempts.filter(attempt => attempt.isCorrect).length
 
-            // Get quiz attempts for quiz-related stats
-            const quizAttempts = await prisma.quizAttempt.findMany({
-                where: { userId: user.id },
-                include: { quiz: true }
-            })
-
-            const totalQuizzesTaken = quizAttempts.length
-            const dailyQuizzesTaken = quizAttempts.filter(attempt => attempt.quiz.type === 'DAILY').length
-
             // Create the user stats record
             userStats = await prisma.userStats.create({
                 data: {
@@ -66,8 +57,6 @@ export async function GET() {
                     mediumCorrectAnswers,
                     hardQuestionsAnswered,
                     hardCorrectAnswers,
-                    totalQuizzesTaken,
-                    dailyQuizzesTaken,
                     currentStreak: 0, // TODO: Calculate streak
                     longestStreak: 0, // TODO: Calculate streak
                     lastAnsweredDate: questionAttempts.length > 0 ?
