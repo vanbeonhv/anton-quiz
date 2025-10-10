@@ -1,11 +1,11 @@
 import { CheckCircle, XCircle, Trophy, Target, Clock } from 'lucide-react'
+import dayjs from '@/lib/dayjs'
 
 interface QuestionActivity {
   type: 'question'
   id: string
   date: Date
   isCorrect: boolean
-  source: 'INDIVIDUAL' | 'DAILY_QUIZ' | 'NORMAL_QUIZ'
   question: {
     id: string
     number: number
@@ -38,26 +38,21 @@ interface ActivityItemProps {
 
 function ActivityItem({ activity }: ActivityItemProps) {
   const formatDate = (date: Date) => {
-    const now = new Date()
-    const activityDate = new Date(date)
-    const diffInHours = Math.floor((now.getTime() - activityDate.getTime()) / (1000 * 60 * 60))
+    const activityDate = dayjs(date)
+    const now = dayjs()
+    
+    const diffInHours = now.diff(activityDate, 'hour')
     
     if (diffInHours < 1) return 'Just now'
     if (diffInHours < 24) return `${diffInHours}h ago`
     
-    const diffInDays = Math.floor(diffInHours / 24)
+    const diffInDays = now.diff(activityDate, 'day')
     if (diffInDays < 7) return `${diffInDays}d ago`
     
-    return activityDate.toLocaleDateString()
+    return activityDate.format('M/D/YYYY')
   }
 
   if (activity.type === 'question') {
-    const sourceLabel = {
-      'INDIVIDUAL': 'Practice',
-      'DAILY_QUIZ': 'Daily Quiz',
-      'NORMAL_QUIZ': 'Quiz'
-    }[activity.source]
-
     return (
       <div className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
@@ -87,7 +82,7 @@ function ActivityItem({ activity }: ActivityItemProps) {
             {activity.question.text}
           </p>
           <div className="flex items-center space-x-2 mt-1 text-xs text-gray-500">
-            <span>{sourceLabel}</span>
+            <span>Practice</span>
             <span>•</span>
             <span>{formatDate(activity.date)}</span>
           </div>

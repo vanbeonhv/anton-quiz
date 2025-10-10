@@ -372,17 +372,12 @@ const quiz = await prisma.quiz.findUnique({
 ```typescript
 async function canTakeDailyQuiz(userId: string, quizId: string): Promise<boolean> {
   // Calculate today 8 AM Vietnam time
-  const now = new Date()
-  const vietnamTime = new Date(now.toLocaleString('en-US', { 
-    timeZone: 'Asia/Ho_Chi_Minh' 
-  }))
-  
-  const todayReset = new Date(vietnamTime)
-  todayReset.setHours(8, 0, 0, 0)
+  const vietnamTime = dayjs().tz('Asia/Ho_Chi_Minh')
+  const todayReset = vietnamTime.hour(8).minute(0).second(0).millisecond(0)
   
   // If before 8 AM, use yesterday's 8 AM
-  const resetTime = vietnamTime.getHours() < 8 
-    ? new Date(todayReset.getTime() - 24 * 60 * 60 * 1000)
+  const resetTime = vietnamTime.hour() < 8 
+    ? todayReset.subtract(1, 'day')
     : todayReset
   
   // Check for attempts after reset time
@@ -475,15 +470,8 @@ async function getAllTimeLeaderboard(limit: number = 100) {
 
 // This week leaderboard
 async function getWeeklyLeaderboard(limit: number = 100) {
-  const now = new Date()
-  const vietnamTime = new Date(now.toLocaleString('en-US', { 
-    timeZone: 'Asia/Ho_Chi_Minh' 
-  }))
-  
-  // Get Monday of current week at 00:00
-  const weekStart = new Date(vietnamTime)
-  weekStart.setDate(vietnamTime.getDate() - vietnamTime.getDay() + 1)
-  weekStart.setHours(0, 0, 0, 0)
+  // Get Monday of current week at 00:00 Vietnam time
+  const weekStart = dayjs().tz('Asia/Ho_Chi_Minh').startOf('week').add(1, 'day')
   
   return await prisma.quizAttempt.findMany({
     where: {

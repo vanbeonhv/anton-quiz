@@ -17,7 +17,6 @@ interface QuestionActivity {
   id: string
   date: Date
   isCorrect: boolean
-  source: 'INDIVIDUAL'
   question: {
     id: string
     number: number

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
+import dayjs from '@/lib/dayjs'
 
 export const dynamic = 'force-dynamic'
 
@@ -60,7 +61,9 @@ export async function GET() {
                     currentStreak: 0, // TODO: Calculate streak
                     longestStreak: 0, // TODO: Calculate streak
                     lastAnsweredDate: questionAttempts.length > 0 ?
-                        new Date(Math.max(...questionAttempts.map(a => a.answeredAt.getTime()))) : null
+                        questionAttempts.reduce((latest, attempt) => 
+                            dayjs(attempt.answeredAt).isAfter(dayjs(latest.answeredAt)) ? attempt : latest
+                        ).answeredAt : null
                 }
             })
         }

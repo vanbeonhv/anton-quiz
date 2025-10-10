@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import type { UserStatsWithComputed, TagStats } from '@/types'
+import dayjs from '@/lib/dayjs'
 
 export const dynamic = 'force-dynamic'
 
@@ -165,6 +166,6 @@ async function getRecentActivity(userId: string, limit: number) {
 
   // Sort by date descending and take the most recent activities
   return activities
-    .sort((a, b) => b.date.getTime() - a.date.getTime())
+    .sort((a, b) => dayjs(b.date).valueOf() - dayjs(a.date).valueOf())
     .slice(0, limit)
 }

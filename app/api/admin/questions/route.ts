@@ -13,7 +13,6 @@ interface CreateQuestionData {
   correctAnswer: OptionKey
   explanation?: string
   difficulty: Difficulty
-  quizId?: string
   tagIds?: string[]
 }
 
@@ -67,12 +66,6 @@ export async function GET(request: NextRequest) {
           tags: {
             include: {
               tag: true
-            }
-          },
-          quiz: {
-            select: {
-              id: true,
-              title: true
             }
           },
           _count: {
@@ -147,15 +140,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Difficulty must be EASY, MEDIUM, or HARD' }, { status: 400 })
     }
 
-    // Verify quiz exists if provided
-    if (body.quizId) {
-      const quiz = await prisma.quiz.findUnique({
-        where: { id: body.quizId }
-      })
-      if (!quiz) {
-        return NextResponse.json({ error: 'Quiz not found' }, { status: 404 })
-      }
-    }
+
 
     // Verify tags exist if provided
     if (body.tagIds && body.tagIds.length > 0) {
@@ -177,8 +162,7 @@ export async function POST(request: NextRequest) {
         optionD: body.optionD.trim(),
         correctAnswer: body.correctAnswer,
         explanation: body.explanation?.trim() || null,
-        difficulty: body.difficulty,
-        quizId: body.quizId || null
+        difficulty: body.difficulty
       }
     })
 
@@ -199,12 +183,6 @@ export async function POST(request: NextRequest) {
         tags: {
           include: {
             tag: true
-          }
-        },
-        quiz: {
-          select: {
-            id: true,
-            title: true
           }
         }
       }

@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import dayjs from '../lib/dayjs'
 
 const prisma = new PrismaClient()
 
@@ -193,7 +194,7 @@ async function main() {
       hardCorrectAnswers: 2,
       currentStreak: 2,
       longestStreak: 5,
-      lastAnsweredDate: new Date('2024-01-15')
+      lastAnsweredDate: dayjs('2024-01-15').toDate()
     },
     {
       userId: 'user_sample_2',
@@ -208,7 +209,7 @@ async function main() {
       hardCorrectAnswers: 0,
       currentStreak: 1,
       longestStreak: 3,
-      lastAnsweredDate: new Date('2024-01-14')
+      lastAnsweredDate: dayjs('2024-01-14').toDate()
     },
     {
       userId: 'user_sample_3',
@@ -223,7 +224,7 @@ async function main() {
       hardCorrectAnswers: 3,
       currentStreak: 4,
       longestStreak: 7,
-      lastAnsweredDate: new Date('2024-01-16')
+      lastAnsweredDate: dayjs('2024-01-16').toDate()
     }
   ]
 

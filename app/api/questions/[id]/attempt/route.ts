@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
 import { OptionKey } from '@/types'
+import dayjs from '@/lib/dayjs'
 
 export const dynamic = 'force-dynamic'
 
@@ -73,8 +74,7 @@ export async function POST(
           userId: user.id,
           userEmail: user.email!,
           selectedAnswer,
-          isCorrect,
-          source: 'INDIVIDUAL'
+          isCorrect
         }
       })
 
@@ -106,7 +106,7 @@ export async function POST(
             // Update streak if correct
             ...(isCorrect && {
               currentStreak: { increment: 1 },
-              lastAnsweredDate: new Date()
+              lastAnsweredDate: dayjs().toDate()
             }),
             // Reset streak if incorrect
             ...(!isCorrect && {
@@ -147,7 +147,7 @@ export async function POST(
             // Streak
             currentStreak: isCorrect ? 1 : 0,
             longestStreak: isCorrect ? 1 : 0,
-            lastAnsweredDate: new Date()
+            lastAnsweredDate: dayjs().toDate()
           }
         })
       }

@@ -6,7 +6,6 @@ export type OptionKey = 'A' | 'B' | 'C' | 'D'
 
 // NEW ENUMS for Enhanced Scoreboard System
 export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD'
-export type AttemptSource = 'INDIVIDUAL'
 
 // ============================================
 // DATABASE MODELS
@@ -50,7 +49,6 @@ export interface QuestionAttempt {
   userEmail: string
   selectedAnswer: OptionKey
   isCorrect: boolean
-  source: AttemptSource
   answeredAt: Date
 }
 
@@ -78,7 +76,7 @@ export interface UserStats {
 // ============================================
 
 // NEW EXTENDED TYPES for Enhanced Scoreboard System
-export interface QuestionWithTags extends Question { 
+export interface QuestionWithTags extends Question {
   tags: Tag[]
   userAttempt?: QuestionAttempt, // If user has attempted this question
   isSolved?: boolean,

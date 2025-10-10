@@ -1,10 +1,10 @@
 import { LeaderboardTable } from '@/components/dashboard/LeaderboardTable'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LeaderboardSkeleton } from '@/components/shared/LoadingState'
-import { LeaderboardEntry } from '@/types'
+import { QuestionsSolvedLeaderboardEntry } from '@/types'
 
 interface RecentScoresSectionProps {
-  data?: LeaderboardEntry[]
+  data?: QuestionsSolvedLeaderboardEntry[]
   isLoading: boolean
   onViewAll: () => void
 }

@@ -1,10 +1,11 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Trophy, Medal, Award } from 'lucide-react'
-import { LeaderboardEntry } from '@/types'
+import { QuestionsSolvedLeaderboardEntry } from '@/types'
+import dayjs from '@/lib/dayjs'
 
 interface LeaderboardTableProps {
-  entries: LeaderboardEntry[]
+  entries: QuestionsSolvedLeaderboardEntry[]
 }
 
 export function LeaderboardTable({ entries }: LeaderboardTableProps) {
@@ -35,16 +36,7 @@ export function LeaderboardTable({ entries }: LeaderboardTableProps) {
   }
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date)
-  }
-
-  const getScorePercentage = (score: number, total: number) => {
-    return Math.round((score / total) * 100)
+    return dayjs(date).format('MMM D, HH:mm')
   }
 
   if (entries.length === 0) {
@@ -71,7 +63,7 @@ export function LeaderboardTable({ entries }: LeaderboardTableProps) {
         <TableBody>
           {entries.map((entry) => (
             <TableRow
-              key={`${entry.userEmail}-${entry.completedAt}`}
+              key={`${entry.userEmail}-${entry.updatedAt}`}
               className={`hover:bg-bg-peach/30 ${entry.rank <= 3 ? 'bg-primary-green-light/30' : ''}`}
             >
               <TableCell className="font-medium">
@@ -93,23 +85,23 @@ export function LeaderboardTable({ entries }: LeaderboardTableProps) {
 
               <TableCell className="hidden md:table-cell">
                 <span className="text-text-secondary text-sm">
-                  {entry.quizTitle}
+                  Questions Solved
                 </span>
               </TableCell>
 
               <TableCell className="text-center">
                 <div className="flex flex-col items-center">
                   <span className="font-semibold text-text-primary">
-                    {entry.score}/{entry.totalQuestions}
+                    {entry.totalCorrectAnswers}/{entry.totalQuestionsAnswered}
                   </span>
                   <span className="text-xs text-text-muted">
-                    {getScorePercentage(entry.score, entry.totalQuestions)}%
+                    {Math.round(entry.accuracyPercentage)}%
                   </span>
                 </div>
               </TableCell>
 
               <TableCell className="hidden sm:table-cell text-center text-sm text-text-muted">
-                {formatDate(entry.completedAt)}
+                {formatDate(entry.updatedAt)}
               </TableCell>
             </TableRow>
           ))}

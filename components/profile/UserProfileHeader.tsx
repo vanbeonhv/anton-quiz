@@ -1,4 +1,5 @@
 import { User, Calendar } from 'lucide-react'
+import dayjs from '@/lib/dayjs'
 
 interface UserProfileHeaderProps {
   userEmail: string
@@ -7,11 +8,7 @@ interface UserProfileHeaderProps {
 
 export function UserProfileHeader({ userEmail, joinDate }: UserProfileHeaderProps) {
   const formatJoinDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    }).format(new Date(date))
+    return dayjs(date).format('MMMM D, YYYY')
   }
 
   return (

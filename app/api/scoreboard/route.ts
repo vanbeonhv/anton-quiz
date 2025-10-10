@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import type { ScoreboardType } from '@/types'
+import dayjs from '@/lib/dayjs'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,20 +34,14 @@ async function getQuestionsSolvedLeaderboard(filter: string, limit: number) {
 
   // Apply time filtering to UserStats
   if (filter === 'this-week' || filter === 'this-month') {
-    const now = new Date()
     let startDate: Date
 
     if (filter === 'this-week') {
       // Get Monday of current week at 00:00 Vietnam time
-      const vietnamTime = new Date(now.toLocaleString('en-US', { 
-        timeZone: 'Asia/Ho_Chi_Minh' 
-      }))
-      startDate = new Date(vietnamTime)
-      startDate.setDate(vietnamTime.getDate() - vietnamTime.getDay() + 1)
-      startDate.setHours(0, 0, 0, 0)
+      startDate = dayjs().tz('Asia/Ho_Chi_Minh').startOf('week').add(1, 'day').toDate()
     } else {
       // First day of current month
-      startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+      startDate = dayjs().tz('Asia/Ho_Chi_Minh').startOf('month').toDate()
     }
 
     whereClause = {

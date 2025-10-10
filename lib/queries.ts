@@ -1,12 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/hooks/useAuth'
 import type {
-  LeaderboardEntry,
-  LeaderboardFilter,
   UserStats,
-  DailyPointsLeaderboardEntry,
   QuestionsSolvedLeaderboardEntry,
-  QuestionWithTags,
   Tag
 } from '@/types'
 import { QuestionsApiResponse } from '@/types/api'
