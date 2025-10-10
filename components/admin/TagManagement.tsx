@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label'
 import { Trash2, Edit, Plus, Tag as TagIcon } from 'lucide-react'
 import { TagWithStats, CreateTagData } from '@/types'
-import { useTagsWithStats } from '@/lib/queries'
+import { useTagsWithStats, useCreateTag, useUpdateTag, useDeleteTag } from '@/lib/queries'
 import { toast } from 'sonner'
 
 interface TagManagementProps {
@@ -18,7 +18,7 @@ interface TagManagementProps {
 }
 
 export default function TagManagement({ onTagsChange }: TagManagementProps) {
-  const { data: tags = [], isLoading: loading, refetch: refetchTags } = useTagsWithStats()
+  const { data: tags = [], isLoading: loading } = useTagsWithStats()
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [editingTag, setEditingTag] = useState<TagWithStats | null>(null)
@@ -27,72 +27,58 @@ export default function TagManagement({ onTagsChange }: TagManagementProps) {
     description: ''
   })
 
+  // React Query mutation hooks
+  const createTagMutation = useCreateTag()
+  const updateTagMutation = useUpdateTag()
+  const deleteTagMutation = useDeleteTag()
 
 
-  const handleCreateTag = async () => {
+
+  const handleCreateTag = () => {
     if (!formData.name.trim()) {
       toast.error('Tag name is required')
       return
     }
 
-    try {
-      const response = await fetch('/api/admin/tags', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to create tag')
+    createTagMutation.mutate(formData, {
+      onSuccess: () => {
+        toast.success('Tag created successfully')
+        setIsCreateDialogOpen(false)
+        setFormData({ name: '', description: '' })
+        onTagsChange?.()
+      },
+      onError: (error) => {
+        console.error('Error creating tag:', error)
+        toast.error(error instanceof Error ? error.message : 'Failed to create tag')
       }
-
-      toast.success('Tag created successfully')
-      setIsCreateDialogOpen(false)
-      setFormData({ name: '', description: '' })
-      refetchTags()
-      onTagsChange?.()
-    } catch (error) {
-      console.error('Error creating tag:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to create tag')
-    }
+    })
   }
 
-  const handleEditTag = async () => {
+  const handleEditTag = () => {
     if (!editingTag || !formData.name.trim()) {
       toast.error('Tag name is required')
       return
     }
 
-    try {
-      const response = await fetch(`/api/admin/tags/${editingTag.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
+    updateTagMutation.mutate(
+      { id: editingTag.id, data: formData },
+      {
+        onSuccess: () => {
+          toast.success('Tag updated successfully')
+          setIsEditDialogOpen(false)
+          setEditingTag(null)
+          setFormData({ name: '', description: '' })
+          onTagsChange?.()
         },
-        body: JSON.stringify(formData)
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to update tag')
+        onError: (error) => {
+          console.error('Error updating tag:', error)
+          toast.error(error instanceof Error ? error.message : 'Failed to update tag')
+        }
       }
-
-      toast.success('Tag updated successfully')
-      setIsEditDialogOpen(false)
-      setEditingTag(null)
-      setFormData({ name: '', description: '' })
-      refetchTags()
-      onTagsChange?.()
-    } catch (error) {
-      console.error('Error updating tag:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to update tag')
-    }
+    )
   }
 
-  const handleDeleteTag = async (tag: TagWithStats) => {
+  const handleDeleteTag = (tag: TagWithStats) => {
     if (tag.questionCount > 0) {
       toast.error(`Cannot delete tag "${tag.name}". It is assigned to ${tag.questionCount} question(s).`)
       return
@@ -102,23 +88,16 @@ export default function TagManagement({ onTagsChange }: TagManagementProps) {
       return
     }
 
-    try {
-      const response = await fetch(`/api/admin/tags/${tag.id}`, {
-        method: 'DELETE'
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to delete tag')
+    deleteTagMutation.mutate(tag.id, {
+      onSuccess: () => {
+        toast.success('Tag deleted successfully')
+        onTagsChange?.()
+      },
+      onError: (error) => {
+        console.error('Error deleting tag:', error)
+        toast.error(error instanceof Error ? error.message : 'Failed to delete tag')
       }
-
-      toast.success('Tag deleted successfully')
-      refetchTags()
-      onTagsChange?.()
-    } catch (error) {
-      console.error('Error deleting tag:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to delete tag')
-    }
+    })
   }
 
   const openEditDialog = (tag: TagWithStats) => {
@@ -191,11 +170,18 @@ export default function TagManagement({ onTagsChange }: TagManagementProps) {
                   />
                 </div>
                 <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setIsCreateDialogOpen(false)}
+                    disabled={createTagMutation.isPending}
+                  >
                     Cancel
                   </Button>
-                  <Button onClick={handleCreateTag}>
-                    Create Tag
+                  <Button 
+                    onClick={handleCreateTag}
+                    disabled={createTagMutation.isPending}
+                  >
+                    {createTagMutation.isPending ? 'Creating...' : 'Create Tag'}
                   </Button>
                 </div>
               </div>
@@ -235,7 +221,7 @@ export default function TagManagement({ onTagsChange }: TagManagementProps) {
                     variant="outline"
                     size="sm"
                     onClick={() => handleDeleteTag(tag)}
-                    disabled={tag.questionCount > 0}
+                    disabled={tag.questionCount > 0 || deleteTagMutation.isPending}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -272,11 +258,18 @@ export default function TagManagement({ onTagsChange }: TagManagementProps) {
                 />
               </div>
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsEditDialogOpen(false)}
+                  disabled={updateTagMutation.isPending}
+                >
                   Cancel
                 </Button>
-                <Button onClick={handleEditTag}>
-                  Update Tag
+                <Button 
+                  onClick={handleEditTag}
+                  disabled={updateTagMutation.isPending}
+                >
+                  {updateTagMutation.isPending ? 'Updating...' : 'Update Tag'}
                 </Button>
               </div>
             </div>

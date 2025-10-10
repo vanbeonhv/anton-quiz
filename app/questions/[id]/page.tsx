@@ -1,52 +1,22 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { QuestionWithTags, OptionKey } from '@/types'
 import { IndividualQuestionPage } from '@/components/questions'
 import { LoadingState } from '@/components/shared/LoadingState'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { useQuestion } from '@/lib/queries'
 
 export default function QuestionPage() {
   const params = useParams()
   const router = useRouter()
   const questionId = params.id as string
 
-  const [question, setQuestion] = useState<QuestionWithTags | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (!questionId) return
-
-    const fetchQuestion = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-
-        const response = await fetch(`/api/questions/${questionId}`)
-        
-        if (!response.ok) {
-          if (response.status === 404) {
-            setError('Question not found')
-          } else {
-            setError('Failed to load question')
-          }
-          return
-        }
-
-        const data = await response.json()
-        setQuestion(data)
-      } catch (err) {
-        console.error('Error fetching question:', err)
-        setError('Failed to load question')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchQuestion()
-  }, [questionId])
+  const { 
+    data: question, 
+    isLoading: loading, 
+    error,
+    isError 
+  } = useQuestion(questionId)
 
   if (loading) {
     return (
@@ -58,12 +28,16 @@ export default function QuestionPage() {
     )
   }
 
-  if (error || !question) {
+  if (isError || !question) {
+    const errorMessage = error instanceof Error 
+      ? (error.message.includes('404') ? 'Question not found' : 'Failed to load question')
+      : 'Question not found'
+      
     return (
       <div className="min-h-screen bg-bg-peach">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <EmptyState 
-            title={error || 'Question not found'}
+            title={errorMessage}
             description="The question you're looking for doesn't exist or has been removed."
             actionLabel="Back to Questions"
             onAction={() => router.push('/questions')}

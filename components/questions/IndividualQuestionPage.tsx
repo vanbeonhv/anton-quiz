@@ -2,12 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react'
+import { ChevronRight, ArrowLeft } from 'lucide-react'
 import { QuestionWithTags, OptionKey, Difficulty } from '@/types'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { AnswerOption } from './AnswerOption'
+import { useSubmitQuestionAttempt } from '@/lib/queries'
+import { toast } from 'sonner'
 
 interface IndividualQuestionPageProps {
   question: QuestionWithTags
@@ -24,7 +26,8 @@ export function IndividualQuestionPage({ question }: IndividualQuestionPageProps
   const router = useRouter()
   const [selectedAnswer, setSelectedAnswer] = useState<OptionKey | null>(null)
   const [result, setResult] = useState<QuestionResult | null>(null)
-  const [submitting, setSubmitting] = useState(false)
+  
+  const submitAttemptMutation = useSubmitQuestionAttempt()
 
   const getDifficultyColor = (difficulty: Difficulty) => {
     switch (difficulty) {
@@ -59,37 +62,30 @@ export function IndividualQuestionPage({ question }: IndividualQuestionPageProps
     setSelectedAnswer(answer)
   }
 
-  const handleSubmit = async () => {
-    if (!selectedAnswer || submitting || result) return
+  const handleSubmit = () => {
+    if (!selectedAnswer || submitAttemptMutation.isPending || result) return
 
-    setSubmitting(true)
-    try {
-      const response = await fetch(`/api/questions/${question.id}/attempt`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+    submitAttemptMutation.mutate(
+      { 
+        questionId: question.id, 
+        data: { selectedAnswer } 
+      },
+      {
+        onSuccess: (data) => {
+          setResult({
+            selectedAnswer: data.selectedAnswer,
+            isCorrect: data.isCorrect,
+            correctAnswer: data.question.correctAnswer,
+            explanation: data.question.explanation
+          })
+          toast.success(data.isCorrect ? 'Correct answer! 🎉' : 'Answer submitted')
         },
-        body: JSON.stringify({ selectedAnswer }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to submit answer')
+        onError: (error) => {
+          console.error('Error submitting answer:', error)
+          toast.error(error instanceof Error ? error.message : 'Failed to submit answer')
+        }
       }
-
-      const data = await response.json()
-      setResult({
-        selectedAnswer: data.selectedAnswer,
-        isCorrect: data.isCorrect,
-        correctAnswer: data.question.correctAnswer,
-        explanation: data.question.explanation
-      })
-    } catch (error) {
-      console.error('Error submitting answer:', error)
-      // You might want to show a toast or error message here
-    } finally {
-      setSubmitting(false)
-    }
+    )
   }
 
   const handleBackToQuestions = () => {
@@ -203,10 +199,10 @@ export function IndividualQuestionPage({ question }: IndividualQuestionPageProps
             <div className="flex justify-center">
               <Button
                 onClick={handleSubmit}
-                disabled={!selectedAnswer || submitting}
+                disabled={!selectedAnswer || submitAttemptMutation.isPending}
                 className="px-8 py-3 bg-primary-green hover:bg-primary-green/90 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {submitting ? 'Submitting...' : 'Submit Answer'}
+                {submitAttemptMutation.isPending ? 'Submitting...' : 'Submit Answer'}
               </Button>
             </div>
           )}

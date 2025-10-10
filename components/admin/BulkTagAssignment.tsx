@@ -11,6 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Tags, Plus, Minus, RotateCcw } from 'lucide-react'
 import { Tag, QuestionWithTags } from '@/types'
 import { toast } from 'sonner'
+import { useBulkTagAssignment } from '@/lib/queries'
 
 interface BulkTagAssignmentProps {
   tags: Tag[]
@@ -23,7 +24,8 @@ export default function BulkTagAssignment({ tags, questions, onComplete }: BulkT
   const [selectedQuestions, setSelectedQuestions] = useState<string[]>([])
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [action, setAction] = useState<'add' | 'remove' | 'replace'>('add')
-  const [loading, setLoading] = useState(false)
+  
+  const bulkTagAssignmentMutation = useBulkTagAssignment()
 
   const handleQuestionToggle = (questionId: string, checked: boolean) => {
     if (checked) {
@@ -41,7 +43,7 @@ export default function BulkTagAssignment({ tags, questions, onComplete }: BulkT
     }
   }
 
-  const handleBulkAssignment = async () => {
+  const handleBulkAssignment = () => {
     if (selectedQuestions.length === 0) {
       toast.error('Please select at least one question')
       return
@@ -52,41 +54,30 @@ export default function BulkTagAssignment({ tags, questions, onComplete }: BulkT
       return
     }
 
-    setLoading(true)
-    try {
-      const response = await fetch('/api/admin/tags/bulk', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
+    bulkTagAssignmentMutation.mutate(
+      {
+        questionIds: selectedQuestions,
+        tagIds: selectedTags,
+        action
+      },
+      {
+        onSuccess: (result) => {
+          toast.success(result.message)
+          
+          // Reset form
+          setSelectedQuestions([])
+          setSelectedTags([])
+          setAction('add')
+          setIsDialogOpen(false)
+          
+          onComplete?.()
         },
-        body: JSON.stringify({
-          questionIds: selectedQuestions,
-          tagIds: selectedTags,
-          action
-        })
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to perform bulk tag operation')
+        onError: (error) => {
+          console.error('Error in bulk tag assignment:', error)
+          toast.error(error instanceof Error ? error.message : 'Failed to perform bulk tag operation')
+        }
       }
-
-      const result = await response.json()
-      toast.success(result.message)
-      
-      // Reset form
-      setSelectedQuestions([])
-      setSelectedTags([])
-      setAction('add')
-      setIsDialogOpen(false)
-      
-      onComplete?.()
-    } catch (error) {
-      console.error('Error in bulk tag assignment:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to perform bulk tag operation')
-    } finally {
-      setLoading(false)
-    }
+    )
   }
 
   const getActionIcon = () => {
@@ -227,9 +218,9 @@ export default function BulkTagAssignment({ tags, questions, onComplete }: BulkT
             </Button>
             <Button 
               onClick={handleBulkAssignment}
-              disabled={loading || selectedQuestions.length === 0 || selectedTags.length === 0}
+              disabled={bulkTagAssignmentMutation.isPending || selectedQuestions.length === 0 || selectedTags.length === 0}
             >
-              {loading ? 'Processing...' : 'Apply Changes'}
+              {bulkTagAssignmentMutation.isPending ? 'Processing...' : 'Apply Changes'}
             </Button>
           </div>
         </div>

@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Trash2, Edit, Plus, HelpCircle, Search } from 'lucide-react'
 import { QuestionWithTags, Tag, Difficulty, OptionKey } from '@/types'
-import { useAdminQuestions } from '@/lib/queries'
+import { useAdminQuestions, useCreateQuestion, useUpdateQuestion, useDeleteQuestion } from '@/lib/queries'
 import { toast } from 'sonner'
 import BulkTagAssignment from './BulkTagAssignment'
 
@@ -59,6 +59,11 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
     tagId: selectedTagId
   })
 
+  // Mutation hooks
+  const createQuestionMutation = useCreateQuestion()
+  const updateQuestionMutation = useUpdateQuestion()
+  const deleteQuestionMutation = useDeleteQuestion()
+
   const questions = questionsData?.data || []
   const pagination = questionsData?.pagination || {
     page: 1,
@@ -81,90 +86,63 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
     tagIds: []
   })
 
-  const handleCreateQuestion = async () => {
+  const handleCreateQuestion = () => {
     if (!formData.text.trim() || !formData.optionA.trim() || !formData.optionB.trim() ||
       !formData.optionC.trim() || !formData.optionD.trim()) {
       toast.error('All fields are required')
       return
     }
 
-    try {
-      const response = await fetch('/api/admin/questions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to create question')
+    createQuestionMutation.mutate(formData, {
+      onSuccess: () => {
+        toast.success('Question created successfully')
+        setIsCreateDialogOpen(false)
+        resetForm()
+        onRefresh?.()
+      },
+      onError: (error) => {
+        console.error('Error creating question:', error)
+        toast.error(error instanceof Error ? error.message : 'Failed to create question')
       }
-
-      toast.success('Question created successfully')
-      setIsCreateDialogOpen(false)
-      resetForm()
-      refetchQuestions()
-      onRefresh?.()
-    } catch (error) {
-      console.error('Error creating question:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to create question')
-    }
+    })
   }
 
-  const handleEditQuestion = async () => {
+  const handleEditQuestion = () => {
     if (!editingQuestion) return
 
-    try {
-      const response = await fetch(`/api/admin/questions/${editingQuestion.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
+    updateQuestionMutation.mutate(
+      { id: editingQuestion.id, data: formData },
+      {
+        onSuccess: () => {
+          toast.success('Question updated successfully')
+          setIsEditDialogOpen(false)
+          setEditingQuestion(null)
+          resetForm()
+          onRefresh?.()
         },
-        body: JSON.stringify(formData)
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to update question')
+        onError: (error) => {
+          console.error('Error updating question:', error)
+          toast.error(error instanceof Error ? error.message : 'Failed to update question')
+        }
       }
-
-      toast.success('Question updated successfully')
-      setIsEditDialogOpen(false)
-      setEditingQuestion(null)
-      resetForm()
-      refetchQuestions()
-      onRefresh?.()
-    } catch (error) {
-      console.error('Error updating question:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to update question')
-    }
+    )
   }
 
-  const handleDeleteQuestion = async (question: QuestionWithTags) => {
+  const handleDeleteQuestion = (question: QuestionWithTags) => {
     if (!confirm(`Are you sure you want to delete question #${question.number}?`)) {
       return
     }
 
-    try {
-      const response = await fetch(`/api/admin/questions/${question.id}`, {
-        method: 'DELETE'
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to delete question')
+    deleteQuestionMutation.mutate(question.id, {
+      onSuccess: () => {
+        toast.success('Question deleted successfully')
+        onRefresh?.()
+      },
+      onError: (error) => {
+        console.error('Error deleting question:', error)
+        toast.error(error instanceof Error ? error.message : 'Failed to delete question')
       }
-
-      const result = await response.json()
-      toast.success(result.message || 'Question deleted successfully')
-      refetchQuestions()
-      onRefresh?.()
-    } catch (error) {
-      console.error('Error deleting question:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to delete question')
-    }
+    })
   }
 
   const openEditDialog = (question: QuestionWithTags) => {
@@ -231,6 +209,10 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
     )
   }
 
+  const isAnyMutationLoading = createQuestionMutation.isPending || 
+                               updateQuestionMutation.isPending || 
+                               deleteQuestionMutation.isPending
+
   return (
     <Card>
       <CardHeader>
@@ -266,6 +248,7 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
                   onSubmit={handleCreateQuestion}
                   onCancel={() => setIsCreateDialogOpen(false)}
                   onTagToggle={handleTagToggle}
+                  isLoading={createQuestionMutation.isPending}
                 />
               </DialogContent>
             </Dialog>
@@ -344,6 +327,7 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
                         variant="outline"
                         size="sm"
                         onClick={() => openEditDialog(question)}
+                        disabled={isAnyMutationLoading}
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
@@ -351,6 +335,7 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
                         variant="outline"
                         size="sm"
                         onClick={() => handleDeleteQuestion(question)}
+                        disabled={deleteQuestionMutation.isPending}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -411,6 +396,7 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
               onSubmit={handleEditQuestion}
               onCancel={() => setIsEditDialogOpen(false)}
               onTagToggle={handleTagToggle}
+              isLoading={updateQuestionMutation.isPending}
             />
           </DialogContent>
         </Dialog>
@@ -426,9 +412,10 @@ interface QuestionFormProps {
   onSubmit: () => void
   onCancel: () => void
   onTagToggle: (tagId: string, checked: boolean) => void
+  isLoading?: boolean
 }
 
-function QuestionForm({ formData, setFormData, tags, onSubmit, onCancel, onTagToggle }: QuestionFormProps) {
+function QuestionForm({ formData, setFormData, tags, onSubmit, onCancel, onTagToggle, isLoading = false }: QuestionFormProps) {
   return (
     <div className="space-y-4">
       <div>
@@ -550,11 +537,11 @@ function QuestionForm({ formData, setFormData, tags, onSubmit, onCancel, onTagTo
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onCancel}>
+        <Button variant="outline" onClick={onCancel} disabled={isLoading}>
           Cancel
         </Button>
-        <Button onClick={onSubmit}>
-          Save Question
+        <Button onClick={onSubmit} disabled={isLoading}>
+          {isLoading ? 'Saving...' : 'Save Question'}
         </Button>
       </div>
     </div>
