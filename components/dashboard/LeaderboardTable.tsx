@@ -40,7 +40,7 @@ export function LeaderboardTable({ entries }: LeaderboardTableProps) {
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    }).format(new Date(date))
+    }).format(date)
   }
 
   const getScorePercentage = (score: number, total: number) => {
@@ -70,7 +70,7 @@ export function LeaderboardTable({ entries }: LeaderboardTableProps) {
         </TableHeader>
         <TableBody>
           {entries.map((entry) => (
-            <TableRow 
+            <TableRow
               key={`${entry.userEmail}-${entry.completedAt}`}
               className={`hover:bg-bg-peach/30 ${entry.rank <= 3 ? 'bg-primary-green-light/30' : ''}`}
             >
@@ -79,7 +79,7 @@ export function LeaderboardTable({ entries }: LeaderboardTableProps) {
                   {getRankIcon(entry.rank)}
                 </div>
               </TableCell>
-              
+
               <TableCell>
                 <div className="flex flex-col">
                   <span className="font-medium text-text-primary">
@@ -90,13 +90,13 @@ export function LeaderboardTable({ entries }: LeaderboardTableProps) {
                   </div>
                 </div>
               </TableCell>
-              
+
               <TableCell className="hidden md:table-cell">
                 <span className="text-text-secondary text-sm">
                   {entry.quizTitle}
                 </span>
               </TableCell>
-              
+
               <TableCell className="text-center">
                 <div className="flex flex-col items-center">
                   <span className="font-semibold text-text-primary">
@@ -107,7 +107,7 @@ export function LeaderboardTable({ entries }: LeaderboardTableProps) {
                   </span>
                 </div>
               </TableCell>
-              
+
               <TableCell className="hidden sm:table-cell text-center text-sm text-text-muted">
                 {formatDate(entry.completedAt)}
               </TableCell>
