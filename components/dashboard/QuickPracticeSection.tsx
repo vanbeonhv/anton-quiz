@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Zap, ArrowRight, Shuffle } from 'lucide-react'
-import { QuestionWithTags, Difficulty } from '@/types'
+import { Difficulty } from '@/types'
 import { QuestionsApiResponse } from '@/types/api'
 import { Tag } from '@prisma/client'
 

@@ -51,8 +51,8 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | ''>('')
-  const [selectedTagId, setSelectedTagId] = useState('')
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | 'all'>('all')
+  const [selectedTagId, setSelectedTagId] = useState('all')
 
   const [formData, setFormData] = useState<CreateQuestionData>({
     text: '',
@@ -78,8 +78,8 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
       })
 
       if (searchTerm) params.append('search', searchTerm)
-      if (selectedDifficulty) params.append('difficulty', selectedDifficulty)
-      if (selectedTagId) params.append('tagId', selectedTagId)
+      if (selectedDifficulty && selectedDifficulty !== 'all') params.append('difficulty', selectedDifficulty)
+      if (selectedTagId && selectedTagId !== 'all') params.append('tagId', selectedTagId)
 
       const response = await fetch(`/api/admin/questions?${params}`)
       if (!response.ok) {
@@ -98,8 +98,8 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
   }
 
   const handleCreateQuestion = async () => {
-    if (!formData.text.trim() || !formData.optionA.trim() || !formData.optionB.trim() || 
-        !formData.optionC.trim() || !formData.optionD.trim()) {
+    if (!formData.text.trim() || !formData.optionA.trim() || !formData.optionB.trim() ||
+      !formData.optionC.trim() || !formData.optionD.trim()) {
       toast.error('All fields are required')
       return
     }
@@ -191,7 +191,7 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
       optionB: question.optionB,
       optionC: question.optionC,
       optionD: question.optionD,
-      correctAnswer: question.correctAnswer,
+      correctAnswer: question.correctAnswer || 'A',
       explanation: question.explanation || '',
       difficulty: question.difficulty,
       quizId: question.quizId || undefined,
@@ -257,13 +257,13 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
             Question Management
           </div>
           <div className="flex gap-2">
-            <BulkTagAssignment 
-              tags={tags} 
-              questions={questions} 
+            <BulkTagAssignment
+              tags={tags}
+              questions={questions}
               onComplete={() => {
                 fetchQuestions()
                 onRefresh?.()
-              }} 
+              }}
             />
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
@@ -303,12 +303,12 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
               />
             </div>
           </div>
-          <Select value={selectedDifficulty} onValueChange={(value) => setSelectedDifficulty(value as Difficulty | '')}>
+          <Select value={selectedDifficulty} onValueChange={(value) => setSelectedDifficulty(value as Difficulty | 'all')}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Difficulty" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Difficulties</SelectItem>
+              <SelectItem value="all">All Difficulties</SelectItem>
               <SelectItem value="EASY">Easy</SelectItem>
               <SelectItem value="MEDIUM">Medium</SelectItem>
               <SelectItem value="HARD">Hard</SelectItem>
@@ -319,7 +319,7 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
               <SelectValue placeholder="Filter by tag" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Tags</SelectItem>
+              <SelectItem value="all">All Tags</SelectItem>
               {tags.map((tag) => (
                 <SelectItem key={tag.id} value={tag.id}>{tag.name}</SelectItem>
               ))}
