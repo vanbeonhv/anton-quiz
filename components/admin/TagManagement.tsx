@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label'
 import { Trash2, Edit, Plus, Tag as TagIcon } from 'lucide-react'
 import { TagWithStats, CreateTagData } from '@/types'
+import { useTagsWithStats } from '@/lib/queries'
 import { toast } from 'sonner'
 
 interface TagManagementProps {
@@ -17,8 +18,7 @@ interface TagManagementProps {
 }
 
 export default function TagManagement({ onTagsChange }: TagManagementProps) {
-  const [tags, setTags] = useState<TagWithStats[]>([])
-  const [loading, setLoading] = useState(true)
+  const { data: tags = [], isLoading: loading, refetch: refetchTags } = useTagsWithStats()
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [editingTag, setEditingTag] = useState<TagWithStats | null>(null)
@@ -27,25 +27,7 @@ export default function TagManagement({ onTagsChange }: TagManagementProps) {
     description: ''
   })
 
-  useEffect(() => {
-    fetchTags()
-  }, [])
 
-  const fetchTags = async () => {
-    try {
-      const response = await fetch('/api/admin/tags')
-      if (!response.ok) {
-        throw new Error('Failed to fetch tags')
-      }
-      const data = await response.json()
-      setTags(data)
-    } catch (error) {
-      console.error('Error fetching tags:', error)
-      toast.error('Failed to fetch tags')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleCreateTag = async () => {
     if (!formData.name.trim()) {
@@ -70,7 +52,7 @@ export default function TagManagement({ onTagsChange }: TagManagementProps) {
       toast.success('Tag created successfully')
       setIsCreateDialogOpen(false)
       setFormData({ name: '', description: '' })
-      fetchTags()
+      refetchTags()
       onTagsChange?.()
     } catch (error) {
       console.error('Error creating tag:', error)
@@ -102,7 +84,7 @@ export default function TagManagement({ onTagsChange }: TagManagementProps) {
       setIsEditDialogOpen(false)
       setEditingTag(null)
       setFormData({ name: '', description: '' })
-      fetchTags()
+      refetchTags()
       onTagsChange?.()
     } catch (error) {
       console.error('Error updating tag:', error)
@@ -131,7 +113,7 @@ export default function TagManagement({ onTagsChange }: TagManagementProps) {
       }
 
       toast.success('Tag deleted successfully')
-      fetchTags()
+      refetchTags()
       onTagsChange?.()
     } catch (error) {
       console.error('Error deleting tag:', error)

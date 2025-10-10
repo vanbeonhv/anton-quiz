@@ -3,7 +3,8 @@ import { useAuth } from '@/hooks/useAuth'
 import type {
   UserStats,
   QuestionsSolvedLeaderboardEntry,
-  Tag
+  Tag,
+  TagWithStats
 } from '@/types'
 import { QuestionsApiResponse } from '@/types/api'
 
@@ -105,6 +106,20 @@ export function useTags() {
       return res.json()
     },
     staleTime: 10 * 60 * 1000, // 10 minutes - tags don't change often
+    refetchOnWindowFocus: false,
+  })
+}
+
+// Fetch all tags with stats (for admin)
+export function useTagsWithStats() {
+  return useQuery({
+    queryKey: ['tags-with-stats'],
+    queryFn: async (): Promise<TagWithStats[]> => {
+      const res = await fetch('/api/tags')
+      if (!res.ok) throw new Error('Failed to fetch tags')
+      return res.json()
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes - admin data might change more frequently
     refetchOnWindowFocus: false,
   })
 }

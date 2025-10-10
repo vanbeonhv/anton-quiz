@@ -7,14 +7,13 @@ import { isAdmin } from '@/lib/utils/admin'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import TagManagement from '@/components/admin/TagManagement'
 import QuestionManagement from '@/components/admin/QuestionManagement'
-import { Tag } from '@/types'
+import { useTags } from '@/lib/queries'
 import { toast } from 'sonner'
 
 export default function AdminPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
-  const [tags, setTags] = useState<Tag[]>([])
-  const [user, setUser] = useState<{ email: string } | null>(null)
+  const { data: tags = [], refetch: refetchTags } = useTags()
 
   useEffect(() => {
     checkAuth()
@@ -36,9 +35,6 @@ export default function AdminPage() {
         router.push('/')
         return
       }
-
-      setUser({ email: user.email! })
-      await fetchTags()
     } catch (error) {
       console.error('Auth check failed:', error)
       toast.error('Authentication failed')
@@ -48,17 +44,7 @@ export default function AdminPage() {
     }
   }
 
-  const fetchTags = async () => {
-    try {
-      const response = await fetch('/api/tags')
-      if (response.ok) {
-        const data = await response.json()
-        setTags(data)
-      }
-    } catch (error) {
-      console.error('Error fetching tags:', error)
-    }
-  }
+
 
   if (loading) {
     return (
@@ -92,11 +78,11 @@ export default function AdminPage() {
           </TabsList>
 
           <TabsContent value="tags" className="space-y-6">
-            <TagManagement onTagsChange={fetchTags} />
+            <TagManagement onTagsChange={refetchTags} />
           </TabsContent>
 
           <TabsContent value="questions" className="space-y-6">
-            <QuestionManagement tags={tags} onRefresh={fetchTags} />
+            <QuestionManagement tags={tags} onRefresh={refetchTags} />
           </TabsContent>
         </Tabs>
       </div>
