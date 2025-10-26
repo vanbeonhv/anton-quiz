@@ -21,14 +21,10 @@ export async function GET(request: NextRequest) {
     // Get all tags with question count
     const tags = await prisma.tag.findMany({
       include: {
-        _count: {
-          select: {
-            questions: {
-              where: {
-                question: {
-                  isActive: true
-                }
-              }
+        questions: {
+          where: {
+            question: {
+              isActive: true
             }
           }
         }
@@ -43,7 +39,7 @@ export async function GET(request: NextRequest) {
       description: tag.description,
       createdAt: tag.createdAt,
       updatedAt: tag.updatedAt,
-      questionCount: tag._count.questions
+      questionCount: tag.questions.length
     }))
 
     // Add user progress statistics if requested
