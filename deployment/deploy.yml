@@ -188,3 +188,38 @@
         name: nginx
         state: restarted
         enabled: yes
+
+    # ==========================
+    # PHẦN 7: CÀI ĐẶT SSL VỚI LET'S ENCRYPT
+    # ==========================
+    
+    - name: Cài Certbot và plugin Nginx
+      apt:
+        name:
+          - certbot
+          - python3-certbot-nginx
+        state: present
+    
+    - name: Lấy SSL certificate từ Let's Encrypt
+      command: >
+        certbot --nginx
+        -d quiz.huuvan.dev
+        --non-interactive
+        --agree-tos
+        --email nguyenvannhv26@gmail.com
+        --redirect
+      args:
+        creates: /etc/letsencrypt/live/{{ ansible_host }}/fullchain.pem
+    
+    - name: Setup auto-renew SSL
+      cron:
+        name: "Renew Let's Encrypt certificates"
+        job: "certbot renew --quiet"
+        minute: "0"
+        hour: "0,12"
+
+    - name: Restart Nginx
+      systemd:
+        name: nginx
+        state: restarted
+        enabled: yes
