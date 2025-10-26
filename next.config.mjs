@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',  // BẮT BUỘC cho Docker
   // Disable React StrictMode to prevent double API calls in development
   reactStrictMode: false,
   eslint: {
