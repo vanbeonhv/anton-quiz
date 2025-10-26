@@ -9,3 +9,6 @@ ansible-vault encrypt vars/secrets.yml
 
 -- giải mã để xem (nhập password)
 ansible-vault view vars/secrets.yml
+
+-- chạy thật
+ansible-playbook deploy.yml --ask-vault-pass

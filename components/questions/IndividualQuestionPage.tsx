@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { AnswerOption } from './AnswerOption'
+import { LoadingOverlay } from '@/components/shared/LoadingOverlay'
 import { useSubmitQuestionAttempt } from '@/lib/queries'
 import { toast } from 'sonner'
 
@@ -194,76 +195,81 @@ export function IndividualQuestionPage({ question }: IndividualQuestionPageProps
             ))}
           </div>
 
-          {/* Submit Button */}
-          {!result && !hasAttempted && (
-            <div className="flex justify-center">
-              <Button
-                onClick={handleSubmit}
-                disabled={!selectedAnswer || submitAttemptMutation.isPending}
-                className="px-8 py-3 bg-primary-green hover:bg-primary-green/90 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {submitAttemptMutation.isPending ? 'Submitting...' : 'Submit Answer'}
-              </Button>
-            </div>
-          )}
-
-          {/* Already Attempted Message */}
-          {hasAttempted && !result && (
-            <div className="text-center">
-              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg ${
-                isSolved 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-orange-100 text-orange-800'
-              }`}>
-                <span className="font-medium">
-                  {isSolved ? '✓ You have already solved this question' : '✗ You have already attempted this question'}
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* Result Display */}
-          {result && (
-            <div className="space-y-6 border-t border-bg-peach pt-8">
-              {/* Result Status */}
-              <div className="text-center">
-                <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg text-lg font-semibold ${
-                  result.isCorrect 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
-                }`}>
-                  {result.isCorrect ? '🎉 Correct!' : '❌ Incorrect'}
-                </div>
-              </div>
-
-              {/* Explanation */}
-              {result.explanation && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                  <h3 className="font-semibold text-blue-900 mb-2">Explanation</h3>
-                  <p className="text-blue-800 leading-relaxed">
-                    {result.explanation}
-                  </p>
+          {/* Submit Button and Result Area with Loading Overlay */}
+          <LoadingOverlay isLoading={submitAttemptMutation.isPending}>
+            <div className="space-y-6">
+              {/* Submit Button */}
+              {!result && !hasAttempted && (
+                <div className="flex justify-center">
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={!selectedAnswer}
+                    className="px-8 py-3 bg-primary-green hover:bg-primary-green/90 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Submit Answer
+                  </Button>
                 </div>
               )}
 
-              {/* Action Buttons */}
-              <div className="flex justify-center gap-4">
-                <Button
-                  onClick={handleBackToQuestions}
-                  variant="outline"
-                  className="px-6 py-2 border-primary-green text-primary-green hover:bg-primary-green hover:text-white"
-                >
-                  Back to Questions
-                </Button>
-                <Button
-                  onClick={handleNextQuestion}
-                  className="px-6 py-2 bg-primary-green hover:bg-primary-green/90 text-white"
-                >
-                  Next Question
-                </Button>
-              </div>
+              {/* Already Attempted Message */}
+              {hasAttempted && !result && (
+                <div className="text-center">
+                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg ${
+                    isSolved 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-orange-100 text-orange-800'
+                  }`}>
+                    <span className="font-medium">
+                      {isSolved ? '✓ You have already solved this question' : '✗ You have already attempted this question'}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Result Display */}
+              {result && (
+                <div className="space-y-6 border-t border-bg-peach pt-8">
+                  {/* Result Status */}
+                  <div className="text-center">
+                    <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg text-lg font-semibold ${
+                      result.isCorrect 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {result.isCorrect ? '🎉 Correct!' : '❌ Incorrect'}
+                    </div>
+                  </div>
+
+                  {/* Explanation */}
+                  {result.explanation && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                      <h3 className="font-semibold text-blue-900 mb-2">Explanation</h3>
+                      <p className="text-blue-800 leading-relaxed">
+                        {result.explanation}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex justify-center gap-4">
+                    <Button
+                      onClick={handleBackToQuestions}
+                      variant="outline"
+                      className="px-6 py-2 border-primary-green text-primary-green hover:bg-primary-green hover:text-white"
+                    >
+                      Back to Questions
+                    </Button>
+                    <Button
+                      onClick={handleNextQuestion}
+                      className="px-6 py-2 bg-primary-green hover:bg-primary-green/90 text-white"
+                    >
+                      Next Question
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </LoadingOverlay>
         </CardContent>
       </Card>
     </div>
