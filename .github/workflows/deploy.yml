@@ -31,15 +31,14 @@ jobs:
           chmod 600 ~/.ssh/id_rsa_vps_1
           ssh-keyscan -H 103.129.127.127 >> ~/.ssh/known_hosts
 
-      - name: Decrypt Ansible vault secrets
+      - name: Create vault password file
         run: |
-          echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > .vault_pass
-          chmod 600 .vault_pass
-        working-directory: deployment
+          echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > ~/.vault_pass
+          chmod 600 ~/.vault_pass
 
       - name: Run Ansible deployment
         run: |
-          ansible-playbook deploy.yml --vault-password-file .vault_pass
+          ansible-playbook deploy.yml --vault-password-file ~/.vault_pass
         working-directory: deployment
         env:
           ANSIBLE_HOST_KEY_CHECKING: 'False'
@@ -48,4 +47,4 @@ jobs:
         if: always()
         run: |
           rm -f ~/.ssh/id_rsa_vps_1
-          rm -f deployment/.vault_pass
+          rm -f ~/.vault_pass
