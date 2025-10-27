@@ -3,9 +3,11 @@
 import { useQuestionsSolvedLeaderboard } from '@/lib/queries'
 import { useAuth } from '@/hooks/useAuth'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Trophy, Medal, Award, Target, TrendingUp } from 'lucide-react'
+import { Target, TrendingUp } from 'lucide-react'
 import { LeaderboardSkeleton } from '@/components/shared/LoadingState'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { RankDisplay } from '@/components/shared/RankDisplay'
+import { UserWithAvatar } from '@/components/shared/UserWithAvatar'
 
 interface QuestionsSolvedLeaderboardProps {
   timeFilter: string
@@ -14,32 +16,6 @@ interface QuestionsSolvedLeaderboardProps {
 export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeaderboardProps) {
   const { user } = useAuth()
   const { data: leaderboard, isLoading, error } = useQuestionsSolvedLeaderboard(timeFilter)
-
-  const getRankIcon = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return <Trophy className="w-5 h-5 text-accent-yellow" />
-      case 2:
-        return <Medal className="w-5 h-5 text-text-muted" />
-      case 3:
-        return <Award className="w-5 h-5 text-primary-orange" />
-      default:
-        return <span className="w-5 h-5 flex items-center justify-center text-sm font-semibold text-text-muted">#{rank}</span>
-    }
-  }
-
-  const getRankEmoji = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return '🥇'
-      case 2:
-        return '🥈'
-      case 3:
-        return '🥉'
-      default:
-        return null
-    }
-  }
 
   const getAccuracyColor = (accuracy: number) => {
     if (accuracy >= 80) return 'text-primary-green'
@@ -97,7 +73,6 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
         <TableBody>
           {leaderboard.map((entry) => {
             const isCurrentUser = user?.email === entry.userEmail
-            const rankEmoji = getRankEmoji(entry.rank)
             const accuracyColor = getAccuracyColor(entry.accuracyPercentage)
 
             return (
@@ -110,20 +85,23 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
                 `}
               >
                 <TableCell className="font-medium">
-                  <div className="flex items-center gap-2">
-                    {getRankIcon(entry.rank)}
-                    {rankEmoji && <span className="text-lg">{rankEmoji}</span>}
-                  </div>
+                  <RankDisplay rank={entry.rank} />
                 </TableCell>
 
                 <TableCell>
-                  <div className="flex flex-col">
-                    <span className={`font-medium ${isCurrentUser ? 'text-primary-green font-semibold' : 'text-text-primary'}`}>
-                      {entry.userEmail.split('@')[0]}
-                      {isCurrentUser && <span className="text-xs ml-2 text-primary-green">(You)</span>}
-                    </span>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <UserWithAvatar
+                        userEmail={entry.userEmail}
+                        avatarUrl={entry.avatarUrl}
+                        displayName={entry.userEmail.split('@')[0]}
+                        rank={entry.rank}
+                        className={isCurrentUser ? 'text-primary-green font-semibold' : ''}
+                      />
+                      {isCurrentUser && <span className="text-xs text-primary-green">(You)</span>}
+                    </div>
                     {entry.rank <= 3 && (
-                      <span className="text-xs text-text-muted mt-1">
+                      <span className="text-xs text-text-muted">
                         Top solver
                       </span>
                     )}

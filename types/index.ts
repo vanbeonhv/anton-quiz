@@ -173,6 +173,7 @@ export interface QuestionsSolvedLeaderboardEntry {
   rank: number
   userId: string
   userEmail: string
+  avatarUrl?: string | null
   totalCorrectAnswers: number
   totalQuestionsAnswered: number
   accuracyPercentage: number

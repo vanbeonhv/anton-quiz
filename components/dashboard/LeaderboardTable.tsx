@@ -1,7 +1,8 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
-import { Trophy, Medal, Award } from 'lucide-react'
+import { Trophy } from 'lucide-react'
 import { QuestionsSolvedLeaderboardEntry } from '@/types'
+import { RankDisplay } from '@/components/shared/RankDisplay'
+import { UserWithAvatar } from '@/components/shared/UserWithAvatar'
 import dayjs from '@/lib/dayjs'
 
 interface LeaderboardTableProps {
@@ -9,32 +10,6 @@ interface LeaderboardTableProps {
 }
 
 export function LeaderboardTable({ entries }: LeaderboardTableProps) {
-  const getRankIcon = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return <Trophy className="w-5 h-5 text-accent-yellow" />
-      case 2:
-        return <Medal className="w-5 h-5 text-text-muted" />
-      case 3:
-        return <Award className="w-5 h-5 text-primary-orange" />
-      default:
-        return <span className="w-5 h-5 flex items-center justify-center text-sm font-semibold text-text-muted">#{rank}</span>
-    }
-  }
-
-  const getRankBadge = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return <Badge className="bg-accent-yellow text-text-primary">1st Place</Badge>
-      case 2:
-        return <Badge className="bg-text-muted text-white">2nd Place</Badge>
-      case 3:
-        return <Badge className="bg-primary-orange text-white">3rd Place</Badge>
-      default:
-        return null
-    }
-  }
-
   const formatDate = (date: Date) => {
     return dayjs(date).format('MMM D, HH:mm')
   }
@@ -67,20 +42,16 @@ export function LeaderboardTable({ entries }: LeaderboardTableProps) {
               className={`hover:bg-bg-peach/30 ${entry.rank <= 3 ? 'bg-primary-green-light/30' : ''}`}
             >
               <TableCell className="font-medium">
-                <div className="flex items-center gap-2">
-                  {getRankIcon(entry.rank)}
-                </div>
+                <RankDisplay rank={entry.rank} />
               </TableCell>
 
               <TableCell>
-                <div className="flex flex-col">
-                  <span className="font-medium text-text-primary">
-                    {entry.userEmail.split('@')[0]}
-                  </span>
-                  <div className="flex items-center gap-2 mt-1">
-                    {getRankBadge(entry.rank)}
-                  </div>
-                </div>
+                <UserWithAvatar
+                  userEmail={entry.userEmail}
+                  avatarUrl={entry.avatarUrl}
+                  displayName={entry.userEmail.split('@')[0]}
+                  rank={entry.rank}
+                />
               </TableCell>
 
               <TableCell className="hidden md:table-cell">

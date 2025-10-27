@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       userEmail: stats.userEmail,
       totalCorrectAnswers: stats.totalCorrectAnswers,
       totalQuestionsAnswered: stats.totalQuestionsAnswered,
-      accuracyPercentage: stats.totalQuestionsAnswered > 0 
+      accuracyPercentage: stats.totalQuestionsAnswered > 0
         ? Math.round((stats.totalCorrectAnswers / stats.totalQuestionsAnswered) * 100)
         : 0,
       updatedAt: stats.updatedAt

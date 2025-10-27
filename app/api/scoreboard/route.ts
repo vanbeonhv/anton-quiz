@@ -58,13 +58,38 @@ async function getQuestionsSolvedLeaderboard(filter: string, limit: number) {
     ]
   })
 
+  // Fetch avatar URLs from Supabase Auth using raw SQL query
+  const avatarMap = new Map<string, string | null>()
+
+  const userIds = userStats.map(stats => stats.userId)
+
+  if (userIds.length > 0) {
+    try {
+      // Query auth.users table directly via Prisma raw SQL with parameterized query
+      const authUsers = await prisma.$queryRaw<Array<{ id: string; raw_user_meta_data: any }>>`
+        SELECT id, raw_user_meta_data 
+        FROM auth.users 
+        WHERE id = ANY(${userIds}::uuid[])
+      `
+
+      authUsers.forEach((user) => {
+        const avatarUrl = user.raw_user_meta_data?.avatar_url || null
+        avatarMap.set(user.id, avatarUrl)
+      })
+    } catch (error) {
+      // If we can't fetch avatars, just continue with null values
+      console.warn('Failed to fetch user avatars:', error)
+    }
+  }
+
   const leaderboard = userStats.map((stats, index) => ({
     rank: index + 1,
     userId: stats.userId,
     userEmail: stats.userEmail,
+    avatarUrl: avatarMap.get(stats.userId) || null,
     totalCorrectAnswers: stats.totalCorrectAnswers,
     totalQuestionsAnswered: stats.totalQuestionsAnswered,
-    accuracyPercentage: stats.totalQuestionsAnswered > 0 
+    accuracyPercentage: stats.totalQuestionsAnswered > 0
       ? Math.round((stats.totalCorrectAnswers / stats.totalQuestionsAnswered) * 100)
       : 0,
     updatedAt: stats.updatedAt
