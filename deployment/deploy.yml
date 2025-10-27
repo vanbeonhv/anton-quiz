@@ -4,6 +4,13 @@
   become: yes
   vars_files:
     - vars/secrets.yml
+
+  vars:
+    app_name: anton-quiz
+    app_dir: /opt/{{ app_name }}
+    github_repo: https://github.com/vanbeonhv/anton-quiz.git
+    app_port: 4000
+    domain_name: quiz.huuvan.dev
   
   tasks:
     # ==========================

@@ -2,6 +2,14 @@
 - name: Setup VPS Infrastructure (One-time setup)
   hosts: production
   become: yes
+
+  vars:
+    app_name: anton-quiz
+    app_dir: /opt/{{ app_name }}
+    github_repo: https://github.com/vanbeonhv/anton-quiz.git
+    app_port: 4000
+    domain_name: quiz.huuvan.dev
+    owner_email: nguyenvannhv26@gmail.com
   
   tasks:
     # ==========================
@@ -138,7 +146,7 @@
         -d {{ domain_name }}
         --non-interactive
         --agree-tos
-        --email {{ admin_email }}
+        --email {{ owner_email }}
         --redirect
       args:
         creates: /etc/letsencrypt/live/{{ domain_name }}/fullchain.pem
