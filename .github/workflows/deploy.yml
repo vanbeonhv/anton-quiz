@@ -1,0 +1,51 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Ansible
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa_vps_1
+          chmod 600 ~/.ssh/id_rsa_vps_1
+          ssh-keyscan -H 103.129.127.127 >> ~/.ssh/known_hosts
+
+      - name: Decrypt Ansible vault secrets
+        run: |
+          echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > .vault_pass
+          chmod 600 .vault_pass
+        working-directory: deployment
+
+      - name: Run Ansible deployment
+        run: |
+          ansible-playbook deploy.yml --vault-password-file .vault_pass
+        working-directory: deployment
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: 'False'
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f ~/.ssh/id_rsa_vps_1
+          rm -f deployment/.vault_pass
