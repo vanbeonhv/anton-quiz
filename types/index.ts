@@ -164,6 +164,8 @@ export interface DailyPointsLeaderboardEntry {
   rank: number
   userId: string
   userEmail: string
+  avatarUrl?: string | null
+  displayName?: string | null
   totalDailyPoints: number
   dailyQuizStreak: number
   updatedAt: Date
@@ -174,6 +176,7 @@ export interface QuestionsSolvedLeaderboardEntry {
   userId: string
   userEmail: string
   avatarUrl?: string | null
+  displayName?: string | null
   totalCorrectAnswers: number
   totalQuestionsAnswered: number
   accuracyPercentage: number

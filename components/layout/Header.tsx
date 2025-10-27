@@ -251,9 +251,12 @@ export function Header() {
 
 // Get display name for user (handles both GitHub and email users)
 function getDisplayName(user: SupabaseUser): string {
-  // For GitHub users, prefer full_name, then user_name, then name
+  // Priority order: full_name > preferred_username > user_name > name > email
   if (user.user_metadata?.full_name) {
     return user.user_metadata.full_name
+  }
+  if (user.user_metadata?.preferred_username) {
+    return user.user_metadata.preferred_username
   }
   if (user.user_metadata?.user_name) {
     return user.user_metadata.user_name

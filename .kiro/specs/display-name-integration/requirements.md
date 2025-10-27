@@ -6,11 +6,12 @@ This feature enhances the user display system to use the display name from Supab
 
 ## Glossary
 
-- **Display Name**: The user-provided name stored in Supabase Auth's `auth.users` table under `raw_user_meta_data` as `display_name`
+- **Display Name**: The user-identifying name from Supabase Auth's `auth.users` table under `raw_user_meta_data`. For GitHub users, this is the `user_name` field. For email users, this may be the `full_name` field if set.
 - **Leaderboard System**: The scoreboard components that display user rankings and statistics
 - **Header Component**: The top navigation bar that shows the current user's information
 - **UserStats Table**: The Prisma database table that stores user statistics and references users by `userId` and `userEmail`
 - **Supabase Auth**: The authentication service that manages user accounts and metadata
+- **User Metadata**: The JSONB data stored in `raw_user_meta_data` containing fields like `user_name`, `preferred_username`, `full_name`, and `avatar_url`
 
 ## Requirements
 
@@ -20,10 +21,10 @@ This feature enhances the user display system to use the display name from Supab
 
 #### Acceptance Criteria
 
-1. WHEN THE Header Component renders the current user's information, THE Header Component SHALL display the display name from Supabase Auth metadata
-2. IF the display name is not available in Supabase Auth metadata, THEN THE Header Component SHALL fall back to the existing name derivation logic
+1. WHEN THE Header Component renders the current user's information, THE Header Component SHALL display the user name from Supabase Auth metadata with priority order: full_name, preferred_username, user_name
+2. IF none of the user name fields are available in Supabase Auth metadata, THEN THE Header Component SHALL fall back to email-based name derivation
 3. THE Header Component SHALL maintain the current avatar display logic without modification
-4. THE Header Component SHALL update the `getDisplayName` function to prioritize the display name field
+4. THE Header Component SHALL update the `getDisplayName` function to check preferred_username and user_name fields in the correct priority order
 
 ### Requirement 2
 

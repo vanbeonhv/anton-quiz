@@ -58,8 +58,8 @@ async function getQuestionsSolvedLeaderboard(filter: string, limit: number) {
     ]
   })
 
-  // Fetch avatar URLs from Supabase Auth using raw SQL query
-  const avatarMap = new Map<string, string | null>()
+  // Fetch avatar URLs and display names from Supabase Auth using raw SQL query
+  const avatarMap = new Map<string, { avatarUrl: string | null; displayName: string | null }>()
 
   const userIds = userStats.map(stats => stats.userId)
 
@@ -74,26 +74,35 @@ async function getQuestionsSolvedLeaderboard(filter: string, limit: number) {
 
       authUsers.forEach((user) => {
         const avatarUrl = user.raw_user_meta_data?.avatar_url || null
-        avatarMap.set(user.id, avatarUrl)
+        // Priority: full_name > preferred_username > user_name
+        const displayName = user.raw_user_meta_data?.full_name || 
+                          user.raw_user_meta_data?.preferred_username || 
+                          user.raw_user_meta_data?.user_name || 
+                          null
+        avatarMap.set(user.id, { avatarUrl, displayName })
       })
     } catch (error) {
-      // If we can't fetch avatars, just continue with null values
-      console.warn('Failed to fetch user avatars:', error)
+      // If we can't fetch user metadata, just continue with null values
+      console.warn('Failed to fetch user metadata:', error)
     }
   }
 
-  const leaderboard = userStats.map((stats, index) => ({
-    rank: index + 1,
-    userId: stats.userId,
-    userEmail: stats.userEmail,
-    avatarUrl: avatarMap.get(stats.userId) || null,
-    totalCorrectAnswers: stats.totalCorrectAnswers,
-    totalQuestionsAnswered: stats.totalQuestionsAnswered,
-    accuracyPercentage: stats.totalQuestionsAnswered > 0
-      ? Math.round((stats.totalCorrectAnswers / stats.totalQuestionsAnswered) * 100)
-      : 0,
-    updatedAt: stats.updatedAt
-  }))
+  const leaderboard = userStats.map((stats, index) => {
+    const userMetadata = avatarMap.get(stats.userId)
+    return {
+      rank: index + 1,
+      userId: stats.userId,
+      userEmail: stats.userEmail,
+      avatarUrl: userMetadata?.avatarUrl || null,
+      displayName: userMetadata?.displayName || null,
+      totalCorrectAnswers: stats.totalCorrectAnswers,
+      totalQuestionsAnswered: stats.totalQuestionsAnswered,
+      accuracyPercentage: stats.totalQuestionsAnswered > 0
+        ? Math.round((stats.totalCorrectAnswers / stats.totalQuestionsAnswered) * 100)
+        : 0,
+      updatedAt: stats.updatedAt
+    }
+  })
 
   return NextResponse.json(leaderboard)
 }

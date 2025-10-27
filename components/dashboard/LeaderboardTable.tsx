@@ -49,7 +49,7 @@ export function LeaderboardTable({ entries }: LeaderboardTableProps) {
                 <UserWithAvatar
                   userEmail={entry.userEmail}
                   avatarUrl={entry.avatarUrl}
-                  displayName={entry.userEmail.split('@')[0]}
+                  displayName={entry.displayName || entry.userEmail.split('@')[0]}
                   rank={entry.rank}
                 />
               </TableCell>
