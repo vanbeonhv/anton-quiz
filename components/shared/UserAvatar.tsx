@@ -10,6 +10,7 @@ interface UserAvatarProps {
   size?: 'sm' | 'md' | 'lg'
   className?: string
   showBorder?: boolean
+  rank?: number
 }
 
 // Size mappings in pixels
@@ -70,6 +71,7 @@ export function UserAvatar({
   size = 'md',
   className,
   showBorder = false,
+  rank,
 }: UserAvatarProps) {
   const [imageError, setImageError] = useState(false)
   const [isLoading, setIsLoading] = useState(!!avatarUrl)
@@ -82,11 +84,94 @@ export function UserAvatar({
   // Show fallback if no avatar URL or image failed to load
   const showFallback = !avatarUrl || imageError
 
+  // Determine if this is a top rank that needs special styling
+  const isFirstPlace = rank === 1
+  const isTopThree = rank && rank <= 3
+
+  // For 1st place: animated gradient border wrapper
+  if (isFirstPlace) {
+    return (
+      <div className="relative flex-shrink-0">
+        {/* Animated gradient border wrapper */}
+        <div
+          className="absolute inset-0 rounded-full animate-pulse-border"
+          style={{
+            background: 'linear-gradient(135deg, #FFD700, #FFBF00, #FFD166, #FFD700)',
+            backgroundSize: '200% 200%',
+            padding: '3px',
+          }}
+        >
+          <div 
+            className="w-full h-full rounded-full bg-bg-cream"
+            style={{
+              width: pixelSize,
+              height: pixelSize,
+            }}
+          />
+        </div>
+
+        {/* Avatar content */}
+        <div
+          className={cn(
+            'relative flex items-center justify-center rounded-full overflow-hidden flex-shrink-0',
+            'ring-2 ring-bg-cream',
+            className
+          )}
+          style={{
+            width: pixelSize,
+            height: pixelSize,
+          }}
+        >
+          {showFallback ? (
+            <div
+              className="w-full h-full flex items-center justify-center font-semibold"
+              style={{
+                backgroundColor: bgColor,
+                color: textColor,
+                fontSize: size === 'sm' ? '12px' : size === 'md' ? '14px' : '18px',
+              }}
+            >
+              {initial}
+            </div>
+          ) : (
+            <>
+              {isLoading && (
+                <div
+                  className="absolute inset-0 bg-bg-peach animate-pulse"
+                  style={{
+                    width: pixelSize,
+                    height: pixelSize,
+                  }}
+                />
+              )}
+              
+              <Image
+                src={avatarUrl}
+                alt={`${userEmail} avatar`}
+                width={pixelSize}
+                height={pixelSize}
+                className="w-full h-full object-cover"
+                onError={() => {
+                  setImageError(true)
+                  setIsLoading(false)
+                }}
+                onLoad={() => setIsLoading(false)}
+                unoptimized
+              />
+            </>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // For 2nd-3rd place: subtle static border
   return (
     <div
       className={cn(
         'relative flex items-center justify-center rounded-full overflow-hidden flex-shrink-0',
         showBorder && 'ring-2 ring-white ring-offset-1',
+        isTopThree && 'ring-2 ring-primary-green-light',
         className
       )}
       style={{
