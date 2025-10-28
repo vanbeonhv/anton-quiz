@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -19,9 +20,31 @@ import type { User as SupabaseUser } from '@supabase/supabase-js'
 export function Header() {
   const { user, isLoading: loading, logout } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const pathname = usePathname()
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
+  }
+
+  // Helper function to determine if a navigation item is active
+  const isActiveRoute = (route: string) => {
+    if (route === '/dashboard') {
+      return pathname === '/dashboard' || pathname === '/'
+    }
+    return pathname.startsWith(route)
+  }
+
+  // Helper function to get navigation link classes
+  const getNavLinkClasses = (route: string, isMobile = false) => {
+    const baseClasses = "px-3 py-2 rounded-lg font-medium transition-all duration-200 relative"
+    const isActive = isActiveRoute(route)
+
+    if (isActive) {
+      const borderClass = isMobile ? 'border-l-4 border-primary-green' : 'border-b-2 border-primary-green'
+      return `${baseClasses} text-primary-green bg-primary-green-light shadow-sm ${borderClass}`
+    }
+
+    return `${baseClasses} text-text-primary hover:text-primary-green hover:bg-primary-green-light hover:shadow-md hover:scale-105`
   }
 
   return (
@@ -31,7 +54,7 @@ export function Header() {
           {/* Logo */}
           <Link
             href="/dashboard"
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-200"
           >
             <div className="relative">
               <Image
@@ -60,19 +83,19 @@ export function Header() {
                 <div className="hidden md:flex items-center gap-1 mr-2">
                   <Link
                     href="/dashboard"
-                    className="px-3 py-2 rounded-lg text-text-primary hover:text-primary-green hover:bg-primary-green-light transition-all duration-200 font-medium"
+                    className={getNavLinkClasses('/dashboard')}
                   >
                     Dashboard
                   </Link>
                   <Link
                     href="/questions"
-                    className="px-3 py-2 rounded-lg text-text-primary hover:text-primary-green hover:bg-primary-green-light transition-all duration-200 font-medium"
+                    className={getNavLinkClasses('/questions')}
                   >
                     Questions
                   </Link>
                   <Link
                     href="/scoreboard"
-                    className="px-3 py-2 rounded-lg text-text-primary hover:text-primary-green hover:bg-primary-green-light transition-all duration-200 font-medium"
+                    className={getNavLinkClasses('/scoreboard')}
                   >
                     Scoreboard
                   </Link>
@@ -97,7 +120,10 @@ export function Header() {
                 {isAdmin(user.email || '') && (
                   <Link
                     href="/admin"
-                    className="px-3 py-2 rounded-lg text-primary-orange hover:text-primary-orange-dark hover:bg-primary-orange-light transition-all duration-200 flex items-center gap-2 font-medium"
+                    className={`${isActiveRoute('/admin')
+                      ? 'px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 text-primary-orange bg-primary-orange-light shadow-sm border-b-2 border-primary-orange'
+                      : 'px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 text-primary-orange hover:text-primary-orange-dark hover:bg-primary-orange-light hover:shadow-sm hover:scale-105'
+                      }`}
                   >
                     <Settings className="w-4 h-4" />
                     <span className="hidden sm:inline">Admin</span>
@@ -207,28 +233,28 @@ export function Header() {
           <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
             <Link
               href="/dashboard"
-              className="block px-3 py-2 rounded-lg text-text-primary hover:text-primary-green hover:bg-primary-green-light transition-all duration-200 font-medium"
+              className={`block ${getNavLinkClasses('/dashboard', true)}`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Dashboard
             </Link>
             <Link
               href="/questions"
-              className="block px-3 py-2 rounded-lg text-text-primary hover:text-primary-green hover:bg-primary-green-light transition-all duration-200 font-medium"
+              className={`block ${getNavLinkClasses('/questions', true)}`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Questions
             </Link>
             <Link
               href="/scoreboard"
-              className="block px-3 py-2 rounded-lg text-text-primary hover:text-primary-green hover:bg-primary-green-light transition-all duration-200 font-medium"
+              className={`block ${getNavLinkClasses('/scoreboard', true)}`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Scoreboard
             </Link>
             <Link
               href="/profile"
-              className="block px-3 py-2 rounded-lg text-text-primary hover:text-primary-green hover:bg-primary-green-light transition-all duration-200 font-medium"
+              className={`block ${getNavLinkClasses('/profile', true)}`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Profile & Stats
@@ -236,7 +262,10 @@ export function Header() {
             {isAdmin(user.email || '') && (
               <Link
                 href="/admin"
-                className="block px-3 py-2 rounded-lg text-primary-orange hover:text-primary-orange-dark hover:bg-primary-orange-light transition-all duration-200 font-medium"
+                className={`block ${isActiveRoute('/admin')
+                  ? 'px-3 py-2 rounded-lg font-medium transition-all duration-200 relative text-primary-orange bg-primary-orange-light shadow-sm border-l-4 border-primary-orange'
+                  : 'px-3 py-2 rounded-lg font-medium transition-all duration-200 relative text-primary-orange hover:text-primary-orange-dark hover:bg-primary-orange-light hover:shadow-sm hover:scale-105'
+                  }`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Admin
