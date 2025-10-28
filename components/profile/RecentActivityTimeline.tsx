@@ -1,5 +1,6 @@
 import { CheckCircle, XCircle, Trophy, Target, Clock } from 'lucide-react'
 import dayjs from '@/lib/dayjs'
+import { MarkdownText } from '@/lib/utils/markdown'
 
 interface QuestionActivity {
   type: 'question'
@@ -79,7 +80,7 @@ function ActivityItem({ activity }: ActivityItemProps) {
             </span>
           </div>
           <p className="text-sm text-gray-600 mt-1 truncate">
-            {activity.question.text}
+            <MarkdownText>{activity.question.text}</MarkdownText>
           </p>
           <div className="flex items-center space-x-2 mt-1 text-xs text-gray-500">
             <span>Practice</span>

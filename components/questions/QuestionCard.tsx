@@ -5,6 +5,7 @@ import { CheckCircle, XCircle } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { QuestionWithTags, Difficulty } from '@/types'
+import { MarkdownText } from '@/lib/utils/markdown'
 
 interface QuestionCardProps {
   question: QuestionWithTags
@@ -81,7 +82,7 @@ export function QuestionCard({ question }: QuestionCardProps) {
           {/* Question preview text */}
           <div className="mb-4">
             <p className="text-text-primary text-sm leading-relaxed group-hover:text-primary-green transition-colors duration-200">
-              {previewText}
+              <MarkdownText>{previewText}</MarkdownText>
             </p>
           </div>
 

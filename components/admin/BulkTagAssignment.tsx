@@ -12,6 +12,7 @@ import { Tags, Plus, Minus, RotateCcw } from 'lucide-react'
 import { Tag, QuestionWithTags } from '@/types'
 import { toast } from 'sonner'
 import { useBulkTagAssignment } from '@/lib/queries'
+import { MarkdownText } from '@/lib/utils/markdown'
 
 interface BulkTagAssignmentProps {
   tags: Tag[]
@@ -142,7 +143,9 @@ export default function BulkTagAssignment({ tags, questions, onComplete }: BulkT
                       <Label htmlFor={`question-${question.id}`} className="text-sm font-medium">
                         #{question.number}
                       </Label>
-                      <p className="text-sm text-text-secondary truncate">{question.text}</p>
+                      <p className="text-sm text-text-secondary truncate">
+                        <MarkdownText>{question.text}</MarkdownText>
+                      </p>
                       <div className="flex flex-wrap gap-1 mt-1">
                         <Badge className="text-xs" variant="outline">
                           {question.difficulty}

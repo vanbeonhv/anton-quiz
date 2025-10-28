@@ -12,6 +12,7 @@ import { LoadingOverlay } from '@/components/shared/LoadingOverlay'
 import { useSubmitQuestionAttempt } from '@/lib/queries'
 import { DAILY_POINTS } from '@/lib/utils/dailyQuestion'
 import { toast } from 'sonner'
+import { MarkdownText } from '@/lib/utils/markdown'
 
 interface IndividualQuestionPageProps {
   question: QuestionWithTags
@@ -206,8 +207,8 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
         <CardContent className="p-8">
           {/* Question Text */}
           <div className="mb-8">
-            <h2 className="text-lg font-medium text-text-primary leading-relaxed">
-              {question.text}
+            <h2 className="text-lg text-text-primary leading-relaxed">
+              <MarkdownText>{question.text}</MarkdownText>
             </h2>
           </div>
 
@@ -283,7 +284,7 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
                       <h3 className="font-semibold text-blue-900 mb-2">Explanation</h3>
                       <p className="text-blue-800 leading-relaxed">
-                        {result.explanation}
+                        <MarkdownText>{result.explanation}</MarkdownText>
                       </p>
                     </div>
                   )}

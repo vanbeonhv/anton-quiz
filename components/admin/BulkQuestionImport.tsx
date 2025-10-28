@@ -21,6 +21,7 @@ import { Upload, Copy, Check, ChevronLeft, ChevronRight, CheckCircle2, AlertCirc
 import { Tag, Difficulty, OptionKey } from '@/types'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { MarkdownText } from '@/lib/utils/markdown'
 
 interface BulkQuestionImportProps {
   tags: Tag[]
@@ -478,7 +479,7 @@ export default function BulkQuestionImport({ tags, onComplete }: BulkQuestionImp
                         </div>
                       </div>
                       <div className="text-xs opacity-80 truncate">
-                        {question.text.substring(0, 30)}...
+                        <MarkdownText>{question.text.substring(0, 30) + '...'}</MarkdownText>
                       </div>
                       {!validation.isValid && (
                         <div className="text-xs text-red-500 mt-1">
