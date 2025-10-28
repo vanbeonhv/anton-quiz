@@ -1,0 +1,14 @@
+const questionArray = [
+    {
+        "text": "Một ngân hàng thực hiện chuyển tiền: Transaction A trừ 1 triệu từ tài khoản X, sau đó hệ thống bị lỗi trước khi cộng tiền vào tài khoản Y. Thuộc tính ACID nào đảm bảo việc hoàn tác giao dịch này?",
+        "optionA": "Atomicity - đảm bảo cả hai thao tác được thực hiện hoàn toàn hoặc không thực hiện gì cả",
+        "optionB": "Consistency - đảm bảo tổng tiền không đổi",
+        "optionC": "Isolation - đảm bảo giao dịch không bị gián đoạn",
+        "optionD": "Durability - đảm bảo dữ liệu không bị mất",
+        "correctAnswer": "A",
+        "explanation": "Atomicity đảm bảo transaction là đơn vị không thể chia nhỏ. Khi có lỗi, toàn bộ giao dịch sẽ được rollback, số tiền 1 triệu sẽ được hoàn lại cho tài khoản X như thể giao dịch chưa từng xảy ra",
+        "difficulty": "MEDIUM"
+    }
+]
+
+module.exports = questionArray
