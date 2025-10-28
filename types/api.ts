@@ -61,7 +61,10 @@ export function parseQuestionsSearchParams(searchParams: URLSearchParams): Parse
   const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
   const pageSize = Math.max(1, Math.min(100, parseInt(searchParams.get('pageSize') || searchParams.get('limit') || '20')))
   const sortBy = (searchParams.get('sortBy') as 'newest' | 'difficulty' | 'number' | 'most-attempted') || 'newest'
-  const sortOrder = (searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc'
+
+  // Default sort order: 'asc' for number sorting, 'desc' for others
+  const defaultSortOrder = sortBy === 'number' ? 'asc' : 'desc'
+  const sortOrder = (searchParams.get('sortOrder') as 'asc' | 'desc') || defaultSortOrder
 
   return {
     tags,
@@ -98,19 +101,19 @@ export function buildQuestionsQueryParams(filters: {
   sortOrder?: 'asc' | 'desc'
 }): URLSearchParams {
   const params = new URLSearchParams()
-  
+
   if (filters.tags && filters.tags.length > 0) {
     params.append('tags', filters.tags.join(','))
   }
-  
+
   if (filters.difficulty && filters.difficulty.length > 0) {
     params.append('difficulty', filters.difficulty.join(','))
   }
-  
+
   if (filters.status && filters.status !== 'all') {
     params.append('status', filters.status)
   }
-  
+
   if (filters.search && filters.search.trim()) {
     params.append('search', filters.search.trim())
   }

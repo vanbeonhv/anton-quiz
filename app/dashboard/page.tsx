@@ -48,7 +48,7 @@ export default function DashboardPage() {
               </button>
               <button
                 onClick={handleViewQuestions}
-                className="flex-1 bg-bg-white hover:bg-gray-50 text-text-primary border-2 border-gray-200 px-6 py-3 rounded-lg font-medium transition-colors"
+                className="flex-1 bg-primary-blue hover:bg-gray-50 text-text-primary border-2 border-gray-200 px-6 py-3 rounded-lg font-medium transition-colors"
               >
                 Browse Questions
               </button>
