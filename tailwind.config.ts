@@ -79,6 +79,21 @@ const config: Config = {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
+  		},
+  		keyframes: {
+  			'pulse-border': {
+  				'0%, 100%': { 
+  					transform: 'scale(1)',
+  					opacity: '0.7'
+  				},
+  				'50%': { 
+  					transform: 'scale(1.05)',
+  					opacity: '1'
+  				}
+  			}
+  		},
+  		animation: {
+  			'pulse-border': 'pulse-border 2.5s ease-in-out infinite'
   		}
   	}
   },

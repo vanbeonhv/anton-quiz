@@ -33,6 +33,7 @@ export function UserWithAvatar({
         userEmail={userEmail}
         avatarUrl={avatarUrl}
         size={determinedSize}
+        rank={rank}
       />
       <span className="truncate font-medium text-sm">
         {displayText}
