@@ -28,9 +28,9 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
   const { data: leaderboard, isLoading, error } = useQuestionsSolvedLeaderboard(timeFilter)
 
   const getAccuracyColor = (accuracy: number) => {
-    if (accuracy >= 80) return 'text-primary-green'
-    if (accuracy >= 60) return 'text-accent-yellow'
-    return 'text-primary-orange'
+    if (accuracy >= 80) return 'text-primary-green-dark'
+    if (accuracy >= 60) return 'text-orange-600'
+    return 'text-red-600'
   }
 
   if (isLoading) {
