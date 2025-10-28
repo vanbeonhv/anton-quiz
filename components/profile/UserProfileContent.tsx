@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/hooks/useAuth'
 import { useUserProfileStats } from '@/lib/queries'
+import { LoadingState } from '@/components/shared'
 import { 
   UserProfileHeader,
   StatsOverviewGrid,
@@ -36,7 +37,7 @@ export function UserProfileContent({ userId }: UserProfileContentProps) {
   const { data: userStats, isLoading, error } = useUserProfileStats(id)
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return <LoadingState message="Loading your profile..." />
   }
 
   if (error || !userStats) {

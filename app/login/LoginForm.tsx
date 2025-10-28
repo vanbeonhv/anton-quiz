@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Github } from 'lucide-react'
+import { Github, Loader2 } from 'lucide-react'
 
 export default function LoginForm() {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -127,7 +127,8 @@ export default function LoginForm() {
               className="w-full bg-primary-green hover:bg-primary-green-dark"
               disabled={loading}
             >
-              {loading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Sign In')}
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {loading ? 'Signing in...' : (isSignUp ? 'Sign Up' : 'Sign In')}
             </Button>
           </form>
 
