@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { Trophy, HelpCircle } from 'lucide-react'
 import { useRecentScores, useUserStats } from '@/lib/queries'
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader'
 import { StatsSection } from '@/components/dashboard/StatsSection'
@@ -42,14 +43,16 @@ export default function DashboardPage() {
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={handleViewAllScores}
-                className="flex-1 bg-primary-green hover:bg-primary-blue-dark text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 bg-primary-green hover:bg-primary-green/90 text-white px-6 py-3 rounded-lg font-medium transition-colors"
               >
+                <Trophy className="w-5 h-5" />
                 View Scoreboard
               </button>
               <button
                 onClick={handleViewQuestions}
-                className="flex-1 bg-primary-green hover:bg-gray-50 text-white border-2 border-gray-200 px-6 py-3 rounded-lg font-medium transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 bg-primary-green hover:bg-primary-green/90 text-white px-6 py-3 rounded-lg font-medium transition-colors"
               >
+                <HelpCircle className="w-5 h-5" />
                 Browse Questions
               </button>
             </div>
