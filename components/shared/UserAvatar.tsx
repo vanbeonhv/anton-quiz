@@ -54,13 +54,13 @@ function getInitialFromEmail(email: string): string {
 function getTextColor(bgColor: string): string {
   // Convert hex to RGB
   const hex = bgColor.replace('#', '')
-  const r = parseInt(hex.substr(0, 2), 16)
-  const g = parseInt(hex.substr(2, 2), 16)
-  const b = parseInt(hex.substr(4, 2), 16)
-  
+  const r = parseInt(hex.substring(0, 2), 16)
+  const g = parseInt(hex.substring(2, 4), 16)
+  const b = parseInt(hex.substring(4, 6), 16)
+
   // Calculate relative luminance
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
-  
+
   // Return white for dark backgrounds, dark for light backgrounds
   return luminance > 0.5 ? '#2C1810' : '#FFFFFF'
 }
@@ -94,84 +94,149 @@ export function UserAvatar({
       <div className="relative flex-shrink-0">
         {/* Animated gradient border wrapper */}
         <div
-          className="absolute inset-0 rounded-full animate-pulse-border"
+          className="rounded-full animate-rotate-gradient p-[3px]"
           style={{
-            background: 'linear-gradient(135deg, #FFD700, #FFBF00, #FFD166, #FFD700)',
-            backgroundSize: '200% 200%',
-            padding: '3px',
+            background: 'conic-gradient(from 0deg, #FFD700, #FFBF00, #FFD166, #FFA500, #FFD700)',
+            width: pixelSize + 6,
+            height: pixelSize + 6,
           }}
         >
-          <div 
-            className="w-full h-full rounded-full bg-bg-cream"
+          {/* Avatar content */}
+          <div
+            className={cn(
+              'relative flex items-center justify-center rounded-full overflow-hidden bg-bg-cream',
+              className
+            )}
             style={{
               width: pixelSize,
               height: pixelSize,
             }}
-          />
-        </div>
-
-        {/* Avatar content */}
-        <div
-          className={cn(
-            'relative flex items-center justify-center rounded-full overflow-hidden flex-shrink-0',
-            'ring-2 ring-bg-cream',
-            className
-          )}
-          style={{
-            width: pixelSize,
-            height: pixelSize,
-          }}
-        >
-          {showFallback ? (
-            <div
-              className="w-full h-full flex items-center justify-center font-semibold"
-              style={{
-                backgroundColor: bgColor,
-                color: textColor,
-                fontSize: size === 'sm' ? '12px' : size === 'md' ? '14px' : '18px',
-              }}
-            >
-              {initial}
-            </div>
-          ) : (
-            <>
-              {isLoading && (
-                <div
-                  className="absolute inset-0 bg-bg-peach animate-pulse"
-                  style={{
-                    width: pixelSize,
-                    height: pixelSize,
-                  }}
-                />
-              )}
-              
-              <Image
-                src={avatarUrl}
-                alt={`${userEmail} avatar`}
-                width={pixelSize}
-                height={pixelSize}
-                className="w-full h-full object-cover"
-                onError={() => {
-                  setImageError(true)
-                  setIsLoading(false)
+          >
+            {showFallback ? (
+              <div
+                className="w-full h-full flex items-center justify-center font-semibold"
+                style={{
+                  backgroundColor: bgColor,
+                  color: textColor,
+                  fontSize: size === 'sm' ? '12px' : size === 'md' ? '14px' : '18px',
                 }}
-                onLoad={() => setIsLoading(false)}
-                unoptimized
-              />
-            </>
-          )}
+              >
+                {initial}
+              </div>
+            ) : (
+              <>
+                {isLoading && (
+                  <div
+                    className="absolute inset-0 bg-bg-peach animate-pulse rounded-full"
+                    style={{
+                      width: pixelSize,
+                      height: pixelSize,
+                    }}
+                  />
+                )}
+
+                <Image
+                  src={avatarUrl}
+                  alt={`${userEmail} avatar`}
+                  width={pixelSize}
+                  height={pixelSize}
+                  className="w-full h-full object-cover rounded-full"
+                  onError={() => {
+                    setImageError(true)
+                    setIsLoading(false)
+                  }}
+                  onLoad={() => setIsLoading(false)}
+                  unoptimized
+                />
+              </>
+            )}
+          </div>
         </div>
       </div>
     )
   }
 
-  // For 2nd-3rd place: subtle static border
+  // For 2nd-3rd place: enhanced gradient borders
+  if (isTopThree) {
+    const borderGradient = rank === 2
+      ? 'linear-gradient(135deg, #E8E8E8, #C0C0C0, #A8A8A8, #C0C0C0, #E8E8E8)' // Enhanced silver gradient
+      : 'linear-gradient(135deg, #D2691E, #CD7F32, #B8860B, #CD7F32, #D2691E)' // Enhanced bronze gradient
+
+    const animationClass = 'animate-pulse-subtle'
+
+    return (
+      <div className="relative flex-shrink-0">
+        <div
+          className={`rounded-full p-[3px] ${animationClass}`}
+          style={{
+            background: borderGradient,
+            width: pixelSize + 6,
+            height: pixelSize + 6,
+            boxShadow: rank === 2
+              ? '0 0 8px rgba(192, 192, 192, 0.4)' // Silver glow
+              : '0 0 8px rgba(205, 127, 50, 0.4)', // Bronze glow
+          }}
+        >
+          <div
+            className={cn(
+              'relative flex items-center justify-center rounded-full overflow-hidden bg-bg-cream',
+              className
+            )}
+            style={{
+              width: pixelSize,
+              height: pixelSize,
+            }}
+          >
+            {showFallback ? (
+              <div
+                className="w-full h-full flex items-center justify-center font-semibold"
+                style={{
+                  backgroundColor: bgColor,
+                  color: textColor,
+                  fontSize: size === 'sm' ? '12px' : size === 'md' ? '14px' : '18px',
+                }}
+              >
+                {initial}
+              </div>
+            ) : (
+              <>
+                {isLoading && (
+                  <div
+                    className="absolute inset-0 bg-bg-peach animate-pulse rounded-full"
+                    style={{
+                      width: pixelSize,
+                      height: pixelSize,
+                    }}
+                  />
+                )}
+
+                <Image
+                  src={avatarUrl}
+                  alt={`${userEmail} avatar`}
+                  width={pixelSize}
+                  height={pixelSize}
+                  className="w-full h-full object-cover rounded-full"
+                  onError={() => {
+                    setImageError(true)
+                    setIsLoading(false)
+                  }}
+                  onLoad={() => setIsLoading(false)}
+                  unoptimized
+                />
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // For regular users: standard avatar
   return (
     <div
       className={cn(
         'relative flex items-center justify-center rounded-full overflow-hidden flex-shrink-0',
         showBorder && 'ring-2 ring-white ring-offset-1',
-        isTopThree && 'ring-2 ring-primary-green-light',
         className
       )}
       style={{
@@ -203,7 +268,7 @@ export function UserAvatar({
               }}
             />
           )}
-          
+
           {/* Avatar image */}
           <Image
             src={avatarUrl}

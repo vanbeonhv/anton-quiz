@@ -84,16 +84,50 @@ const config: Config = {
   			'pulse-border': {
   				'0%, 100%': { 
   					transform: 'scale(1)',
-  					opacity: '0.7'
+  					opacity: '0.8'
   				},
   				'50%': { 
-  					transform: 'scale(1.05)',
+  					transform: 'scale(1.08)',
   					opacity: '1'
+  				}
+  			},
+  			'pulse-subtle': {
+  				'0%, 100%': { 
+  					transform: 'scale(1)',
+  					opacity: '0.9'
+  				},
+  				'50%': { 
+  					transform: 'scale(1.03)',
+  					opacity: '1'
+  				}
+  			},
+  			'rotate-gradient': {
+  				'0%': { 
+  					transform: 'rotate(0deg) scale(1)',
+  					opacity: '0.8'
+  				},
+  				'25%': { 
+  					transform: 'rotate(90deg) scale(1.05)',
+  					opacity: '1'
+  				},
+  				'50%': { 
+  					transform: 'rotate(180deg) scale(1.08)',
+  					opacity: '0.9'
+  				},
+  				'75%': { 
+  					transform: 'rotate(270deg) scale(1.05)',
+  					opacity: '1'
+  				},
+  				'100%': { 
+  					transform: 'rotate(360deg) scale(1)',
+  					opacity: '0.8'
   				}
   			}
   		},
   		animation: {
-  			'pulse-border': 'pulse-border 2.5s ease-in-out infinite'
+  			'pulse-border': 'pulse-border 2.5s ease-in-out infinite',
+  			'pulse-subtle': 'pulse-subtle 3s ease-in-out infinite',
+  			'rotate-gradient': 'rotate-gradient 3s ease-in-out infinite'
   		}
   	}
   },
