@@ -9,6 +9,14 @@ interface LeaderboardTableProps {
   entries: QuestionsSolvedLeaderboardEntry[]
 }
 
+/**
+ * Render a leaderboard table showing users' ranks, scores, and last-updated dates.
+ *
+ * Displays a centered empty state with a trophy and message when `entries` is empty.
+ *
+ * @param entries - Array of leaderboard entries to display; each entry provides user info, rank, score, accuracy, and update timestamp.
+ * @returns A JSX element rendering the leaderboard table or the empty-state message when there are no entries.
+ */
 export function LeaderboardTable({ entries }: LeaderboardTableProps) {
   const formatDate = (date: Date) => {
     return dayjs(date).format('MMM D, HH:mm')

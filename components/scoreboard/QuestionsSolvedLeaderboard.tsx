@@ -13,6 +13,16 @@ interface QuestionsSolvedLeaderboardProps {
   timeFilter: string
 }
 
+/**
+ * Render a questions-solved leaderboard filtered by the provided timeframe.
+ *
+ * Displays loading, error, and empty states as needed and, when data is available,
+ * presents a table of ranks with user info, questions solved, accuracy, and total attempted.
+ * Top three ranks and the current user's row are visually highlighted.
+ *
+ * @param timeFilter - Timeframe used to fetch and display leaderboard data (e.g., daily, weekly, monthly)
+ * @returns The leaderboard UI showing rank, user, questions solved, accuracy percentage, and total attempted
+ */
 export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeaderboardProps) {
   const { user } = useAuth()
   const { data: leaderboard, isLoading, error } = useQuestionsSolvedLeaderboard(timeFilter)

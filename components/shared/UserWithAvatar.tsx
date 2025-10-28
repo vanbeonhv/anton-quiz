@@ -14,6 +14,16 @@ interface UserWithAvatarProps {
   rank?: number
 }
 
+/**
+ * Render a user avatar alongside the user's display name, and wrap them in a profile link when an ID is provided.
+ *
+ * @param userId - When present, wraps the avatar and name in a link to `/profile/{userId}`; when absent, renders a non-clickable container.
+ * @param displayName - Text shown next to the avatar; if omitted the user's email is used instead.
+ * @param className - Additional CSS classes applied to the outer container/link.
+ * @param avatarSize - Explicit avatar size override; when omitted the size is determined from `rank` (top 3 => 'lg', otherwise 'md').
+ * @param rank - Numeric ranking used to auto-determine avatar size when `avatarSize` is not provided.
+ * @returns A JSX element containing the avatar and display text, optionally wrapped in a link to the user's profile.
+ */
 export function UserWithAvatar({
   userId,
   userEmail,
