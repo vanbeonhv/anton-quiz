@@ -24,7 +24,7 @@ You can combine both formats:
 The markdown rendering is handled by the `renderSimpleMarkdown` function in `lib/utils/markdown.tsx`. It:
 
 1. Splits text by markdown patterns while preserving delimiters
-2. Converts `**text**` to `<strong>` elements with `font-semibold` class
+2. Converts `**text**` to `<strong>` elements with `font-bold` class
 3. Converts `` `text` `` to `<code>` elements with appropriate styling
 4. Leaves regular text unchanged
 
@@ -66,3 +66,10 @@ function MyComponent({ text }: { text: string }) {
   return <span>{renderSimpleMarkdown(text)}</span>
 }
 ```
+
+## Styling
+
+- **Bold text** (`**text**`) renders with `font-bold` class for better contrast
+- **Code text** (`` `text` ``) renders with gray background, monospace font, and rounded corners
+
+The styling is optimized for readability. The `font-medium` class has been removed from components displaying markdown content to ensure bold text has sufficient visual contrast.

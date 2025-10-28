@@ -16,7 +16,7 @@ export function renderSimpleMarkdown(text: string): React.ReactNode {
         if (part.startsWith('**') && part.endsWith('**')) {
             const content = part.slice(2, -2) // Remove ** from both ends
             return (
-                <strong key={index} className="font-semibold">
+                <strong key={index} className="font-bold">
                     {content}
                 </strong>
             )

@@ -78,7 +78,7 @@ export function AnswerOption({
             </div>
 
             {/* Option Text */}
-            <span className="flex-1 font-medium">
+            <span className="flex-1">
                 <MarkdownText>{text}</MarkdownText>
             </span>
 

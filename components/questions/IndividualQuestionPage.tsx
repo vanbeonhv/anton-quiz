@@ -207,7 +207,7 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
         <CardContent className="p-8">
           {/* Question Text */}
           <div className="mb-8">
-            <h2 className="text-lg font-medium text-text-primary leading-relaxed">
+            <h2 className="text-lg text-text-primary leading-relaxed">
               <MarkdownText>{question.text}</MarkdownText>
             </h2>
           </div>

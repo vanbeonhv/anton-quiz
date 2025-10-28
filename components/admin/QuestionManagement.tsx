@@ -322,7 +322,7 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
                           <Badge variant="destructive">Inactive</Badge>
                         )}
                       </div>
-                      <p className="text-sm font-medium mb-2">
+                      <p className="text-sm mb-2">
                         <MarkdownText>{question.text}</MarkdownText>
                       </p>
                       <div className="flex flex-wrap gap-1 mb-2">
