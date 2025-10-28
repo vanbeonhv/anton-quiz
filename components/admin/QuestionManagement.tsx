@@ -16,6 +16,7 @@ import { QuestionWithTags, Tag, Difficulty, OptionKey } from '@/types'
 import { useAdminQuestions, useCreateQuestion, useUpdateQuestion, useDeleteQuestion } from '@/lib/queries'
 import { toast } from 'sonner'
 import BulkTagAssignment from './BulkTagAssignment'
+import BulkQuestionImport from './BulkQuestionImport'
 
 interface QuestionManagementProps {
   tags: Tag[]
@@ -225,6 +226,13 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
             <BulkTagAssignment
               tags={tags}
               questions={questions}
+              onComplete={() => {
+                refetchQuestions()
+                onRefresh?.()
+              }}
+            />
+            <BulkQuestionImport
+              tags={tags}
               onComplete={() => {
                 refetchQuestions()
                 onRefresh?.()
