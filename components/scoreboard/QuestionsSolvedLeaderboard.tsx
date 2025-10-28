@@ -92,6 +92,7 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
                       <UserWithAvatar
+                        userId={entry.userId}
                         userEmail={entry.userEmail}
                         avatarUrl={entry.avatarUrl}
                         displayName={entry.displayName || entry.userEmail.split('@')[0]}

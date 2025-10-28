@@ -26,9 +26,14 @@ interface QuestionActivity {
 
 type Activity = QuestionActivity
 
-export function UserProfileContent() {
+interface UserProfileContentProps {
+  userId?: string
+}
+
+export function UserProfileContent({ userId }: UserProfileContentProps) {
   const { user } = useAuth()
-  const { data: userStats, isLoading, error } = useUserProfileStats(user?.id)
+  const id = userId || user?.id
+  const { data: userStats, isLoading, error } = useUserProfileStats(id)
 
   if (isLoading) {
     return <div>Loading...</div>
