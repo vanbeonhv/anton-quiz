@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { QuestionWithTags, Difficulty } from '@/types'
 import { cn } from '@/lib/utils'
 import { useTextTruncation } from '@/hooks/useTextTruncation'
+import { MarkdownText } from '@/lib/utils/markdown'
 
 interface QuestionRowProps {
   question: QuestionWithTags
@@ -26,7 +27,7 @@ function TitleWithTooltip({ text }: TitleWithTooltipProps) {
         ref={elementRef}
         className="text-sm text-gray-900 group-hover:text-blue-600 transition-colors duration-200 truncate"
       >
-        {text}
+        <MarkdownText>{text}</MarkdownText>
       </p>
     </div>
   )
@@ -41,7 +42,9 @@ function TitleWithTooltip({ text }: TitleWithTooltipProps) {
         {titleElement}
       </TooltipTrigger>
       <TooltipContent side="top" className="max-w-md">
-        <p className="text-sm">{text}</p>
+        <p className="text-sm">
+          <MarkdownText>{text}</MarkdownText>
+        </p>
       </TooltipContent>
     </Tooltip>
   )
@@ -181,7 +184,7 @@ export function QuestionRow({ question, className }: QuestionRowProps) {
             </span>
             <div className="mobile-question-title min-w-0 flex-1">
               <p className="text-sm text-gray-900 group-hover:text-blue-600 transition-colors duration-200 truncate">
-                {question.text}
+                <MarkdownText>{question.text}</MarkdownText>
               </p>
             </div>
           </div>

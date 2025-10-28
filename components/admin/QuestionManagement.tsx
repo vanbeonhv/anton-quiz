@@ -17,6 +17,7 @@ import { useAdminQuestions, useCreateQuestion, useUpdateQuestion, useDeleteQuest
 import { toast } from 'sonner'
 import BulkTagAssignment from './BulkTagAssignment'
 import BulkQuestionImport from './BulkQuestionImport'
+import { MarkdownText } from '@/lib/utils/markdown'
 
 interface QuestionManagementProps {
   tags: Tag[]
@@ -210,9 +211,9 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
     )
   }
 
-  const isAnyMutationLoading = createQuestionMutation.isPending || 
-                               updateQuestionMutation.isPending || 
-                               deleteQuestionMutation.isPending
+  const isAnyMutationLoading = createQuestionMutation.isPending ||
+    updateQuestionMutation.isPending ||
+    deleteQuestionMutation.isPending
 
   return (
     <Card>
@@ -321,7 +322,9 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
                           <Badge variant="destructive">Inactive</Badge>
                         )}
                       </div>
-                      <p className="text-sm font-medium mb-2">{question.text}</p>
+                      <p className="text-sm font-medium mb-2">
+                        <MarkdownText>{question.text}</MarkdownText>
+                      </p>
                       <div className="flex flex-wrap gap-1 mb-2">
                         {question.tags.map((tag) => (
                           <Badge key={tag.id} variant="secondary" className="text-xs">
@@ -350,10 +353,10 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div>A: {question.optionA}</div>
-                    <div>B: {question.optionB}</div>
-                    <div>C: {question.optionC}</div>
-                    <div>D: {question.optionD}</div>
+                    <div>A: <MarkdownText>{question.optionA}</MarkdownText></div>
+                    <div>B: <MarkdownText>{question.optionB}</MarkdownText></div>
+                    <div>C: <MarkdownText>{question.optionC}</MarkdownText></div>
+                    <div>D: <MarkdownText>{question.optionD}</MarkdownText></div>
                   </div>
                   <div className="mt-2 text-sm text-green-600">
                     Correct: {question.correctAnswer}

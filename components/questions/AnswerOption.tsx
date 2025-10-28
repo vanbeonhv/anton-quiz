@@ -1,5 +1,6 @@
 import { Check, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { MarkdownText } from '@/lib/utils/markdown'
 
 interface AnswerOptionProps {
     label: 'A' | 'B' | 'C' | 'D'
@@ -78,7 +79,7 @@ export function AnswerOption({
 
             {/* Option Text */}
             <span className="flex-1 font-medium">
-                {text}
+                <MarkdownText>{text}</MarkdownText>
             </span>
 
             {/* Result Icon */}
