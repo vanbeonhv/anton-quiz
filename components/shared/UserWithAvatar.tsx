@@ -5,7 +5,7 @@ import { UserAvatar } from './UserAvatar'
 import { cn } from '@/lib/utils'
 
 interface UserWithAvatarProps {
-  userId: string
+  userId?: string
   userEmail: string
   avatarUrl?: string | null
   displayName?: string
@@ -29,6 +29,23 @@ export function UserWithAvatar({
 
   // Use displayName if provided, otherwise use email
   const displayText = displayName || userEmail
+
+  // If userId is missing, render without link
+  if (!userId) {
+    return (
+      <div className={cn('flex items-center gap-2', className)}>
+        <UserAvatar
+          userEmail={userEmail}
+          avatarUrl={avatarUrl}
+          size={determinedSize}
+          rank={rank}
+        />
+        <span className="truncate font-medium text-sm">
+          {displayText}
+        </span>
+      </div>
+    )
+  }
 
   return (
     <Link

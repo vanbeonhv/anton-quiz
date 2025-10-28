@@ -47,6 +47,7 @@ export function LeaderboardTable({ entries }: LeaderboardTableProps) {
 
               <TableCell>
                 <UserWithAvatar
+                  userId={entry.userId}
                   userEmail={entry.userEmail}
                   avatarUrl={entry.avatarUrl}
                   displayName={entry.displayName || entry.userEmail.split('@')[0]}
