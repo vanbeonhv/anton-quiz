@@ -17,8 +17,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Questions App - Practice Your Knowledge",
-  description: "Interactive questions practice application built with Next.js",
+  title: "Anton Quiz - Kiến Thức Nền Tảng Cho Lập Trình Viên ",
+  description: "Củng cố kiến thức lý thuyết và giải quyết các tình huống thực tế. Từ concepts cơ bản đến advanced patterns. Hiểu sâu, code giỏi",
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
@@ -26,6 +26,25 @@ export const metadata: Metadata = {
     ],
     shortcut: '/favicon.ico',
     apple: '/favicon.svg',
+  },
+  openGraph: {
+    title: "Anton Quiz - Vững Lý Thuyết, Giỏi Thực Chiến",
+    description: "🎓 Kiến thức nền tảng • Case study thực tế • Phân tích scenario • Chuẩn bị phỏng vấn technical",
+    type: "website",
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'Questions App Logo',
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Anton Quiz - Hiểu Bản Chất, Không Chỉ Nhớ Code",
+    description: "Master concepts, solve real problems",
+    images: ['/logo.png'],
   },
 };
 
