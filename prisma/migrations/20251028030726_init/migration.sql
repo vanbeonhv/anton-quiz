@@ -1,16 +1,24 @@
 -- CreateEnum
 CREATE TYPE "Difficulty" AS ENUM ('EASY', 'MEDIUM', 'HARD');
 
--- CreateEnum
-CREATE TYPE "AttemptSource" AS ENUM ('INDIVIDUAL', 'DAILY_QUIZ', 'NORMAL_QUIZ');
+-- CreateTable
+CREATE TABLE "Question" (
+    "id" TEXT NOT NULL,
+    "text" TEXT NOT NULL,
+    "optionA" TEXT NOT NULL,
+    "optionB" TEXT NOT NULL,
+    "optionC" TEXT NOT NULL,
+    "optionD" TEXT NOT NULL,
+    "correctAnswer" TEXT NOT NULL,
+    "explanation" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "difficulty" "Difficulty" NOT NULL DEFAULT 'MEDIUM',
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "number" SERIAL NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
--- AlterTable
-ALTER TABLE "Question" ADD COLUMN     "difficulty" "Difficulty" NOT NULL DEFAULT 'MEDIUM',
-ADD COLUMN     "isActive" BOOLEAN NOT NULL DEFAULT true,
-ADD COLUMN     "number" SERIAL NOT NULL,
-ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-ALTER COLUMN "quizId" DROP NOT NULL,
-ALTER COLUMN "order" DROP NOT NULL;
+    CONSTRAINT "Question_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "Tag" (
@@ -41,7 +49,6 @@ CREATE TABLE "QuestionAttempt" (
     "userEmail" TEXT NOT NULL,
     "selectedAnswer" TEXT NOT NULL,
     "isCorrect" BOOLEAN NOT NULL,
-    "source" "AttemptSource" NOT NULL DEFAULT 'INDIVIDUAL',
     "answeredAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "QuestionAttempt_pkey" PRIMARY KEY ("id")
@@ -60,8 +67,6 @@ CREATE TABLE "UserStats" (
     "mediumCorrectAnswers" INTEGER NOT NULL DEFAULT 0,
     "hardQuestionsAnswered" INTEGER NOT NULL DEFAULT 0,
     "hardCorrectAnswers" INTEGER NOT NULL DEFAULT 0,
-    "totalQuizzesTaken" INTEGER NOT NULL DEFAULT 0,
-    "dailyQuizzesTaken" INTEGER NOT NULL DEFAULT 0,
     "currentStreak" INTEGER NOT NULL DEFAULT 0,
     "longestStreak" INTEGER NOT NULL DEFAULT 0,
     "lastAnsweredDate" TIMESTAMP(3),
@@ -73,9 +78,6 @@ CREATE TABLE "UserStats" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Tag_name_key" ON "Tag"("name");
-
--- CreateIndex
-CREATE INDEX "Tag_name_idx" ON "Tag"("name");
 
 -- CreateIndex
 CREATE INDEX "QuestionTag_questionId_idx" ON "QuestionTag"("questionId");
@@ -93,34 +95,13 @@ CREATE INDEX "QuestionAttempt_userId_idx" ON "QuestionAttempt"("userId");
 CREATE INDEX "QuestionAttempt_questionId_idx" ON "QuestionAttempt"("questionId");
 
 -- CreateIndex
-CREATE INDEX "QuestionAttempt_answeredAt_idx" ON "QuestionAttempt"("answeredAt");
-
--- CreateIndex
 CREATE INDEX "QuestionAttempt_userId_questionId_idx" ON "QuestionAttempt"("userId", "questionId");
-
--- CreateIndex
-CREATE INDEX "QuestionAttempt_source_idx" ON "QuestionAttempt"("source");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "UserStats_userId_key" ON "UserStats"("userId");
 
 -- CreateIndex
 CREATE INDEX "UserStats_userId_idx" ON "UserStats"("userId");
-
--- CreateIndex
-CREATE INDEX "UserStats_totalCorrectAnswers_idx" ON "UserStats"("totalCorrectAnswers");
-
--- CreateIndex
-CREATE INDEX "UserStats_currentStreak_idx" ON "UserStats"("currentStreak");
-
--- CreateIndex
-CREATE INDEX "Question_number_idx" ON "Question"("number");
-
--- CreateIndex
-CREATE INDEX "Question_difficulty_idx" ON "Question"("difficulty");
-
--- CreateIndex
-CREATE INDEX "Question_isActive_idx" ON "Question"("isActive");
 
 -- AddForeignKey
 ALTER TABLE "QuestionTag" ADD CONSTRAINT "QuestionTag_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;

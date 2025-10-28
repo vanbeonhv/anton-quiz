@@ -25,9 +25,6 @@ model Question {
   questionAttempts QuestionAttempt[]
   tags             QuestionTag[]
 
-  @@index([number])
-  @@index([difficulty])
-  @@index([isActive])
 }
 
 model Tag {
@@ -37,7 +34,6 @@ model Tag {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   questions   QuestionTag[]
-  @@index([name])
 }
 
 model QuestionTag {
@@ -65,7 +61,6 @@ model QuestionAttempt {
 
   @@index([userId])
   @@index([questionId])
-  @@index([answeredAt])
   @@index([userId, questionId])
 }
 
@@ -88,8 +83,6 @@ model UserStats {
   updatedAt               DateTime  @updatedAt
 
   @@index([userId])
-  @@index([totalCorrectAnswers])
-  @@index([currentStreak])
 }
 
 enum Difficulty {
