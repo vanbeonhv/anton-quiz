@@ -15,8 +15,10 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
   weight: "100 900",
 });
+const DOMAIN = 'https://quiz.huuvan.dev';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(DOMAIN || 'http://localhost:4000'),
   title: "Anton Quiz - Kiến Thức Nền Tảng Cho Lập Trình Viên ",
   description: "Củng cố kiến thức lý thuyết và giải quyết các tình huống thực tế. Từ concepts cơ bản đến advanced patterns. Hiểu sâu, code giỏi",
   icons: {
@@ -33,7 +35,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: '/logo.png',
+        url: '/logo.svg',
         width: 1200,
         height: 630,
         alt: 'Questions App Logo',
@@ -44,7 +46,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Anton Quiz - Hiểu Bản Chất, Không Chỉ Nhớ Code",
     description: "Master concepts, solve real problems",
-    images: ['/logo.png'],
+    images: ['/logo.svg'],
   },
 };
 
