@@ -93,6 +93,8 @@ export interface UserStatsWithComputed extends UserStats {
   tagStats: TagStats[] // Computed field
   totalDailyPoints: number // Mapped from totalQuestionsAnswered
   dailyQuizStreak: number // Mapped from currentStreak
+  avatarUrl?: string | null // GitHub avatar URL
+  displayName?: string | null // GitHub display name (preferred_username, full_name, etc.)
 }
 
 export interface TagStats {

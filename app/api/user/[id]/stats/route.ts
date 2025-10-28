@@ -24,6 +24,30 @@ export async function GET(
       )
     }
 
+    // Get GitHub metadata from Supabase Auth
+    let avatarUrl: string | null = null
+    let displayName: string | null = null
+
+    try {
+      const authUsers = await prisma.$queryRaw<Array<{ id: string; raw_user_meta_data: any }>>`
+        SELECT id, raw_user_meta_data 
+        FROM auth.users 
+        WHERE id = ${userId}::uuid
+      `
+
+      if (authUsers.length > 0) {
+        const userMetadata = authUsers[0].raw_user_meta_data
+        avatarUrl = userMetadata?.avatar_url || null
+        displayName = userMetadata?.full_name || 
+                     userMetadata?.preferred_username || 
+                     userMetadata?.user_name || 
+                     userMetadata?.name || 
+                     null
+      }
+    } catch (error) {
+      console.warn('Failed to fetch user metadata:', error)
+    }
+
     // Calculate accuracy percentage
     const accuracyPercentage = userStats.totalQuestionsAnswered > 0
       ? Math.round((userStats.totalCorrectAnswers / userStats.totalQuestionsAnswered) * 100)
@@ -37,6 +61,8 @@ export async function GET(
 
     const response = {
       ...userStats,
+      avatarUrl,
+      displayName,
       accuracyPercentage,
       tagStats,
       // Map actual fields to expected interface fields

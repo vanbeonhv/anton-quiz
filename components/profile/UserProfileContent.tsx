@@ -10,7 +10,6 @@ import {
   RecentActivityTimeline,
   AchievementSection
 } from '@/components/profile'
-import type { UserStatsWithComputed } from '@/types'
 
 // Activity types for recent activity timeline
 interface QuestionActivity {
@@ -24,8 +23,6 @@ interface QuestionActivity {
     text: string
   }
 }
-
-type Activity = QuestionActivity
 
 interface UserProfileContentProps {
   userId?: string
@@ -61,6 +58,8 @@ export function UserProfileContent({ userId }: UserProfileContentProps) {
     <div className="space-y-8">
       <UserProfileHeader 
         userEmail={userStats.userEmail}
+        displayName={userStats.displayName}
+        avatarUrl={userStats.avatarUrl}
         joinDate={userStats.createdAt}
       />
       

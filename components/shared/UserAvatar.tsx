@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 interface UserAvatarProps {
   userEmail: string
   avatarUrl?: string | null
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'sm' | 'md' | 'lg' | 'xl'
   className?: string
   showBorder?: boolean
   rank?: number
@@ -18,6 +18,7 @@ const sizeMap = {
   sm: 24,
   md: 32,
   lg: 40,
+  xl: 80, // For profile pages
 }
 
 // Pleasant color palette for fallback avatars
@@ -65,6 +66,17 @@ function getTextColor(bgColor: string): string {
   return luminance > 0.5 ? '#2C1810' : '#FFFFFF'
 }
 
+// Get font size based on avatar size
+function getFontSize(size: 'sm' | 'md' | 'lg' | 'xl'): string {
+  switch (size) {
+    case 'sm': return '12px'
+    case 'md': return '14px'
+    case 'lg': return '18px'
+    case 'xl': return '32px'
+    default: return '14px'
+  }
+}
+
 export function UserAvatar({
   userEmail,
   avatarUrl,
@@ -80,6 +92,7 @@ export function UserAvatar({
   const bgColor = getColorFromEmail(userEmail)
   const textColor = getTextColor(bgColor)
   const initial = getInitialFromEmail(userEmail)
+  const fontSize = getFontSize(size)
 
   // Show fallback if no avatar URL or image failed to load
   const showFallback = !avatarUrl || imageError
@@ -118,7 +131,7 @@ export function UserAvatar({
                 style={{
                   backgroundColor: bgColor,
                   color: textColor,
-                  fontSize: size === 'sm' ? '12px' : size === 'md' ? '14px' : '18px',
+                  fontSize,
                 }}
               >
                 {initial}
@@ -193,7 +206,7 @@ export function UserAvatar({
                 style={{
                   backgroundColor: bgColor,
                   color: textColor,
-                  fontSize: size === 'sm' ? '12px' : size === 'md' ? '14px' : '18px',
+                  fontSize,
                 }}
               >
                 {initial}
@@ -251,7 +264,7 @@ export function UserAvatar({
           style={{
             backgroundColor: bgColor,
             color: textColor,
-            fontSize: size === 'sm' ? '12px' : size === 'md' ? '14px' : '18px',
+            fontSize,
           }}
         >
           {initial}
