@@ -12,6 +12,7 @@ export interface UpdateQuestionData extends Partial<CreateQuestionData> {}
 
 export interface QuestionAttemptData {
   selectedAnswer: OptionKey
+  isDailyQuestion?: boolean
 }
 
 export interface AttemptResult {

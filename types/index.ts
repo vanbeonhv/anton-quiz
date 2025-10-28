@@ -58,6 +58,7 @@ export interface UserStats {
   userEmail: string
   totalQuestionsAnswered: number
   totalCorrectAnswers: number
+  totalDailyPoints: number
   easyQuestionsAnswered: number
   easyCorrectAnswers: number
   mediumQuestionsAnswered: number
@@ -194,6 +195,43 @@ export interface LegacyUserStats {
   ranking: number
   totalUsers: number
 }
+
+// ============================================
+// DAILY QUESTION TYPES
+// ============================================
+
+// Daily Question Configuration
+export interface DailyQuestionConfig {
+  salt: string
+  timezone: string
+  resetHour: number
+  resetMinute: number
+}
+
+// Daily Question API Response
+export interface DailyQuestionInfo {
+  id: string
+  number: number
+  difficulty: Difficulty
+  resetTime: string
+  timeUntilReset: string
+  hasAttempted: boolean
+  isCompleted: boolean
+}
+
+// Daily Question Attempt Request (extends base attempt)
+export interface DailyQuestionAttemptRequest extends SubmitQuestionAttemptData {
+  isDailyQuestion: boolean
+}
+
+// Daily Points Constants
+export const DAILY_POINTS = {
+  EASY: 10,
+  MEDIUM: 25,
+  HARD: 50,
+} as const
+
+export type DailyPointsValue = typeof DAILY_POINTS[keyof typeof DAILY_POINTS]
 
 // Question without sensitive data for practice
 export type QuestionForPractice = Omit<Question, 'correctAnswer' | 'explanation'>

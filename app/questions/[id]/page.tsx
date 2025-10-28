@@ -1,6 +1,6 @@
 'use client'
 
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { IndividualQuestionPage } from '@/components/questions'
 import { LoadingState } from '@/components/shared/LoadingState'
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -9,7 +9,9 @@ import { useQuestion } from '@/lib/queries'
 export default function QuestionPage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const questionId = params.id as string
+  const isDailyQuestion = searchParams.get('type') === 'daily'
 
   const { 
     data: question, 
@@ -50,7 +52,7 @@ export default function QuestionPage() {
   return (
     <div className="min-h-screen bg-bg-peach">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <IndividualQuestionPage question={question} />
+        <IndividualQuestionPage question={question} isDailyQuestion={isDailyQuestion} />
       </div>
     </div>
   )

@@ -35,7 +35,7 @@ export function StatsSection({ data, isLoading }: StatsSectionProps) {
   return (
     <section className="mb-8">
       <UserStatsCard
-        dailyPoints={data?.totalQuestionsAnswered || 0}
+        dailyPoints={data?.totalDailyPoints || 0}
         questionsSolved={data?.totalCorrectAnswers || 0}
       />
     </section>

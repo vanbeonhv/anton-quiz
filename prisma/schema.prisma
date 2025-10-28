@@ -70,6 +70,7 @@ model UserStats {
   userEmail               String
   totalQuestionsAnswered  Int       @default(0)
   totalCorrectAnswers     Int       @default(0)
+  totalDailyPoints        Int       @default(0)
   easyQuestionsAnswered   Int       @default(0)
   easyCorrectAnswers      Int       @default(0)
   mediumQuestionsAnswered Int       @default(0)
@@ -83,6 +84,7 @@ model UserStats {
   updatedAt               DateTime  @updatedAt
 
   @@index([userId])
+  @@index([totalDailyPoints])
 }
 
 enum Difficulty {

@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
 import { OptionKey } from '@/types'
 import dayjs from '@/lib/dayjs'
+import { getDailyQuestion, hasAttemptedDailyQuestion, getDailyPoints } from '@/lib/utils/dailyQuestion'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,7 +22,10 @@ export async function POST(
 
     const questionId = params.id
     const body = await request.json()
-    const { selectedAnswer } = body as { selectedAnswer: OptionKey }
+    const { selectedAnswer, isDailyQuestion } = body as { 
+      selectedAnswer: OptionKey
+      isDailyQuestion?: boolean
+    }
 
     // Validate selected answer
     if (!selectedAnswer || !['A', 'B', 'C', 'D'].includes(selectedAnswer)) {
@@ -29,6 +33,29 @@ export async function POST(
         { error: 'Invalid answer. Must be A, B, C, or D' },
         { status: 400 }
       )
+    }
+
+    // If this is a daily question attempt, validate it
+    if (isDailyQuestion) {
+      // Get today's daily question
+      const dailyQuestionResult = await getDailyQuestion()
+      
+      // Verify the question ID matches today's daily question
+      if (dailyQuestionResult.questionId !== questionId) {
+        return NextResponse.json(
+          { error: 'This is not today\'s daily question' },
+          { status: 400 }
+        )
+      }
+      
+      // Check if user has already attempted today's daily question
+      const hasAttempted = await hasAttemptedDailyQuestion(user.id, questionId)
+      if (hasAttempted) {
+        return NextResponse.json(
+          { error: 'You have already attempted today\'s daily question' },
+          { status: 400 }
+        )
+      }
     }
 
     // Get the question with correct answer
@@ -46,20 +73,22 @@ export async function POST(
       )
     }
 
-    // Check if user has already answered this question correctly
-    const existingAttempt = await prisma.questionAttempt.findFirst({
-      where: {
-        questionId,
-        userId: user.id,
-        isCorrect: true
-      }
-    })
+    // Check if user has already answered this question correctly (for non-daily questions)
+    if (!isDailyQuestion) {
+      const existingAttempt = await prisma.questionAttempt.findFirst({
+        where: {
+          questionId,
+          userId: user.id,
+          isCorrect: true
+        }
+      })
 
-    if (existingAttempt) {
-      return NextResponse.json(
-        { error: 'You have already answered this question correctly' },
-        { status: 400 }
-      )
+      if (existingAttempt) {
+        return NextResponse.json(
+          { error: 'You have already answered this question correctly' },
+          { status: 400 }
+        )
+      }
     }
 
     // Calculate if answer is correct
@@ -78,6 +107,9 @@ export async function POST(
         }
       })
 
+      // Calculate points for correct answers based on difficulty
+      const pointsEarned = isCorrect ? getDailyPoints(question.difficulty) : 0
+
       // Update or create user stats
       const existingStats = await tx.userStats.findUnique({
         where: { userId: user.id }
@@ -89,7 +121,10 @@ export async function POST(
           where: { userId: user.id },
           data: {
             totalQuestionsAnswered: { increment: 1 },
-            totalCorrectAnswers: isCorrect ? { increment: 1 } : undefined,
+            ...(isCorrect && {
+              totalCorrectAnswers: { increment: 1 },
+              totalDailyPoints: { increment: pointsEarned }
+            }),
             // Update difficulty-specific stats
             ...(question.difficulty === 'EASY' && {
               easyQuestionsAnswered: { increment: 1 },
@@ -137,6 +172,7 @@ export async function POST(
             userEmail: user.email!,
             totalQuestionsAnswered: 1,
             totalCorrectAnswers: isCorrect ? 1 : 0,
+            totalDailyPoints: pointsEarned,
             // Difficulty-specific stats
             easyQuestionsAnswered: question.difficulty === 'EASY' ? 1 : 0,
             easyCorrectAnswers: question.difficulty === 'EASY' && isCorrect ? 1 : 0,
@@ -155,6 +191,9 @@ export async function POST(
       return questionAttempt
     })
 
+    // Calculate daily points for response
+    const dailyPointsAwarded = isDailyQuestion && result.isCorrect ? getDailyPoints(question.difficulty) : undefined
+
     // Return the result with question details for immediate feedback
     const response = {
       id: result.id,
@@ -162,6 +201,10 @@ export async function POST(
       selectedAnswer: result.selectedAnswer,
       isCorrect: result.isCorrect,
       answeredAt: result.answeredAt,
+      ...(isDailyQuestion && { 
+        isDailyQuestion: true,
+        dailyPoints: dailyPointsAwarded 
+      }),
       question: {
         correctAnswer: question.correctAnswer,
         explanation: question.explanation,

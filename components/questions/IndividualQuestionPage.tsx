@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronRight, ArrowLeft } from 'lucide-react'
+import { ChevronRight, ArrowLeft, Trophy } from 'lucide-react'
 import { QuestionWithTags, OptionKey, Difficulty } from '@/types'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -10,10 +10,12 @@ import { Button } from '@/components/ui/button'
 import { AnswerOption } from './AnswerOption'
 import { LoadingOverlay } from '@/components/shared/LoadingOverlay'
 import { useSubmitQuestionAttempt } from '@/lib/queries'
+import { DAILY_POINTS } from '@/lib/utils/dailyQuestion'
 import { toast } from 'sonner'
 
 interface IndividualQuestionPageProps {
   question: QuestionWithTags
+  isDailyQuestion?: boolean
 }
 
 interface QuestionResult {
@@ -23,12 +25,15 @@ interface QuestionResult {
   explanation?: string
 }
 
-export function IndividualQuestionPage({ question }: IndividualQuestionPageProps) {
+export function IndividualQuestionPage({ question, isDailyQuestion = false }: IndividualQuestionPageProps) {
   const router = useRouter()
   const [selectedAnswer, setSelectedAnswer] = useState<OptionKey | null>(null)
   const [result, setResult] = useState<QuestionResult | null>(null)
   
   const submitAttemptMutation = useSubmitQuestionAttempt()
+
+  // Calculate daily points based on difficulty
+  const dailyPoints = isDailyQuestion ? DAILY_POINTS[question.difficulty] : 0
 
   const getDifficultyColor = (difficulty: Difficulty) => {
     switch (difficulty) {
@@ -69,7 +74,10 @@ export function IndividualQuestionPage({ question }: IndividualQuestionPageProps
     submitAttemptMutation.mutate(
       { 
         questionId: question.id, 
-        data: { selectedAnswer } 
+        data: { 
+          selectedAnswer,
+          ...(isDailyQuestion && { isDailyQuestion: true })
+        } 
       },
       {
         onSuccess: (data) => {
@@ -79,24 +87,31 @@ export function IndividualQuestionPage({ question }: IndividualQuestionPageProps
             correctAnswer: data.question.correctAnswer,
             explanation: data.question.explanation
           })
-          toast.success(data.isCorrect ? 'Correct answer! 🎉' : 'Answer submitted')
+          
+          // Show special success message for daily questions
+          if (isDailyQuestion && data.isCorrect) {
+            toast.success(`🎉 Daily Challenge Complete! +${dailyPoints} points`)
+          } else {
+            toast.success(data.isCorrect ? 'Correct answer! 🎉' : 'Answer submitted')
+          }
         },
         onError: (error) => {
           console.error('Error submitting answer:', error)
-          toast.error(error instanceof Error ? error.message : 'Failed to submit answer')
+          const errorMessage = error instanceof Error ? error.message : 'Failed to submit answer'
+          toast.error(errorMessage)
         }
       }
     )
   }
 
   const handleBackToQuestions = () => {
-    router.push('/questions')
+    router.push(isDailyQuestion ? '/dashboard' : '/questions')
   }
 
   const handleNextQuestion = () => {
-    // For now, just go back to questions list
-    // In a future enhancement, this could navigate to the next question
-    router.push('/questions')
+    // For daily questions, go back to dashboard
+    // For regular questions, go back to questions list
+    router.push(isDailyQuestion ? '/dashboard' : '/questions')
   }
 
   // Check if user has already attempted this question
@@ -112,30 +127,41 @@ export function IndividualQuestionPage({ question }: IndividualQuestionPageProps
           className="hover:text-primary-green transition-colors duration-200 flex items-center gap-1"
         >
           <ArrowLeft className="w-4 h-4" />
-          Questions
+          {isDailyQuestion ? 'Dashboard' : 'Questions'}
         </button>
         
-        {question.tags.length > 0 && (
+        {isDailyQuestion ? (
           <>
             <ChevronRight className="w-4 h-4" />
             <span className="text-text-primary font-medium">
-              {question.tags[0].name}
+              Daily Challenge
+            </span>
+          </>
+        ) : (
+          <>
+            {question.tags.length > 0 && (
+              <>
+                <ChevronRight className="w-4 h-4" />
+                <span className="text-text-primary font-medium">
+                  {question.tags[0].name}
+                </span>
+              </>
+            )}
+            
+            <ChevronRight className="w-4 h-4" />
+            <span className="text-text-primary font-medium">
+              Question #{question.number}
             </span>
           </>
         )}
-        
-        <ChevronRight className="w-4 h-4" />
-        <span className="text-text-primary font-medium">
-          Question #{question.number}
-        </span>
       </nav>
 
       {/* Question Header */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
             <h1 className="text-2xl font-bold text-text-primary">
-              Question #{question.number}
+              {isDailyQuestion ? 'Daily Challenge' : `Question #${question.number}`}
             </h1>
             <Badge 
               variant="outline" 
@@ -143,6 +169,12 @@ export function IndividualQuestionPage({ question }: IndividualQuestionPageProps
             >
               {question.difficulty.toLowerCase()}
             </Badge>
+            {isDailyQuestion && (
+              <Badge className="bg-primary-orange/10 text-primary-orange border-primary-orange/30 flex items-center gap-1">
+                <Trophy className="w-3 h-3" />
+                {dailyPoints} points
+              </Badge>
+            )}
           </div>
 
           {isSolved && (
@@ -230,7 +262,7 @@ export function IndividualQuestionPage({ question }: IndividualQuestionPageProps
               {result && (
                 <div className="space-y-6 border-t border-bg-peach pt-8">
                   {/* Result Status */}
-                  <div className="text-center">
+                  <div className="text-center space-y-2">
                     <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg text-lg font-semibold ${
                       result.isCorrect 
                         ? 'bg-green-100 text-green-800' 
@@ -238,6 +270,12 @@ export function IndividualQuestionPage({ question }: IndividualQuestionPageProps
                     }`}>
                       {result.isCorrect ? '🎉 Correct!' : '❌ Incorrect'}
                     </div>
+                    {isDailyQuestion && result.isCorrect && (
+                      <div className="text-primary-orange font-medium flex items-center justify-center gap-2">
+                        <Trophy className="w-4 h-4" />
+                        You earned {dailyPoints} daily points!
+                      </div>
+                    )}
                   </div>
 
                   {/* Explanation */}
@@ -257,14 +295,16 @@ export function IndividualQuestionPage({ question }: IndividualQuestionPageProps
                       variant="outline"
                       className="px-6 py-2 border-primary-green text-primary-green hover:bg-primary-green hover:text-white"
                     >
-                      Back to Questions
+                      {isDailyQuestion ? 'Back to Dashboard' : 'Back to Questions'}
                     </Button>
-                    <Button
-                      onClick={handleNextQuestion}
-                      className="px-6 py-2 bg-primary-green hover:bg-primary-green/90 text-white"
-                    >
-                      Next Question
-                    </Button>
+                    {!isDailyQuestion && (
+                      <Button
+                        onClick={handleNextQuestion}
+                        className="px-6 py-2 bg-primary-green hover:bg-primary-green/90 text-white"
+                      >
+                        Next Question
+                      </Button>
+                    )}
                   </div>
                 </div>
               )}

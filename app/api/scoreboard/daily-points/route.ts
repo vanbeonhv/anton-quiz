@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       where: whereClause,
       take: limit,
       orderBy: [
-        { totalQuestionsAnswered: 'desc' },
+        { totalDailyPoints: 'desc' },
         { updatedAt: 'asc' } // Earlier update time wins ties
       ]
     })
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       rank: index + 1,
       userId: stats.userId,
       userEmail: stats.userEmail,
-      totalDailyPoints: stats.totalQuestionsAnswered, // Using totalQuestionsAnswered as proxy for daily points
+      totalDailyPoints: stats.totalDailyPoints,
       dailyQuizStreak: stats.currentStreak,
       updatedAt: stats.updatedAt
     }))

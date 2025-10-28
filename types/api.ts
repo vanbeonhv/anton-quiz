@@ -75,6 +75,17 @@ export function parseQuestionsSearchParams(searchParams: URLSearchParams): Parse
   }
 }
 
+// Daily Question API types
+export interface DailyQuestionInfo {
+  id: string
+  number: number
+  difficulty: Difficulty
+  resetTime: string
+  timeUntilReset: string
+  hasAttempted: boolean
+  isCompleted: boolean
+}
+
 // Utility function to build query parameters for questions API
 export function buildQuestionsQueryParams(filters: {
   tags?: string[]

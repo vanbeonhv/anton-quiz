@@ -5,6 +5,7 @@ import { useRecentScores, useUserStats } from '@/lib/queries'
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader'
 import { StatsSection } from '@/components/dashboard/StatsSection'
 import { RecentScoresSection } from '@/components/dashboard/RecentScoresSection'
+import { DailyQuestionButton } from '@/components/dashboard/DailyQuestionButton'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -29,22 +30,27 @@ export default function DashboardPage() {
           isLoading={statsLoading}
         />
 
+        {/* Daily Question */}
+        <div className="mb-8">
+          <DailyQuestionButton />
+        </div>
+
         {/* Quick Actions */}
         <div className="mb-8">
           <div className="bg-bg-white rounded-xl shadow-sm border border-bg-peach p-6">
             <h2 className="text-xl font-semibold text-text-primary mb-4">Quick Actions</h2>
             <div className="flex flex-col sm:flex-row gap-4">
               <button
-                onClick={handleViewQuestions}
-                className="flex-1 bg-primary-green hover:bg-primary-green-dark text-white px-6 py-3 rounded-lg font-medium transition-colors"
-              >
-                Browse Questions
-              </button>
-              <button
                 onClick={handleViewAllScores}
                 className="flex-1 bg-primary-blue hover:bg-primary-blue-dark text-white px-6 py-3 rounded-lg font-medium transition-colors"
               >
                 View Scoreboard
+              </button>
+              <button
+                onClick={handleViewQuestions}
+                className="flex-1 bg-bg-white hover:bg-gray-50 text-text-primary border-2 border-gray-200 px-6 py-3 rounded-lg font-medium transition-colors"
+              >
+                Browse Questions
               </button>
             </div>
           </div>
