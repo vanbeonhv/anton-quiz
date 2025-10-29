@@ -1,13 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Trophy, Crown, Star, Sparkles, ArrowUp } from 'lucide-react'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Trophy, Crown, Star, Sparkles, ArrowUp, X } from 'lucide-react'
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { UserProgress } from '@/types'
@@ -66,9 +61,18 @@ export function LevelUpModal({
     />
   )
 
+  if (!isOpen) return null
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg bg-gradient-to-br from-primary-green/5 via-bg-cream to-primary-orange/5 border-2 border-primary-green/30 relative overflow-hidden">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-black/80 animate-in fade-in-0"
+        onClick={onClose}
+      />
+      
+      {/* Modal Content */}
+      <div className="relative z-10 w-full max-w-lg mx-4 bg-gradient-to-br from-primary-green/5 via-bg-cream to-primary-orange/5 border-2 border-primary-green/30 rounded-lg shadow-xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-4 duration-200">
         {/* Confetti Animation */}
         {showConfetti && (
           <div className="absolute inset-0 pointer-events-none">
@@ -83,7 +87,7 @@ export function LevelUpModal({
           </div>
         )}
 
-        <DialogHeader className="text-center space-y-6 relative z-10">
+        <div className="text-center space-y-6 relative z-10 p-6">
           {/* Celebration Icon */}
           <div className="flex justify-center">
             <div className={`relative transition-all duration-1000 ${showAnimation ? 'scale-110' : 'scale-100'}`}>
@@ -104,12 +108,12 @@ export function LevelUpModal({
             </div>
           </div>
           
-          <DialogTitle className="text-3xl font-bold text-text-primary">
+          <h2 className="text-3xl font-bold text-text-primary">
             🎉 Level Up! 🎉
-          </DialogTitle>
-        </DialogHeader>
+          </h2>
+        </div>
 
-        <div className="space-y-6 py-4 relative z-10">
+        <div className="space-y-6 px-6 pb-6 relative z-10">
           {/* Congratulations Message */}
           <div className="text-center">
             <p className="text-lg text-text-secondary mb-4">
@@ -204,7 +208,16 @@ export function LevelUpModal({
             </Button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+        
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-text-secondary hover:text-text-primary"
+        >
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </button>
+      </div>
+    </div>
   )
 }
