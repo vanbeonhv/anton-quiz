@@ -100,6 +100,9 @@ async function getQuestionsSolvedLeaderboard(filter: string, limit: number) {
       accuracyPercentage: stats.totalQuestionsAnswered > 0
         ? Math.round((stats.totalCorrectAnswers / stats.totalQuestionsAnswered) * 100)
         : 0,
+      currentLevel: stats.currentLevel,
+      currentTitle: stats.currentTitle,
+      totalXp: stats.totalXp,
       updatedAt: stats.updatedAt
     }
   })

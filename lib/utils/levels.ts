@@ -111,7 +111,7 @@ export const LEVEL_DATA: readonly LevelConfig[] = [
   },
   {
     level: 20,
-    title: "Architect",
+    title: "Solution Architect",
     cumulativeXpNeeded: 20000
   }
 ] as const;

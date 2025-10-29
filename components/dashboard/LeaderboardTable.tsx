@@ -67,8 +67,8 @@ export function LeaderboardTable({ entries }: LeaderboardTableProps) {
 
               <TableCell className="hidden lg:table-cell">
                 <LevelBadge 
-                  level={entry.currentLevel || 1} 
-                  title={entry.currentTitle || "Newbie"} 
+                  level={entry.currentLevel} 
+                  title={entry.currentTitle} 
                   size="sm"
                   showIcon={false}
                 />
