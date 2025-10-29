@@ -99,6 +99,7 @@ export interface UserStatsWithComputed extends UserStats {
   avatarUrl?: string | null // GitHub avatar URL
   displayName?: string | null // GitHub display name (preferred_username, full_name, etc.)
   xpToNextLevel: number // Computed field for XP needed to reach next level
+  recentActivity: RecentActivity[] // Recent user activities
 }
 
 export interface TagStats {
@@ -109,6 +110,33 @@ export interface TagStats {
   correctAnswers: number
   accuracyPercentage: number
 }
+
+export interface QuestionActivity {
+  type: 'question'
+  id: string
+  date: Date
+  isCorrect: boolean
+  question: {
+    id: string
+    number: number
+    text: string
+  }
+}
+
+export interface QuizActivity {
+  type: 'quiz'
+  id: string
+  date: Date
+  score: number
+  totalQuestions: number
+  quiz: {
+    id: string
+    title: string
+    type: 'NORMAL' | 'DAILY'
+  }
+}
+
+export type RecentActivity = QuestionActivity | QuizActivity
 
 // ============================================
 // FORM DATA TYPES

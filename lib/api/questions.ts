@@ -18,9 +18,23 @@ export interface QuestionAttemptData {
 export interface AttemptResult {
   selectedAnswer: OptionKey
   isCorrect: boolean
+  xpEarned: number
+  userProgress: {
+    currentLevel: number
+    currentTitle: string
+    totalXp: number
+    xpToNextLevel: number
+    leveledUp: boolean
+    newTitle?: string
+  }
   question: {
     correctAnswer: OptionKey
     explanation?: string
+    text: string
+    optionA: string
+    optionB: string
+    optionC: string
+    optionD: string
   }
 }
 

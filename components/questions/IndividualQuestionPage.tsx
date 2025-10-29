@@ -37,7 +37,7 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
   const [showLevelUpModal, setShowLevelUpModal] = useState(false)
   const [previousLevel, setPreviousLevel] = useState<number>(1)
   const [previousTitle, setPreviousTitle] = useState<string>('Newbie')
-  
+
   const submitAttemptMutation = useSubmitQuestionAttempt()
 
   // Calculate daily points based on difficulty
@@ -80,21 +80,21 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
     if (!selectedAnswer || submitAttemptMutation.isPending || result) return
 
     submitAttemptMutation.mutate(
-      { 
-        questionId: question.id, 
-        data: { 
+      {
+        questionId: question.id,
+        data: {
           selectedAnswer,
           ...(isDailyQuestion && { isDailyQuestion: true })
-        } 
+        }
       },
       {
         onSuccess: (data) => {
           // Store previous level info for level-up modal
           if (data.userProgress) {
             setPreviousLevel(data.userProgress.leveledUp ? data.userProgress.currentLevel - 1 : data.userProgress.currentLevel)
-            setPreviousTitle(data.userProgress.leveledUp && data.userProgress.newTitle ? 
+            setPreviousTitle(data.userProgress.leveledUp && data.userProgress.newTitle ?
               // Calculate previous title (simplified - in real app you'd store this)
-              data.userProgress.currentLevel === 2 ? 'Newbie' : 'Previous Title' : 
+              data.userProgress.currentLevel === 2 ? 'Newbie' : 'Previous Title' :
               data.userProgress.currentTitle
             )
           }
@@ -107,12 +107,12 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
             xpEarned: data.xpEarned,
             userProgress: data.userProgress
           })
-          
+
           // Show XP modal first if XP was earned
           if (data.xpEarned > 0) {
             setTimeout(() => setShowXpModal(true), 500)
           }
-          
+
           // Show special success message for daily questions
           if (isDailyQuestion && data.isCorrect) {
             toast.success(`🎉 Daily Challenge Complete! +${dailyPoints} points`)
@@ -166,7 +166,7 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
           <ArrowLeft className="w-4 h-4" />
           {isDailyQuestion ? 'Dashboard' : 'Questions'}
         </button>
-        
+
         {isDailyQuestion ? (
           <>
             <ChevronRight className="w-4 h-4" />
@@ -184,7 +184,7 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
                 </span>
               </>
             )}
-            
+
             <ChevronRight className="w-4 h-4" />
             <span className="text-text-primary font-medium">
               Question #{question.number}
@@ -200,8 +200,8 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
             <h1 className="text-2xl font-bold text-text-primary">
               {isDailyQuestion ? 'Daily Challenge' : `Question #${question.number}`}
             </h1>
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className={`text-sm font-medium ${getDifficultyColor(question.difficulty)}`}
             >
               {question.difficulty.toLowerCase()}
@@ -283,11 +283,10 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
               {/* Already Attempted Message */}
               {hasAttempted && !result && (
                 <div className="text-center">
-                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg ${
-                    isSolved 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-orange-100 text-orange-800'
-                  }`}>
+                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg ${isSolved
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-orange-100 text-orange-800'
+                    }`}>
                     <span className="font-medium">
                       {isSolved ? '✓ You have already solved this question' : '✗ You have already attempted this question'}
                     </span>
@@ -300,11 +299,10 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
                 <div className="space-y-6 border-t border-bg-peach pt-8">
                   {/* Result Status */}
                   <div className="text-center space-y-2">
-                    <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg text-lg font-semibold ${
-                      result.isCorrect 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
+                    <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg text-lg font-semibold ${result.isCorrect
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                      }`}>
                       {result.isCorrect ? '🎉 Correct!' : '❌ Incorrect'}
                     </div>
                     {isDailyQuestion && result.isCorrect && (
