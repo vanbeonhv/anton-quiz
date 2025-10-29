@@ -33,7 +33,7 @@ export function LeaderboardTable({ entries }: LeaderboardTableProps) {
   }
 
   return (
-    <div className="bg-bg-cream rounded-lg border border-bg-peach overflow-hidden">
+    <div className="bg-bg-cream rounded-lg border border-bg-peach">
       <Table>
         <TableHeader>
           <TableRow className="bg-bg-peach/50">

@@ -60,7 +60,7 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
   }
 
   return (
-    <div className="bg-bg-cream rounded-lg border border-bg-peach overflow-hidden">
+    <div className="bg-bg-cream rounded-lg border border-bg-peach">
       <div className="p-4 bg-bg-peach/50 border-b border-bg-peach">
         <h2 className="text-lg font-semibold text-text-primary flex items-center gap-2">
           <Target className="w-5 h-5 text-primary-green" />
