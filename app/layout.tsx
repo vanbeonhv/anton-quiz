@@ -16,11 +16,13 @@ const geistMono = localFont({
   weight: "100 900",
 });
 const DOMAIN = 'https://quiz.huuvan.dev';
+const TITLE = "Anton Quiz - App Trắc Nghiệm Nâng Cao Kiến Thức Developer Chỉ 5 Phút/Ngày"
+const DESCRIPTION = "Mệt mỏi vì kiến thức bị mai một? Cần ôn luyện 'thực chiến' cho phỏng vấn cấp cao hay dự án phức tạp? Anton Quiz là giải pháp Micro-Learning được thiết kế đặc biệt cho Developer chuyên nghiệp. Biến 5 phút rảnh rỗi thành lợi thế cạnh tranh của bạn.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(DOMAIN || 'http://localhost:4000'),
-  title: "Anton Quiz - Kiến Thức Nền Tảng Cho Lập Trình Viên ",
-  description: "Củng cố kiến thức lý thuyết và giải quyết các tình huống thực tế. Từ concepts cơ bản đến advanced patterns. Hiểu sâu, code giỏi",
+  title: TITLE,
+  description: DESCRIPTION,
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
@@ -30,23 +32,23 @@ export const metadata: Metadata = {
     apple: '/favicon.svg',
   },
   openGraph: {
-    title: "Anton Quiz - Vững Lý Thuyết, Giỏi Thực Chiến",
-    description: "🎓 Kiến thức nền tảng • Case study thực tế • Phân tích scenario • Chuẩn bị phỏng vấn technical",
+    title: TITLE,
+    description: DESCRIPTION,
     type: "website",
     images: [
       {
-        url: '/logo.svg',
+        url: `${DOMAIN}/logo.png`,
         width: 1200,
         height: 630,
-        alt: 'Questions App Logo',
+        alt: 'Anton Quiz Logo',
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Anton Quiz - Hiểu Bản Chất, Không Chỉ Nhớ Code",
-    description: "Master concepts, solve real problems",
-    images: ['/logo.svg'],
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [`${DOMAIN}/logo.png`],
   },
 };
 
