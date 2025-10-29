@@ -26,9 +26,10 @@ export async function GET() {
                 where: { userId: user.id },
                 include: {
                     question: {
-                        select: { difficulty: true }
+                        select: { id: true, difficulty: true }
                     }
-                }
+                },
+                orderBy: { answeredAt: 'asc' }
             })
 
             const totalQuestionsAnswered = questionAttempts.length
@@ -47,8 +48,18 @@ export async function GET() {
             const hardCorrectAnswers = hardAttempts.filter(attempt => attempt.isCorrect).length
 
             // Calculate initial XP and level based on existing correct answers
+            // Deduplicate by question ID, keeping only the earliest correct attempt
             const correctAttempts = questionAttempts.filter(attempt => attempt.isCorrect)
-            const initialXp = correctAttempts.reduce((totalXp, attempt) => {
+            const seenQuestionIds = new Set<string>()
+            const uniqueCorrectAttempts = correctAttempts.filter(attempt => {
+                if (seenQuestionIds.has(attempt.question.id)) {
+                    return false
+                }
+                seenQuestionIds.add(attempt.question.id)
+                return true
+            })
+
+            const initialXp = uniqueCorrectAttempts.reduce((totalXp, attempt) => {
                 const xpForDifficulty = {
                     'EASY': 10,
                     'MEDIUM': 25,
@@ -75,7 +86,7 @@ export async function GET() {
                     currentStreak: 0, // TODO: Calculate streak
                     longestStreak: 0, // TODO: Calculate streak
                     lastAnsweredDate: questionAttempts.length > 0 ?
-                        questionAttempts.reduce((latest, attempt) => 
+                        questionAttempts.reduce((latest, attempt) =>
                             dayjs(attempt.answeredAt).isAfter(dayjs(latest.answeredAt)) ? attempt : latest
                         ).answeredAt : null,
                     totalXp: initialXp,
