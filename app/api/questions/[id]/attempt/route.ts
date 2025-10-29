@@ -142,11 +142,13 @@ export async function POST(
         where: { userId: user.id }
       })
 
+      let leveledUp = false
+
       if (existingStats) {
         // Calculate new total XP and level information
         const newTotalXp = existingStats.totalXp + xpEarned
         const newLevelInfo = LevelCalculatorService.calculateLevel(newTotalXp)
-        const leveledUp = LevelCalculatorService.checkLevelUp(existingStats.totalXp, newTotalXp)
+        leveledUp = LevelCalculatorService.checkLevelUp(existingStats.totalXp, newTotalXp)
 
         // Update existing stats
         await tx.userStats.update({
@@ -240,7 +242,7 @@ export async function POST(
         questionAttempt,
         updatedStats,
         xpEarned,
-        leveledUp: existingStats ? LevelCalculatorService.checkLevelUp(existingStats.totalXp, existingStats.totalXp + xpEarned) : false
+        leveledUp
       }
     })
 
