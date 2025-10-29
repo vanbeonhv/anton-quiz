@@ -3,11 +3,12 @@
 import { useQuestionsSolvedLeaderboard } from '@/lib/queries'
 import { useAuth } from '@/hooks/useAuth'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Target, TrendingUp } from 'lucide-react'
+import { Target, TrendingUp, Star } from 'lucide-react'
 import { LeaderboardSkeleton } from '@/components/shared/LoadingState'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { RankDisplay } from '@/components/shared/RankDisplay'
 import { UserWithAvatar } from '@/components/shared/UserWithAvatar'
+import { LevelBadge } from '@/components/shared/LevelBadge'
 
 interface QuestionsSolvedLeaderboardProps {
   timeFilter: string
@@ -75,6 +76,7 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
           <TableRow className="bg-bg-peach/30">
             <TableHead className="w-16">Rank</TableHead>
             <TableHead>User</TableHead>
+            <TableHead className="text-center hidden lg:table-cell">Level</TableHead>
             <TableHead className="text-center">Questions Solved</TableHead>
             <TableHead className="text-center hidden sm:table-cell">Accuracy</TableHead>
             <TableHead className="text-center hidden md:table-cell">Total Attempted</TableHead>
@@ -117,6 +119,15 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
                       </span>
                     )}
                   </div>
+                </TableCell>
+
+                <TableCell className="text-center hidden lg:table-cell">
+                  <LevelBadge 
+                    level={entry.currentLevel || 1} 
+                    title={entry.currentTitle || "Newbie"} 
+                    size="sm"
+                    showIcon={false}
+                  />
                 </TableCell>
 
                 <TableCell className="text-center">

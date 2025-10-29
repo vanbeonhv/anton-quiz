@@ -1,13 +1,37 @@
-import { Zap, CheckCircle } from 'lucide-react'
+import { Zap, CheckCircle, Star } from 'lucide-react'
+import { LevelBadge } from '@/components/shared/LevelBadge'
 
 interface UserStatsCardProps {
     dailyPoints: number
     questionsSolved: number
+    currentLevel?: number
+    currentTitle?: string
+    totalXp?: number
 }
 
-export function UserStatsCard({ dailyPoints, questionsSolved }: UserStatsCardProps) {
+export function UserStatsCard({ 
+    dailyPoints, 
+    questionsSolved, 
+    currentLevel = 1, 
+    currentTitle = "Newbie", 
+    totalXp = 0 
+}: UserStatsCardProps) {
     return (
         <div className="bg-primary-orange rounded-2xl p-6 text-white shadow-lg">
+            {/* Level Badge */}
+            <div className="flex justify-between items-start mb-4">
+                <LevelBadge 
+                    level={currentLevel} 
+                    title={currentTitle} 
+                    size="md"
+                    className="bg-white/20 text-white border-white/30 hover:bg-white/30"
+                />
+                <div className="flex items-center gap-1 text-primary-orange-light">
+                    <Star className="w-4 h-4" />
+                    <span className="text-sm font-medium">{totalXp.toLocaleString()} XP</span>
+                </div>
+            </div>
+
             <div className="flex items-center justify-between">
                 {/* Daily Points */}
                 <div className="flex items-center gap-4">

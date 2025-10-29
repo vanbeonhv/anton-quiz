@@ -3,6 +3,7 @@ import { Trophy } from 'lucide-react'
 import { QuestionsSolvedLeaderboardEntry } from '@/types'
 import { RankDisplay } from '@/components/shared/RankDisplay'
 import { UserWithAvatar } from '@/components/shared/UserWithAvatar'
+import { LevelBadge } from '@/components/shared/LevelBadge'
 import dayjs from '@/lib/dayjs'
 
 interface LeaderboardTableProps {
@@ -38,6 +39,7 @@ export function LeaderboardTable({ entries }: LeaderboardTableProps) {
           <TableRow className="bg-bg-peach/50">
             <TableHead className="w-16">Rank</TableHead>
             <TableHead>User</TableHead>
+            <TableHead className="hidden lg:table-cell">Level</TableHead>
             <TableHead className="hidden md:table-cell">Quiz</TableHead>
             <TableHead className="text-center">Score</TableHead>
             <TableHead className="hidden sm:table-cell text-center">Date</TableHead>
@@ -60,6 +62,15 @@ export function LeaderboardTable({ entries }: LeaderboardTableProps) {
                   avatarUrl={entry.avatarUrl}
                   displayName={entry.displayName || entry.userEmail.split('@')[0]}
                   rank={entry.rank}
+                />
+              </TableCell>
+
+              <TableCell className="hidden lg:table-cell">
+                <LevelBadge 
+                  level={entry.currentLevel || 1} 
+                  title={entry.currentTitle || "Newbie"} 
+                  size="sm"
+                  showIcon={false}
                 />
               </TableCell>
 

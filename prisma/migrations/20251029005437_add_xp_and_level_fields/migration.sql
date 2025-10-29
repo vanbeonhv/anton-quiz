@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "UserStats" ADD COLUMN     "currentLevel" INTEGER NOT NULL DEFAULT 1,
+ADD COLUMN     "currentTitle" TEXT NOT NULL DEFAULT 'Newbie',
+ADD COLUMN     "totalXp" INTEGER NOT NULL DEFAULT 0;

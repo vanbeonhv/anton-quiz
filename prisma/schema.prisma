@@ -80,6 +80,9 @@ model UserStats {
   currentStreak           Int       @default(0)
   longestStreak           Int       @default(0)
   lastAnsweredDate        DateTime?
+  totalXp                 Int       @default(0)
+  currentLevel            Int       @default(1)
+  currentTitle            String    @default("Newbie")
   createdAt               DateTime  @default(now())
   updatedAt               DateTime  @updatedAt
 

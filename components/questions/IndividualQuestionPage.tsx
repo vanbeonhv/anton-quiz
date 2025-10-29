@@ -3,12 +3,13 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronRight, ArrowLeft, Trophy } from 'lucide-react'
-import { QuestionWithTags, OptionKey, Difficulty } from '@/types'
+import { QuestionWithTags, OptionKey, Difficulty, UserProgress } from '@/types'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { AnswerOption } from './AnswerOption'
 import { LoadingOverlay } from '@/components/shared/LoadingOverlay'
+import { XpGainModal, LevelUpModal } from '@/components/shared'
 import { useSubmitQuestionAttempt } from '@/lib/queries'
 import { DAILY_POINTS } from '@/lib/utils/dailyQuestion'
 import { toast } from 'sonner'
@@ -24,12 +25,18 @@ interface QuestionResult {
   isCorrect: boolean
   correctAnswer: OptionKey
   explanation?: string
+  xpEarned?: number
+  userProgress?: UserProgress
 }
 
 export function IndividualQuestionPage({ question, isDailyQuestion = false }: IndividualQuestionPageProps) {
   const router = useRouter()
   const [selectedAnswer, setSelectedAnswer] = useState<OptionKey | null>(null)
   const [result, setResult] = useState<QuestionResult | null>(null)
+  const [showXpModal, setShowXpModal] = useState(false)
+  const [showLevelUpModal, setShowLevelUpModal] = useState(false)
+  const [previousLevel, setPreviousLevel] = useState<number>(1)
+  const [previousTitle, setPreviousTitle] = useState<string>('Newbie')
   
   const submitAttemptMutation = useSubmitQuestionAttempt()
 
@@ -82,12 +89,29 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
       },
       {
         onSuccess: (data) => {
+          // Store previous level info for level-up modal
+          if (data.userProgress) {
+            setPreviousLevel(data.userProgress.leveledUp ? data.userProgress.currentLevel - 1 : data.userProgress.currentLevel)
+            setPreviousTitle(data.userProgress.leveledUp && data.userProgress.newTitle ? 
+              // Calculate previous title (simplified - in real app you'd store this)
+              data.userProgress.currentLevel === 2 ? 'Newbie' : 'Previous Title' : 
+              data.userProgress.currentTitle
+            )
+          }
+
           setResult({
             selectedAnswer: data.selectedAnswer,
             isCorrect: data.isCorrect,
             correctAnswer: data.question.correctAnswer,
-            explanation: data.question.explanation
+            explanation: data.question.explanation,
+            xpEarned: data.xpEarned,
+            userProgress: data.userProgress
           })
+          
+          // Show XP modal first if XP was earned
+          if (data.xpEarned > 0) {
+            setTimeout(() => setShowXpModal(true), 500)
+          }
           
           // Show special success message for daily questions
           if (isDailyQuestion && data.isCorrect) {
@@ -113,6 +137,18 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
     // For daily questions, go back to dashboard
     // For regular questions, go back to questions list
     router.push(isDailyQuestion ? '/dashboard' : '/questions')
+  }
+
+  const handleXpModalClose = () => {
+    setShowXpModal(false)
+    // Show level-up modal if user leveled up
+    if (result?.userProgress?.leveledUp) {
+      setTimeout(() => setShowLevelUpModal(true), 300)
+    }
+  }
+
+  const handleLevelUpModalClose = () => {
+    setShowLevelUpModal(false)
   }
 
   // Check if user has already attempted this question
@@ -313,6 +349,27 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
           </LoadingOverlay>
         </CardContent>
       </Card>
+
+      {/* XP Gain Modal */}
+      {result?.xpEarned !== undefined && result?.userProgress && (
+        <XpGainModal
+          isOpen={showXpModal}
+          onClose={handleXpModalClose}
+          xpEarned={result.xpEarned}
+          userProgress={result.userProgress}
+        />
+      )}
+
+      {/* Level Up Modal */}
+      {result?.userProgress && (
+        <LevelUpModal
+          isOpen={showLevelUpModal}
+          onClose={handleLevelUpModalClose}
+          userProgress={result.userProgress}
+          previousLevel={previousLevel}
+          previousTitle={previousTitle}
+        />
+      )}
     </div>
   )
 }

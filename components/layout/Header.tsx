@@ -12,15 +12,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { User, LogOut, Settings, ChevronDown, Menu, X } from 'lucide-react'
+import { User, LogOut, Settings, ChevronDown, Menu, X, Star } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { isAdmin } from '@/lib/utils/admin'
+import { LevelBadge } from '@/components/shared/LevelBadge'
+import { useUserStats } from '@/lib/queries'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 
 export function Header() {
   const { user, isLoading: loading, logout } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
+  
+  // Fetch user stats for level information
+  const { data: userStats } = useUserStats()
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -157,7 +162,12 @@ export function Header() {
                         <span className="text-sm font-semibold text-text-primary">
                           {getDisplayName(user)}
                         </span>
-                        {getDisplaySubtext(user) && (
+                        {userStats ? (
+                          <div className="flex items-center gap-1 text-xs text-text-muted">
+                            <Star className="w-3 h-3" />
+                            <span>Level {userStats.currentLevel} - {userStats.currentTitle}</span>
+                          </div>
+                        ) : getDisplaySubtext(user) && (
                           <span className="text-xs text-text-muted">
                             {getDisplaySubtext(user)}
                           </span>
@@ -189,9 +199,23 @@ export function Header() {
                           <p className="text-sm font-semibold text-text-primary truncate">
                             {getDisplayName(user)}
                           </p>
-                          <p className="text-xs text-text-muted truncate">
-                            {getDropdownSubtext(user)}
-                          </p>
+                          {userStats ? (
+                            <div className="space-y-1">
+                              <LevelBadge 
+                                level={userStats.currentLevel} 
+                                title={userStats.currentTitle} 
+                                size="sm"
+                                showIcon={false}
+                              />
+                              <p className="text-xs text-text-muted">
+                                {userStats.totalXp.toLocaleString()} XP
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="text-xs text-text-muted truncate">
+                              {getDropdownSubtext(user)}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
