@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import type { UserStatsWithComputed, TagStats } from '@/types'
 import dayjs from '@/lib/dayjs'
+import { LevelCalculatorService } from '@/lib/utils/levels'
 
 export const dynamic = 'force-dynamic'
 
@@ -59,6 +60,9 @@ export async function GET(
     // Get recent activity (last 20 activities)
     const recentActivity = await getRecentActivity(userId, 20)
 
+    // Calculate XP to next level
+    const xpToNextLevel = LevelCalculatorService.calculateXpToNextLevel(userStats.currentLevel, userStats.totalXp)
+
     const response = {
       ...userStats,
       avatarUrl,
@@ -67,7 +71,8 @@ export async function GET(
       tagStats,
       // Map actual fields to expected interface fields
       totalDailyPoints: userStats.totalQuestionsAnswered,
-      dailyQuizStreak: userStats.currentStreak
+      dailyQuizStreak: userStats.currentStreak,
+      xpToNextLevel
     }
 
     return NextResponse.json({

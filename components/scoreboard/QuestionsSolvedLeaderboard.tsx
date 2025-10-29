@@ -3,11 +3,12 @@
 import { useQuestionsSolvedLeaderboard } from '@/lib/queries'
 import { useAuth } from '@/hooks/useAuth'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Target, TrendingUp } from 'lucide-react'
+import { Target, TrendingUp, Star } from 'lucide-react'
 import { LeaderboardSkeleton } from '@/components/shared/LoadingState'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { RankDisplay } from '@/components/shared/RankDisplay'
 import { UserWithAvatar } from '@/components/shared/UserWithAvatar'
+import { LevelBadge } from '@/components/shared/LevelBadge'
 
 interface QuestionsSolvedLeaderboardProps {
   timeFilter: string
@@ -59,7 +60,7 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
   }
 
   return (
-    <div className="bg-bg-cream rounded-lg border border-bg-peach overflow-hidden">
+    <div className="bg-bg-cream rounded-lg border border-bg-peach">
       <div className="p-4 bg-bg-peach/50 border-b border-bg-peach">
         <h2 className="text-lg font-semibold text-text-primary flex items-center gap-2">
           <Target className="w-5 h-5 text-primary-green" />
@@ -75,6 +76,7 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
           <TableRow className="bg-bg-peach/30">
             <TableHead className="w-16">Rank</TableHead>
             <TableHead>User</TableHead>
+            <TableHead className="text-center hidden lg:table-cell">Level</TableHead>
             <TableHead className="text-center">Questions Solved</TableHead>
             <TableHead className="text-center hidden sm:table-cell">Accuracy</TableHead>
             <TableHead className="text-center hidden md:table-cell">Total Attempted</TableHead>
@@ -117,6 +119,15 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
                       </span>
                     )}
                   </div>
+                </TableCell>
+
+                <TableCell className="text-center hidden lg:table-cell">
+                  <LevelBadge 
+                    level={entry.currentLevel} 
+                    title={entry.currentTitle} 
+                    size="sm"
+                    showIcon={false}
+                  />
                 </TableCell>
 
                 <TableCell className="text-center">

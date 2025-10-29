@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
 import dayjs from '@/lib/dayjs'
+import { LevelCalculatorService } from '@/lib/utils/levels'
 
 export const dynamic = 'force-dynamic'
 
@@ -45,6 +46,19 @@ export async function GET() {
             const hardQuestionsAnswered = hardAttempts.length
             const hardCorrectAnswers = hardAttempts.filter(attempt => attempt.isCorrect).length
 
+            // Calculate initial XP and level based on existing correct answers
+            const correctAttempts = questionAttempts.filter(attempt => attempt.isCorrect)
+            const initialXp = correctAttempts.reduce((totalXp, attempt) => {
+                const xpForDifficulty = {
+                    'EASY': 10,
+                    'MEDIUM': 25,
+                    'HARD': 50
+                }
+                return totalXp + (xpForDifficulty[attempt.question.difficulty] || 0)
+            }, 0)
+
+            const levelInfo = LevelCalculatorService.calculateLevel(initialXp)
+
             // Create the user stats record
             userStats = await prisma.userStats.create({
                 data: {
@@ -63,12 +77,21 @@ export async function GET() {
                     lastAnsweredDate: questionAttempts.length > 0 ?
                         questionAttempts.reduce((latest, attempt) => 
                             dayjs(attempt.answeredAt).isAfter(dayjs(latest.answeredAt)) ? attempt : latest
-                        ).answeredAt : null
+                        ).answeredAt : null,
+                    totalXp: initialXp,
+                    currentLevel: levelInfo.level,
+                    currentTitle: levelInfo.title
                 }
             })
         }
 
-        return NextResponse.json(userStats)
+        // Calculate XP to next level
+        const xpToNextLevel = LevelCalculatorService.calculateXpToNextLevel(userStats.currentLevel, userStats.totalXp)
+
+        return NextResponse.json({
+            ...userStats,
+            xpToNextLevel
+        })
     } catch (error) {
         console.error('Failed to fetch user stats:', error)
         return NextResponse.json(

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { UserAvatar } from './UserAvatar'
+import { LevelBadge } from './LevelBadge'
 import { cn } from '@/lib/utils'
 
 interface UserWithAvatarProps {
@@ -12,6 +13,9 @@ interface UserWithAvatarProps {
   className?: string
   avatarSize?: 'sm' | 'md' | 'lg'
   rank?: number
+  currentLevel?: number
+  currentTitle?: string
+  showLevel?: boolean
 }
 
 /**
@@ -32,6 +36,9 @@ export function UserWithAvatar({
   className,
   avatarSize,
   rank,
+  currentLevel,
+  currentTitle,
+  showLevel = false,
 }: UserWithAvatarProps) {
   // Auto-determine avatar size based on rank if not explicitly provided
   // Top 3 users (ranks 1-3) get 'lg' (40px), others get 'md' (32px)
@@ -50,9 +57,20 @@ export function UserWithAvatar({
           size={determinedSize}
           rank={rank}
         />
-        <span className="truncate font-medium text-sm">
-          {displayText}
-        </span>
+        <div className="flex flex-col">
+          <span className="truncate font-medium text-sm">
+            {displayText}
+          </span>
+          {showLevel && currentLevel && currentTitle && (
+            <LevelBadge 
+              level={currentLevel} 
+              title={currentTitle} 
+              size="sm"
+              showIcon={false}
+              className="mt-1"
+            />
+          )}
+        </div>
       </div>
     )
   }
@@ -68,9 +86,20 @@ export function UserWithAvatar({
         size={determinedSize}
         rank={rank}
       />
-      <span className="truncate font-medium text-sm group-hover:underline">
-        {displayText}
-      </span>
+      <div className="flex flex-col">
+        <span className="truncate font-medium text-sm group-hover:underline">
+          {displayText}
+        </span>
+        {showLevel && currentLevel && currentTitle && (
+          <LevelBadge 
+            level={currentLevel} 
+            title={currentTitle} 
+            size="sm"
+            showIcon={false}
+            className="mt-1"
+          />
+        )}
+      </div>
     </Link>
   )
 }

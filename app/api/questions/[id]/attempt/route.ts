@@ -1,11 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
-import { OptionKey } from '@/types'
+import { OptionKey, Difficulty } from '@/types'
 import dayjs from '@/lib/dayjs'
 import { getDailyQuestion, hasAttemptedDailyQuestion, getDailyPoints } from '@/lib/utils/dailyQuestion'
+import { LevelCalculatorService } from '@/lib/utils/levels'
 
 export const dynamic = 'force-dynamic'
+
+/**
+ * Calculate XP based on question difficulty
+ * Only awards XP for correct answers on first attempt
+ */
+function calculateXpEarned(difficulty: Difficulty, isCorrect: boolean, isFirstCorrectAttempt: boolean): number {
+  if (!isCorrect || !isFirstCorrectAttempt) {
+    return 0
+  }
+  
+  switch (difficulty) {
+    case 'EASY':
+      return 10
+    case 'MEDIUM':
+      return 25
+    case 'HARD':
+      return 50
+    default:
+      return 0
+  }
+}
 
 // POST /api/questions/[id]/attempt - Submit answer to individual question
 export async function POST(
@@ -73,26 +95,31 @@ export async function POST(
       )
     }
 
-    // Check if user has already answered this question correctly (for non-daily questions)
-    if (!isDailyQuestion) {
-      const existingAttempt = await prisma.questionAttempt.findFirst({
-        where: {
-          questionId,
-          userId: user.id,
-          isCorrect: true
-        }
-      })
-
-      if (existingAttempt) {
-        return NextResponse.json(
-          { error: 'You have already answered this question correctly' },
-          { status: 400 }
-        )
+    // Check if user has already answered this question correctly
+    // For XP calculation, we need to know if this is the first correct attempt
+    const existingCorrectAttempt = await prisma.questionAttempt.findFirst({
+      where: {
+        questionId,
+        userId: user.id,
+        isCorrect: true
       }
+    })
+
+    // For non-daily questions, prevent multiple correct attempts
+    if (!isDailyQuestion && existingCorrectAttempt) {
+      return NextResponse.json(
+        { error: 'You have already answered this question correctly' },
+        { status: 400 }
+      )
     }
+
+    const isFirstCorrectAttempt = !existingCorrectAttempt
 
     // Calculate if answer is correct
     const isCorrect = selectedAnswer === question.correctAnswer
+
+    // Calculate XP earned for this attempt
+    const xpEarned = calculateXpEarned(question.difficulty, isCorrect, isFirstCorrectAttempt)
 
     // Use transaction to ensure data consistency
     const result = await prisma.$transaction(async (tx) => {
@@ -116,6 +143,11 @@ export async function POST(
       })
 
       if (existingStats) {
+        // Calculate new total XP and level information
+        const newTotalXp = existingStats.totalXp + xpEarned
+        const newLevelInfo = LevelCalculatorService.calculateLevel(newTotalXp)
+        const leveledUp = LevelCalculatorService.checkLevelUp(existingStats.totalXp, newTotalXp)
+
         // Update existing stats
         await tx.userStats.update({
           where: { userId: user.id },
@@ -125,6 +157,10 @@ export async function POST(
               totalCorrectAnswers: { increment: 1 },
               totalDailyPoints: { increment: pointsEarned }
             }),
+            // Update XP and level fields
+            totalXp: newTotalXp,
+            currentLevel: newLevelInfo.level,
+            currentTitle: newLevelInfo.title,
             // Update difficulty-specific stats
             ...(question.difficulty === 'EASY' && {
               easyQuestionsAnswered: { increment: 1 },
@@ -165,6 +201,9 @@ export async function POST(
           }
         }
       } else {
+        // Calculate level information for new user
+        const newLevelInfo = LevelCalculatorService.calculateLevel(xpEarned)
+
         // Create new stats
         await tx.userStats.create({
           data: {
@@ -173,6 +212,10 @@ export async function POST(
             totalQuestionsAnswered: 1,
             totalCorrectAnswers: isCorrect ? 1 : 0,
             totalDailyPoints: pointsEarned,
+            // XP and level fields
+            totalXp: xpEarned,
+            currentLevel: newLevelInfo.level,
+            currentTitle: newLevelInfo.title,
             // Difficulty-specific stats
             easyQuestionsAnswered: question.difficulty === 'EASY' ? 1 : 0,
             easyCorrectAnswers: question.difficulty === 'EASY' && isCorrect ? 1 : 0,
@@ -188,19 +231,45 @@ export async function POST(
         })
       }
 
-      return questionAttempt
+      // Get the updated user stats for response
+      const updatedStats = await tx.userStats.findUnique({
+        where: { userId: user.id }
+      })
+
+      return {
+        questionAttempt,
+        updatedStats,
+        xpEarned,
+        leveledUp: existingStats ? LevelCalculatorService.checkLevelUp(existingStats.totalXp, existingStats.totalXp + xpEarned) : false
+      }
     })
 
     // Calculate daily points for response
-    const dailyPointsAwarded = isDailyQuestion && result.isCorrect ? getDailyPoints(question.difficulty) : undefined
+    const dailyPointsAwarded = isDailyQuestion && result.questionAttempt.isCorrect ? getDailyPoints(question.difficulty) : undefined
 
-    // Return the result with question details for immediate feedback
+    // Calculate XP to next level for response
+    const xpToNextLevel = result.updatedStats ? 
+      LevelCalculatorService.calculateXpToNextLevel(result.updatedStats.currentLevel, result.updatedStats.totalXp) : 0
+
+    // Return the result with question details and XP information for immediate feedback
     const response = {
-      id: result.id,
-      questionId: result.questionId,
-      selectedAnswer: result.selectedAnswer,
-      isCorrect: result.isCorrect,
-      answeredAt: result.answeredAt,
+      status: "success" as const,
+      id: result.questionAttempt.id,
+      questionId: result.questionAttempt.questionId,
+      selectedAnswer: result.questionAttempt.selectedAnswer,
+      isCorrect: result.questionAttempt.isCorrect,
+      answeredAt: result.questionAttempt.answeredAt,
+      xpEarned: result.xpEarned,
+      userProgress: {
+        currentLevel: result.updatedStats?.currentLevel || 1,
+        currentTitle: result.updatedStats?.currentTitle || "Newbie",
+        totalXp: result.updatedStats?.totalXp || 0,
+        xpToNextLevel,
+        leveledUp: result.leveledUp,
+        ...(result.leveledUp && result.updatedStats && {
+          newTitle: result.updatedStats.currentTitle
+        })
+      },
       ...(isDailyQuestion && { 
         isDailyQuestion: true,
         dailyPoints: dailyPointsAwarded 

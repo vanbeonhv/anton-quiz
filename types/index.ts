@@ -68,6 +68,9 @@ export interface UserStats {
   currentStreak: number
   longestStreak: number
   lastAnsweredDate?: Date
+  totalXp: number
+  currentLevel: number
+  currentTitle: string
   createdAt: Date
   updatedAt: Date
 }
@@ -95,6 +98,8 @@ export interface UserStatsWithComputed extends UserStats {
   dailyQuizStreak: number // Mapped from currentStreak
   avatarUrl?: string | null // GitHub avatar URL
   displayName?: string | null // GitHub display name (preferred_username, full_name, etc.)
+  xpToNextLevel: number // Computed field for XP needed to reach next level
+  recentActivity: RecentActivity[] // Recent user activities
 }
 
 export interface TagStats {
@@ -105,6 +110,33 @@ export interface TagStats {
   correctAnswers: number
   accuracyPercentage: number
 }
+
+export interface QuestionActivity {
+  type: 'question'
+  id: string
+  date: Date
+  isCorrect: boolean
+  question: {
+    id: string
+    number: number
+    text: string
+  }
+}
+
+export interface QuizActivity {
+  type: 'quiz'
+  id: string
+  date: Date
+  score: number
+  totalQuestions: number
+  quiz: {
+    id: string
+    title: string
+    type: 'NORMAL' | 'DAILY'
+  }
+}
+
+export type RecentActivity = QuestionActivity | QuizActivity
 
 // ============================================
 // FORM DATA TYPES
@@ -171,6 +203,9 @@ export interface DailyPointsLeaderboardEntry {
   displayName?: string | null
   totalDailyPoints: number
   dailyQuizStreak: number
+  currentLevel: number
+  currentTitle: string
+  totalXp: number
   updatedAt: Date
 }
 
@@ -183,6 +218,9 @@ export interface QuestionsSolvedLeaderboardEntry {
   totalCorrectAnswers: number
   totalQuestionsAnswered: number
   accuracyPercentage: number
+  currentLevel: number
+  currentTitle: string
+  totalXp: number
   updatedAt: Date
 }
 
@@ -196,6 +234,22 @@ export interface LegacyUserStats {
   expPoints: number
   ranking: number
   totalUsers: number
+}
+
+// XP System Response Types
+export interface UserProgress {
+  currentLevel: number
+  currentTitle: string
+  totalXp: number
+  xpToNextLevel: number
+  leveledUp: boolean
+  newTitle?: string // Only present when leveledUp is true
+}
+
+export interface QuestionAttemptResponse {
+  status: "success"
+  xpEarned: number
+  userProgress: UserProgress
 }
 
 // ============================================

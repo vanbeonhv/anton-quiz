@@ -3,12 +3,13 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronRight, ArrowLeft, Trophy } from 'lucide-react'
-import { QuestionWithTags, OptionKey, Difficulty } from '@/types'
+import { QuestionWithTags, OptionKey, Difficulty, UserProgress } from '@/types'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { AnswerOption } from './AnswerOption'
 import { LoadingOverlay } from '@/components/shared/LoadingOverlay'
+import { XpGainModal, LevelUpModal } from '@/components/shared'
 import { useSubmitQuestionAttempt } from '@/lib/queries'
 import { DAILY_POINTS } from '@/lib/utils/dailyQuestion'
 import { toast } from 'sonner'
@@ -24,13 +25,19 @@ interface QuestionResult {
   isCorrect: boolean
   correctAnswer: OptionKey
   explanation?: string
+  xpEarned?: number
+  userProgress?: UserProgress
 }
 
 export function IndividualQuestionPage({ question, isDailyQuestion = false }: IndividualQuestionPageProps) {
   const router = useRouter()
   const [selectedAnswer, setSelectedAnswer] = useState<OptionKey | null>(null)
   const [result, setResult] = useState<QuestionResult | null>(null)
-  
+  const [showXpModal, setShowXpModal] = useState(false)
+  const [showLevelUpModal, setShowLevelUpModal] = useState(false)
+  const [previousLevel, setPreviousLevel] = useState<number>(1)
+  const [previousTitle, setPreviousTitle] = useState<string>('Newbie')
+
   const submitAttemptMutation = useSubmitQuestionAttempt()
 
   // Calculate daily points based on difficulty
@@ -73,22 +80,39 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
     if (!selectedAnswer || submitAttemptMutation.isPending || result) return
 
     submitAttemptMutation.mutate(
-      { 
-        questionId: question.id, 
-        data: { 
+      {
+        questionId: question.id,
+        data: {
           selectedAnswer,
           ...(isDailyQuestion && { isDailyQuestion: true })
-        } 
+        }
       },
       {
         onSuccess: (data) => {
+          // Store previous level info for level-up modal
+          if (data.userProgress) {
+            setPreviousLevel(data.userProgress.leveledUp ? data.userProgress.currentLevel - 1 : data.userProgress.currentLevel)
+            setPreviousTitle(data.userProgress.leveledUp && data.userProgress.newTitle ?
+              // Calculate previous title (simplified - in real app you'd store this)
+              data.userProgress.currentLevel === 2 ? 'Newbie' : 'Previous Title' :
+              data.userProgress.currentTitle
+            )
+          }
+
           setResult({
             selectedAnswer: data.selectedAnswer,
             isCorrect: data.isCorrect,
             correctAnswer: data.question.correctAnswer,
-            explanation: data.question.explanation
+            explanation: data.question.explanation,
+            xpEarned: data.xpEarned,
+            userProgress: data.userProgress
           })
-          
+
+          // Show XP modal first if XP was earned
+          if (data.xpEarned > 0) {
+            setTimeout(() => setShowXpModal(true), 500)
+          }
+
           // Show special success message for daily questions
           if (isDailyQuestion && data.isCorrect) {
             toast.success(`🎉 Daily Challenge Complete! +${dailyPoints} points`)
@@ -115,6 +139,18 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
     router.push(isDailyQuestion ? '/dashboard' : '/questions')
   }
 
+  const handleXpModalClose = () => {
+    setShowXpModal(false)
+    // Show level-up modal if user leveled up
+    if (result?.userProgress?.leveledUp) {
+      setTimeout(() => setShowLevelUpModal(true), 300)
+    }
+  }
+
+  const handleLevelUpModalClose = () => {
+    setShowLevelUpModal(false)
+  }
+
   // Check if user has already attempted this question
   const hasAttempted = question.userAttempt !== null
   const isSolved = question.userAttempt?.isCorrect === true
@@ -130,7 +166,7 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
           <ArrowLeft className="w-4 h-4" />
           {isDailyQuestion ? 'Dashboard' : 'Questions'}
         </button>
-        
+
         {isDailyQuestion ? (
           <>
             <ChevronRight className="w-4 h-4" />
@@ -148,7 +184,7 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
                 </span>
               </>
             )}
-            
+
             <ChevronRight className="w-4 h-4" />
             <span className="text-text-primary font-medium">
               Question #{question.number}
@@ -164,8 +200,8 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
             <h1 className="text-2xl font-bold text-text-primary">
               {isDailyQuestion ? 'Daily Challenge' : `Question #${question.number}`}
             </h1>
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className={`text-sm font-medium ${getDifficultyColor(question.difficulty)}`}
             >
               {question.difficulty.toLowerCase()}
@@ -247,11 +283,10 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
               {/* Already Attempted Message */}
               {hasAttempted && !result && (
                 <div className="text-center">
-                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg ${
-                    isSolved 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-orange-100 text-orange-800'
-                  }`}>
+                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg ${isSolved
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-orange-100 text-orange-800'
+                    }`}>
                     <span className="font-medium">
                       {isSolved ? '✓ You have already solved this question' : '✗ You have already attempted this question'}
                     </span>
@@ -264,11 +299,10 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
                 <div className="space-y-6 border-t border-bg-peach pt-8">
                   {/* Result Status */}
                   <div className="text-center space-y-2">
-                    <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg text-lg font-semibold ${
-                      result.isCorrect 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
+                    <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg text-lg font-semibold ${result.isCorrect
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                      }`}>
                       {result.isCorrect ? '🎉 Correct!' : '❌ Incorrect'}
                     </div>
                     {isDailyQuestion && result.isCorrect && (
@@ -313,6 +347,27 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
           </LoadingOverlay>
         </CardContent>
       </Card>
+
+      {/* XP Gain Modal */}
+      {result?.xpEarned !== undefined && result?.userProgress && (
+        <XpGainModal
+          isOpen={showXpModal}
+          onClose={handleXpModalClose}
+          xpEarned={result.xpEarned}
+          userProgress={result.userProgress}
+        />
+      )}
+
+      {/* Level Up Modal */}
+      {result?.userProgress && (
+        <LevelUpModal
+          isOpen={showLevelUpModal}
+          onClose={handleLevelUpModalClose}
+          userProgress={result.userProgress}
+          previousLevel={previousLevel}
+          previousTitle={previousTitle}
+        />
+      )}
     </div>
   )
 }

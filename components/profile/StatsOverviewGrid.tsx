@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, Target, Award, Flame, Trophy } from 'lucide-react'
+import { TrendingUp, TrendingDown, Target, Award, Flame, Trophy, Star, Zap } from 'lucide-react'
 import type { UserStatsWithComputed } from '@/types'
 
 interface StatsOverviewGridProps {
@@ -61,7 +61,16 @@ export function StatsOverviewGrid({ userStats }: StatsOverviewGridProps) {
   const globalRank = 'N/A'
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <StatCard
+        title="Total XP"
+        value={userStats.totalXp.toLocaleString()}
+        icon={<Zap className="w-6 h-6" />}
+        color="purple"
+        subtitle={`Level ${userStats.currentLevel} - ${userStats.currentTitle}`}
+        trend="up"
+      />
+      
       <StatCard
         title="Daily Points"
         value={userStats.totalDailyPoints}
@@ -90,10 +99,19 @@ export function StatsOverviewGrid({ userStats }: StatsOverviewGridProps) {
       />
       
       <StatCard
+        title="XP to Next Level"
+        value={userStats.xpToNextLevel || 0}
+        icon={<Star className="w-6 h-6" />}
+        color="green"
+        subtitle="Keep practicing!"
+        trend="neutral"
+      />
+      
+      <StatCard
         title="Global Rank"
         value={globalRank}
         icon={<Trophy className="w-6 h-6" />}
-        color="purple"
+        color="blue"
         subtitle="Among all users"
       />
     </div>

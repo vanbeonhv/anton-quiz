@@ -38,14 +38,51 @@ export async function GET(request: NextRequest) {
       ]
     })
 
-    const leaderboard = userStats.map((stats, index) => ({
-      rank: index + 1,
-      userId: stats.userId,
-      userEmail: stats.userEmail,
-      totalDailyPoints: stats.totalDailyPoints,
-      dailyQuizStreak: stats.currentStreak,
-      updatedAt: stats.updatedAt
-    }))
+    // Fetch avatar URLs and display names from Supabase Auth using raw SQL query
+    const avatarMap = new Map<string, { avatarUrl: string | null; displayName: string | null }>()
+
+    const userIds = userStats.map(stats => stats.userId)
+
+    if (userIds.length > 0) {
+      try {
+        // Query auth.users table directly via Prisma raw SQL with parameterized query
+        const authUsers = await prisma.$queryRaw<Array<{ id: string; raw_user_meta_data: any }>>`
+          SELECT id, raw_user_meta_data 
+          FROM auth.users 
+          WHERE id = ANY(${userIds}::uuid[])
+        `
+
+        authUsers.forEach((user) => {
+          const avatarUrl = user.raw_user_meta_data?.avatar_url || null
+          // Priority: full_name > preferred_username > user_name
+          const displayName = user.raw_user_meta_data?.full_name || 
+                            user.raw_user_meta_data?.preferred_username || 
+                            user.raw_user_meta_data?.user_name || 
+                            null
+          avatarMap.set(user.id, { avatarUrl, displayName })
+        })
+      } catch (error) {
+        // If we can't fetch user metadata, just continue with null values
+        console.warn('Failed to fetch user metadata:', error)
+      }
+    }
+
+    const leaderboard = userStats.map((stats, index) => {
+      const userMetadata = avatarMap.get(stats.userId)
+      return {
+        rank: index + 1,
+        userId: stats.userId,
+        userEmail: stats.userEmail,
+        avatarUrl: userMetadata?.avatarUrl || null,
+        displayName: userMetadata?.displayName || null,
+        totalDailyPoints: stats.totalDailyPoints,
+        dailyQuizStreak: stats.currentStreak,
+        currentLevel: stats.currentLevel,
+        currentTitle: stats.currentTitle,
+        totalXp: stats.totalXp,
+        updatedAt: stats.updatedAt
+      }
+    })
 
     return NextResponse.json(leaderboard)
   } catch (error) {

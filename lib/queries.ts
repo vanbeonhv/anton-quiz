@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/hooks/useAuth'
 import type {
   UserStats,
+  UserStatsWithComputed,
   QuestionsSolvedLeaderboardEntry,
   Tag,
   TagWithStats,
@@ -20,6 +21,7 @@ import {
   updateQuestionTagsOptimistically,
   updateTagStatsOptimistically 
 } from '@/lib/utils/optimisticUpdates'
+import { LevelCalculatorService } from '@/lib/utils/levels'
 
 
 
@@ -53,7 +55,7 @@ export function useUserStats() {
   const { isAuthenticated } = useAuth()
   return useQuery({
     queryKey: ['user-stats'],
-    queryFn: async (): Promise<UserStats> => {
+    queryFn: async (): Promise<UserStats & { xpToNextLevel: number }> => {
       const res = await fetch('/api/user/stats')
       if (!res.ok) throw new Error('Failed to fetch user stats')
       return res.json()
@@ -71,7 +73,7 @@ export function useUserStats() {
 export function useUserProfileStats(userId?: string) {
   return useQuery({
     queryKey: ['user-profile-stats', userId],
-    queryFn: async () => {
+    queryFn: async (): Promise<UserStatsWithComputed> => {
       if (!userId) throw new Error('User ID is required')
 
       const res = await fetch(`/api/user/${userId}/stats`)
@@ -542,10 +544,15 @@ export function useSubmitQuestionAttempt() {
       }
 
       // Optimistically update user stats
-      const currentUserStats = queryClient.getQueryData<UserStats>(['user-stats'])
+      const currentUserStats = queryClient.getQueryData<UserStats & { xpToNextLevel: number }>(['user-stats'])
       if (currentUserStats && previousQuestion) {
         const updatedStats = updateUserStatsOptimistically(currentUserStats, previousQuestion, data.selectedAnswer)
-        queryClient.setQueryData<UserStats>(['user-stats'], updatedStats)
+        // Calculate new XP to next level
+        const xpToNextLevel = LevelCalculatorService.calculateXpToNextLevel(updatedStats.currentLevel, updatedStats.totalXp)
+        queryClient.setQueryData<UserStats & { xpToNextLevel: number }>(['user-stats'], {
+          ...updatedStats,
+          xpToNextLevel
+        })
       }
 
       // Return a context object with the snapshotted values

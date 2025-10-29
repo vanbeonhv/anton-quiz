@@ -1,4 +1,5 @@
 import { QuestionWithTags, UserStats, Tag, TagWithStats, OptionKey } from '@/types'
+import { LevelCalculatorService } from '@/lib/utils/levels'
 
 /**
  * Creates an optimistic user attempt for a question
@@ -26,6 +27,22 @@ export function updateUserStatsOptimistically(
   const isCorrect = selectedAnswer === question.correctAnswer
   const difficultyKey = question.difficulty.toLowerCase() as 'easy' | 'medium' | 'hard'
   
+  // Calculate XP earned for correct answers only
+  let xpEarned = 0
+  if (isCorrect && !question.hasAttempted) {
+    const xpForDifficulty = {
+      'EASY': 10,
+      'MEDIUM': 25,
+      'HARD': 50
+    }
+    xpEarned = xpForDifficulty[question.difficulty] || 0
+  }
+
+  const newTotalXp = currentStats.totalXp + xpEarned
+  const previousLevel = currentStats.currentLevel
+  const levelInfo = LevelCalculatorService.calculateLevel(newTotalXp)
+  const leveledUp = levelInfo.level > previousLevel
+  
   return {
     ...currentStats,
     totalQuestionsAnswered: currentStats.totalQuestionsAnswered + 1,
@@ -37,6 +54,9 @@ export function updateUserStatsOptimistically(
       ? Math.max(currentStats.longestStreak, currentStats.currentStreak + 1) 
       : currentStats.longestStreak,
     lastAnsweredDate: new Date(),
+    totalXp: newTotalXp,
+    currentLevel: levelInfo.level,
+    currentTitle: levelInfo.title,
     updatedAt: new Date()
   }
 }
