@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
+import { Prisma } from '@prisma/client'
 import { OptionKey, Difficulty } from '@/types'
 import dayjs from '@/lib/dayjs'
 import { getDailyQuestion, hasAttemptedDailyQuestion, getDailyPoints } from '@/lib/utils/dailyQuestion'
@@ -16,7 +17,7 @@ function calculateXpEarned(difficulty: Difficulty, isCorrect: boolean, isFirstCo
   if (!isCorrect || !isFirstCorrectAttempt) {
     return 0
   }
-  
+
   switch (difficulty) {
     case 'EASY':
       return 10
@@ -44,7 +45,7 @@ export async function POST(
 
     const questionId = params.id
     const body = await request.json()
-    const { selectedAnswer, isDailyQuestion } = body as { 
+    const { selectedAnswer, isDailyQuestion } = body as {
       selectedAnswer: OptionKey
       isDailyQuestion?: boolean
     }
@@ -61,7 +62,7 @@ export async function POST(
     if (isDailyQuestion) {
       // Get today's daily question
       const dailyQuestionResult = await getDailyQuestion()
-      
+
       // Verify the question ID matches today's daily question
       if (dailyQuestionResult.questionId !== questionId) {
         return NextResponse.json(
@@ -69,7 +70,7 @@ export async function POST(
           { status: 400 }
         )
       }
-      
+
       // Check if user has already attempted today's daily question
       const hasAttempted = await hasAttemptedDailyQuestion(user.id, questionId)
       if (hasAttempted) {
@@ -82,7 +83,7 @@ export async function POST(
 
     // Get the question with correct answer
     const question = await prisma.question.findUnique({
-      where: { 
+      where: {
         id: questionId,
         isActive: true
       }
@@ -95,34 +96,48 @@ export async function POST(
       )
     }
 
-    // Check if user has already answered this question correctly
-    // For XP calculation, we need to know if this is the first correct attempt
-    const existingCorrectAttempt = await prisma.questionAttempt.findFirst({
+    // Soft pre-check for optimization (optional - helps avoid unnecessary transactions)
+    const priorCorrect = await prisma.questionAttempt.findFirst({
       where: {
         questionId,
         userId: user.id,
         isCorrect: true
-      }
+      },
+      select: { id: true }
     })
 
-    // For non-daily questions, prevent multiple correct attempts
-    if (!isDailyQuestion && existingCorrectAttempt) {
+    // For non-daily questions, prevent multiple correct attempts (soft check)
+    if (!isDailyQuestion && priorCorrect) {
       return NextResponse.json(
         { error: 'You have already answered this question correctly' },
         { status: 400 }
       )
     }
 
-    const isFirstCorrectAttempt = !existingCorrectAttempt
-
     // Calculate if answer is correct
     const isCorrect = selectedAnswer === question.correctAnswer
 
-    // Calculate XP earned for this attempt
-    const xpEarned = calculateXpEarned(question.difficulty, isCorrect, isFirstCorrectAttempt)
-
-    // Use transaction to ensure data consistency
+    // Use transaction with Serializable isolation to prevent race conditions
     const result = await prisma.$transaction(async (tx) => {
+      // Authoritative re-check within Serializable isolation
+      const existingCorrect = await tx.questionAttempt.findFirst({
+        where: {
+          questionId,
+          userId: user.id,
+          isCorrect: true
+        },
+        select: { id: true }
+      })
+
+      // For non-daily questions, prevent multiple correct attempts (authoritative check)
+      if (!isDailyQuestion && existingCorrect) {
+        throw new Error('You have already answered this question correctly')
+      }
+
+      const isFirstCorrectAttempt = !existingCorrect
+
+      // Calculate XP earned for this attempt (inside transaction)
+      const xpEarned = calculateXpEarned(question.difficulty, isCorrect, isFirstCorrectAttempt)
       // Create question attempt
       const questionAttempt = await tx.questionAttempt.create({
         data: {
@@ -244,13 +259,15 @@ export async function POST(
         xpEarned,
         leveledUp
       }
+    }, {
+      isolationLevel: Prisma.TransactionIsolationLevel.Serializable
     })
 
     // Calculate daily points for response
     const dailyPointsAwarded = isDailyQuestion && result.questionAttempt.isCorrect ? getDailyPoints(question.difficulty) : undefined
 
     // Calculate XP to next level for response
-    const xpToNextLevel = result.updatedStats ? 
+    const xpToNextLevel = result.updatedStats ?
       LevelCalculatorService.calculateXpToNextLevel(result.updatedStats.currentLevel, result.updatedStats.totalXp) : 0
 
     // Return the result with question details and XP information for immediate feedback
@@ -272,9 +289,9 @@ export async function POST(
           newTitle: result.updatedStats.currentTitle
         })
       },
-      ...(isDailyQuestion && { 
+      ...(isDailyQuestion && {
         isDailyQuestion: true,
-        dailyPoints: dailyPointsAwarded 
+        dailyPoints: dailyPointsAwarded
       }),
       question: {
         correctAnswer: question.correctAnswer,
@@ -290,6 +307,15 @@ export async function POST(
     return NextResponse.json(response)
   } catch (error) {
     console.error('Failed to submit question attempt:', error)
+
+    // Handle specific error from transaction
+    if (error instanceof Error && error.message === 'You have already answered this question correctly') {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
+      )
+    }
+
     return NextResponse.json(
       { error: 'Failed to submit answer' },
       { status: 500 }
