@@ -35,12 +35,12 @@ export function useQuestionFilters() {
           tags: Array.isArray(parsed.tags) ? parsed.tags : DEFAULT_FILTERS.tags,
           difficulty: Array.isArray(parsed.difficulty) ? parsed.difficulty : DEFAULT_FILTERS.difficulty,
           status: ['all', 'solved', 'unsolved'].includes(parsed.status) ? parsed.status : DEFAULT_FILTERS.status,
-          search: (parsed.search == null || typeof parsed.search === 'string') ? parsed.search : DEFAULT_FILTERS.search,
-          sortBy: (parsed.sortBy == null || (typeof parsed.sortBy === 'string' && ['newest', 'difficulty', 'most-attempted', 'number'].includes(parsed.sortBy))) 
+          search: typeof parsed.search === 'string' ? parsed.search : DEFAULT_FILTERS.search,
+          sortBy: (typeof parsed.sortBy === 'string' && ['newest', 'difficulty', 'most-attempted', 'number'].includes(parsed.sortBy)) 
             ? parsed.sortBy 
             : DEFAULT_FILTERS.sortBy,
-          page: (parsed.page == null || (typeof parsed.page === 'number' && parsed.page > 0)) ? parsed.page : DEFAULT_FILTERS.page,
-          pageSize: (parsed.pageSize == null || (typeof parsed.pageSize === 'number' && parsed.pageSize > 0))
+          page: (typeof parsed.page === 'number' && parsed.page > 0) ? parsed.page : DEFAULT_FILTERS.page,
+          pageSize: (typeof parsed.pageSize === 'number' && parsed.pageSize > 0)
             ? parsed.pageSize 
             : DEFAULT_FILTERS.pageSize
         }
