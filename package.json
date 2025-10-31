@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start -p 4000",
     "lint": "next lint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "shuffle-questions": "tsx scripts/shuffle-question-numbers.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.16.3",
