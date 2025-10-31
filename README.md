@@ -7,6 +7,7 @@ A modern quiz and questions practice application built for interactive learning 
 - **Question Practice**: Answer questions across Easy, Medium, and Hard difficulty levels
 - **Daily Question**: A new question every day with a shareable URL (`/daily`)
 - **Progress Tracking**: Comprehensive statistics including streaks and accuracy rates
+- **Level up**: Gain exp after answering question and level up to Solution Architecture
 - **Tagging System**: Organized questions with filtering capabilities
 - **Real-time Feedback**: Immediate feedback with explanations
 - **Leaderboard**: User rankings based on performance metrics
@@ -31,16 +32,19 @@ A modern quiz and questions practice application built for interactive learning 
 ## 📸 Screenshots
 
 ### Dashboard
-![Dashboard](./assets/dashboard.png)
+![Dashboard](./assets/dashboard-31.10.25.png)
 
 ### Question Practice
 ![Question Practice](./assets/question.png)
 
 ### Question List
-![Question List](./assets/question-list.png)
+![Question List](./assets/question-list-31.10.25.png)
+
+### Level up
+![Level up](./assets/level-up.png)
 
 ### Scoreboard
-![Scoreboard](./assets/scoreboard.png)
+![Scoreboard](./assets/scoreboard-31.10.25.png)
 
 ## 🚀 Getting Started
 
