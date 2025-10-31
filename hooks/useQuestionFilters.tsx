@@ -28,26 +28,33 @@ export function useQuestionFilters() {
     try {
       const storedFilters = localStorage.getItem(FILTERS_STORAGE_KEY)
       if (storedFilters) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const parsed: any = JSON.parse(storedFilters)
+        const parsed: unknown = JSON.parse(storedFilters)
+        
+        // Validate that parsed is an object before accessing properties
+        if (typeof parsed !== 'object' || parsed === null) {
+          setFilters(DEFAULT_FILTERS)
+          return
+        }
+        
+        const parsedObj = parsed as Record<string, unknown>
         
         // Validate and sanitize the stored filters
         const validatedFilters: QuestionFilters = {
-          tags: (Array.isArray(parsed.tags) && parsed.tags.every((tag: unknown) => typeof tag === 'string')) 
-            ? parsed.tags 
+          tags: (Array.isArray(parsedObj.tags) && parsedObj.tags.every((tag: unknown) => typeof tag === 'string')) 
+            ? parsedObj.tags 
             : DEFAULT_FILTERS.tags,
-          difficulty: (Array.isArray(parsed.difficulty) && 
-                       parsed.difficulty.every((d: unknown) => ['EASY', 'MEDIUM', 'HARD'].includes(d as string)))
-            ? parsed.difficulty 
+          difficulty: (Array.isArray(parsedObj.difficulty) && 
+                       parsedObj.difficulty.every((d: unknown) => ['EASY', 'MEDIUM', 'HARD'].includes(d as string)))
+            ? parsedObj.difficulty 
             : DEFAULT_FILTERS.difficulty,
-          status: ['all', 'solved', 'unsolved'].includes(parsed.status) ? parsed.status : DEFAULT_FILTERS.status,
-          search: typeof parsed.search === 'string' ? parsed.search : DEFAULT_FILTERS.search,
-          sortBy: (typeof parsed.sortBy === 'string' && ['newest', 'difficulty', 'most-attempted', 'number'].includes(parsed.sortBy)) 
-            ? parsed.sortBy 
+          status: ['all', 'solved', 'unsolved'].includes(parsedObj.status as string) ? parsedObj.status as 'all' | 'solved' | 'unsolved' : DEFAULT_FILTERS.status,
+          search: typeof parsedObj.search === 'string' ? parsedObj.search : DEFAULT_FILTERS.search,
+          sortBy: (typeof parsedObj.sortBy === 'string' && ['newest', 'difficulty', 'most-attempted', 'number'].includes(parsedObj.sortBy)) 
+            ? parsedObj.sortBy as 'newest' | 'difficulty' | 'most-attempted' | 'number'
             : DEFAULT_FILTERS.sortBy,
-          page: (typeof parsed.page === 'number' && parsed.page > 0) ? parsed.page : DEFAULT_FILTERS.page,
-          pageSize: (typeof parsed.pageSize === 'number' && parsed.pageSize > 0)
-            ? parsed.pageSize 
+          page: (typeof parsedObj.page === 'number' && parsedObj.page > 0) ? parsedObj.page : DEFAULT_FILTERS.page,
+          pageSize: (typeof parsedObj.pageSize === 'number' && parsedObj.pageSize > 0)
+            ? parsedObj.pageSize 
             : DEFAULT_FILTERS.pageSize
         }
         
