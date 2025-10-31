@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 
 interface UserWithAvatarProps {
   userId?: string
-  userEmail: string
+  userEmail: string | null
   avatarUrl?: string | null
   displayName?: string
   className?: string
@@ -22,7 +22,7 @@ interface UserWithAvatarProps {
  * Render a user avatar alongside the user's display name, and wrap them in a profile link when an ID is provided.
  *
  * @param userId - When present, wraps the avatar and name in a link to `/profile/{userId}`; when absent, renders a non-clickable container.
- * @param displayName - Text shown next to the avatar; if omitted the user's email is used instead.
+ * @param displayName - Text shown next to the avatar; if omitted the user's email is used, or "Anonymous User" if email is null.
  * @param className - Additional CSS classes applied to the outer container/link.
  * @param avatarSize - Explicit avatar size override; when omitted the size is determined from `rank` (top 3 => 'lg', otherwise 'md').
  * @param rank - Numeric ranking used to auto-determine avatar size when `avatarSize` is not provided.
@@ -44,8 +44,8 @@ export function UserWithAvatar({
   // Top 3 users (ranks 1-3) get 'lg' (40px), others get 'md' (32px)
   const determinedSize = avatarSize || (rank && rank <= 3 ? 'lg' : 'md')
 
-  // Use displayName if provided, otherwise use email
-  const displayText = displayName || userEmail
+  // Use displayName if provided, otherwise use email, or fallback to "Anonymous User"
+  const displayText = displayName || (userEmail ? userEmail : 'Anonymous User')
 
   // If userId is missing, render without link
   if (!userId) {
@@ -56,6 +56,8 @@ export function UserWithAvatar({
           avatarUrl={avatarUrl}
           size={determinedSize}
           rank={rank}
+          displayName={displayName}
+          userId={userId}
         />
         <div className="flex flex-col">
           <span className="truncate font-medium text-sm">
@@ -85,6 +87,8 @@ export function UserWithAvatar({
         avatarUrl={avatarUrl}
         size={determinedSize}
         rank={rank}
+        displayName={displayName}
+        userId={userId}
       />
       <div className="flex flex-col">
         <span className="truncate font-medium text-sm group-hover:underline">

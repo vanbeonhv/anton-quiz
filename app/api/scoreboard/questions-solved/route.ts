@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import dayjs from '@/lib/dayjs'
+import { createClient } from '@/lib/supabase/server'
+import { filterEmailPrivacy } from '@/lib/utils/privacy'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
+    // Get current user from Supabase auth
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
     const { searchParams } = new URL(request.url)
     const filter = searchParams.get('filter') || 'all-time'
     const limit = parseInt(searchParams.get('limit') || '100')
@@ -87,7 +93,13 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json(leaderboard)
+    // Apply privacy filter before returning response
+    const filteredLeaderboard = filterEmailPrivacy(leaderboard, {
+      currentUserId: user?.id,
+      preserveEmailForCurrentUser: true
+    })
+
+    return NextResponse.json(filteredLeaderboard)
   } catch (error) {
     console.error('Failed to fetch questions solved leaderboard:', error)
     return NextResponse.json(
