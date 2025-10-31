@@ -28,12 +28,18 @@ export function useQuestionFilters() {
     try {
       const storedFilters = localStorage.getItem(FILTERS_STORAGE_KEY)
       if (storedFilters) {
-        const parsed = JSON.parse(storedFilters) as QuestionFilters
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const parsed: any = JSON.parse(storedFilters)
         
         // Validate and sanitize the stored filters
         const validatedFilters: QuestionFilters = {
-          tags: Array.isArray(parsed.tags) ? parsed.tags : DEFAULT_FILTERS.tags,
-          difficulty: Array.isArray(parsed.difficulty) ? parsed.difficulty : DEFAULT_FILTERS.difficulty,
+          tags: (Array.isArray(parsed.tags) && parsed.tags.every((tag: unknown) => typeof tag === 'string')) 
+            ? parsed.tags 
+            : DEFAULT_FILTERS.tags,
+          difficulty: (Array.isArray(parsed.difficulty) && 
+                       parsed.difficulty.every((d: unknown) => ['EASY', 'MEDIUM', 'HARD'].includes(d as string)))
+            ? parsed.difficulty 
+            : DEFAULT_FILTERS.difficulty,
           status: ['all', 'solved', 'unsolved'].includes(parsed.status) ? parsed.status : DEFAULT_FILTERS.status,
           search: typeof parsed.search === 'string' ? parsed.search : DEFAULT_FILTERS.search,
           sortBy: (typeof parsed.sortBy === 'string' && ['newest', 'difficulty', 'most-attempted', 'number'].includes(parsed.sortBy)) 
