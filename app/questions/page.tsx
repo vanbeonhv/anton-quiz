@@ -1,23 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { QuestionFilters } from '@/types'
 import { QuestionBrowser } from '@/components/questions/QuestionBrowser'
+import { useQuestionFilters } from '@/hooks/useQuestionFilters'
 
 export default function QuestionsPage() {
-  const [filters, setFilters] = useState<QuestionFilters>({
-    tags: [],
-    difficulty: [],
-    status: 'all',
-    search: '',
-    sortBy: 'number',
-    page: 1,
-    pageSize: 12
-  })
-
-  const handleFilterChange = (newFilters: QuestionFilters) => {
-    setFilters(newFilters)
-  }
+  const { filters, setFilters } = useQuestionFilters()
 
   return (
     <div className="min-h-screen bg-bg-peach">
@@ -35,7 +22,7 @@ export default function QuestionsPage() {
         {/* Question Browser Component */}
         <QuestionBrowser
           filters={filters}
-          onFilterChange={handleFilterChange}
+          onFilterChange={setFilters}
         />
       </div>
     </div>
