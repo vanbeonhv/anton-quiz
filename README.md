@@ -5,6 +5,7 @@ A modern quiz and questions practice application built for interactive learning 
 ## ✨ Features
 
 - **Question Practice**: Answer questions across Easy, Medium, and Hard difficulty levels
+- **Daily Question**: A new question every day with a shareable URL (`/daily`)
 - **Progress Tracking**: Comprehensive statistics including streaks and accuracy rates
 - **Tagging System**: Organized questions with filtering capabilities
 - **Real-time Feedback**: Immediate feedback with explanations
@@ -80,6 +81,12 @@ pnpm dev
 ```
 
 Open [http://localhost:4000](http://localhost:4000) to view the application.
+
+### Daily Question Sharing
+
+The daily question can be easily shared using the dedicated URL:
+- **Direct access**: `/daily` - Automatically redirects to today's question
+- **API redirect**: `/api/daily-question/redirect` - Programmatic redirect with authentication
 
 ## 🐳 Docker Deployment
 

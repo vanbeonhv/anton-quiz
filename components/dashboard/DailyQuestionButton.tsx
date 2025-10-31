@@ -79,9 +79,7 @@ export function DailyQuestionButton({ className = '' }: DailyQuestionButtonProps
   }
 
   const handleClick = () => {
-    if (data?.id) {
-      router.push(`/questions/${data.id}?type=daily`)
-    }
+    router.push('/daily')
   }
 
   // Loading state
