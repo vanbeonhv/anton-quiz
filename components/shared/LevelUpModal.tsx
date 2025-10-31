@@ -64,15 +64,22 @@ export function LevelUpModal({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center">
       {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-black/80 animate-in fade-in-0"
-        onClick={onClose}
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          onClose()
+        }}
       />
       
       {/* Modal Content */}
-      <div className="relative z-10 w-full max-w-lg mx-4 bg-gradient-to-br from-primary-green/5 via-bg-cream to-primary-orange/5 border-2 border-primary-green/30 rounded-lg shadow-xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-4 duration-200">
+      <div 
+        className="relative z-10 w-full max-w-lg mx-4 bg-gradient-to-br from-primary-green/5 via-bg-cream to-primary-orange/5 border-2 border-primary-green/30 rounded-lg shadow-xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-4 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Confetti Animation */}
         {showConfetti && (
           <div className="absolute inset-0 pointer-events-none">
@@ -201,7 +208,11 @@ export function LevelUpModal({
           {/* Close Button */}
           <div className="flex justify-center pt-4">
             <Button
-              onClick={onClose}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                onClose()
+              }}
               className="px-8 py-3 bg-gradient-to-r from-primary-green to-primary-orange hover:from-primary-green/90 hover:to-primary-orange/90 text-white font-medium text-lg shadow-lg"
             >
               Awesome! 🚀
@@ -211,8 +222,12 @@ export function LevelUpModal({
         
         {/* Close Button */}
         <button
-          onClick={onClose}
-          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-text-secondary hover:text-text-primary"
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            onClose()
+          }}
+          className="absolute right-4 top-4 z-20 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-text-secondary hover:text-text-primary"
         >
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
