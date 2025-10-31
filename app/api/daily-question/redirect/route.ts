@@ -9,10 +9,13 @@ export const dynamic = 'force-dynamic'
  * Useful for external sharing or programmatic access
  */
 export async function GET(request: NextRequest) {
+  let user: any = null
+
   try {
     // Authenticate user
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user: authUser } } = await supabase.auth.getUser()
+    user = authUser
 
     if (!user) {
       // Redirect to login if not authenticated
@@ -35,10 +38,14 @@ export async function GET(request: NextRequest) {
     // Redirect to the question page
     const questionUrl = new URL(`/questions/${dailyQuestionResult.questionId}`, request.url)
     questionUrl.searchParams.set('type', 'daily')
-    
+
     return NextResponse.redirect(questionUrl)
   } catch (error) {
-    console.error('Failed to redirect to daily question:', error)
+    console.error({
+      error,
+      userId: user?.id,
+      timestamp: new Date().toISOString()
+    })
     return NextResponse.json(
       { error: 'Failed to redirect to daily question' },
       { status: 500 }
