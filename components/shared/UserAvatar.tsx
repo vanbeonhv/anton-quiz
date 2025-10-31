@@ -5,12 +5,14 @@ import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
 interface UserAvatarProps {
-  userEmail: string
+  userEmail: string | null
   avatarUrl?: string | null
   size?: 'sm' | 'md' | 'lg' | 'xl'
   className?: string
   showBorder?: boolean
   rank?: number
+  displayName?: string
+  userId?: string
 }
 
 // Size mappings in pixels
@@ -35,20 +37,28 @@ const avatarColors = [
   '#14B8A6', // teal
 ]
 
-// Generate consistent color based on email hash
-function getColorFromEmail(email: string): string {
+// Generate consistent color based on string hash (email, displayName, or userId)
+function getColorFromString(str: string): string {
   let hash = 0
-  for (let i = 0; i < email.length; i++) {
-    hash = email.charCodeAt(i) + ((hash << 5) - hash)
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash)
     hash = hash & hash // Convert to 32-bit integer
   }
   const index = Math.abs(hash) % avatarColors.length
   return avatarColors[index]
 }
 
-// Get first letter of email for fallback
-function getInitialFromEmail(email: string): string {
-  return email.charAt(0).toUpperCase()
+// Get first letter for fallback avatar
+function getInitialFromString(str: string): string {
+  return str.charAt(0).toUpperCase()
+}
+
+// Get fallback string for avatar generation (priority: email -> displayName -> userId -> "A")
+function getFallbackString(email: string | null, displayName?: string, userId?: string): string {
+  if (email) return email
+  if (displayName) return displayName
+  if (userId) return userId
+  return 'Anonymous'
 }
 
 // Determine if background is light or dark for text contrast
@@ -84,14 +94,17 @@ export function UserAvatar({
   className,
   showBorder = false,
   rank,
+  displayName,
+  userId,
 }: UserAvatarProps) {
   const [imageError, setImageError] = useState(false)
   const [isLoading, setIsLoading] = useState(!!avatarUrl)
 
   const pixelSize = sizeMap[size]
-  const bgColor = getColorFromEmail(userEmail)
+  const fallbackString = getFallbackString(userEmail, displayName, userId)
+  const bgColor = getColorFromString(fallbackString)
   const textColor = getTextColor(bgColor)
-  const initial = getInitialFromEmail(userEmail)
+  const initial = getInitialFromString(fallbackString)
   const fontSize = getFontSize(size)
 
   // Show fallback if no avatar URL or image failed to load
@@ -150,7 +163,7 @@ export function UserAvatar({
 
                 <Image
                   src={avatarUrl}
-                  alt={`${userEmail} avatar`}
+                  alt={`${displayName || userEmail || 'User'} avatar`}
                   width={pixelSize}
                   height={pixelSize}
                   className="w-full h-full object-cover rounded-full"
@@ -225,7 +238,7 @@ export function UserAvatar({
 
                 <Image
                   src={avatarUrl}
-                  alt={`${userEmail} avatar`}
+                  alt={`${displayName || userEmail || 'User'} avatar`}
                   width={pixelSize}
                   height={pixelSize}
                   className="w-full h-full object-cover rounded-full"
@@ -285,7 +298,7 @@ export function UserAvatar({
           {/* Avatar image */}
           <Image
             src={avatarUrl}
-            alt={`${userEmail} avatar`}
+            alt={`${displayName || userEmail || 'User'} avatar`}
             width={pixelSize}
             height={pixelSize}
             className="w-full h-full object-cover"

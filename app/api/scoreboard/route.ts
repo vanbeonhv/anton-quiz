@@ -2,11 +2,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import type { ScoreboardType } from '@/types'
 import dayjs from '@/lib/dayjs'
+import { createClient } from '@/lib/supabase/server'
+import { filterEmailPrivacy } from '@/lib/utils/privacy'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
+    // Get current user from Supabase auth
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
     const { searchParams } = new URL(request.url)
     const type = (searchParams.get('type') || 'questions-solved') as ScoreboardType
     const filter = searchParams.get('filter') || 'all-time'
@@ -14,11 +20,11 @@ export async function GET(request: NextRequest) {
 
     // Only handle questions-solved leaderboard now
     if (type === 'questions-solved') {
-      return getQuestionsSolvedLeaderboard(filter, limit)
+      return getQuestionsSolvedLeaderboard(filter, limit, user?.id)
     }
 
     // Default to questions-solved leaderboard
-    return getQuestionsSolvedLeaderboard(filter, limit)
+    return getQuestionsSolvedLeaderboard(filter, limit, user?.id)
   } catch (error) {
     console.error('Failed to fetch scoreboard:', error)
     return NextResponse.json(
@@ -29,7 +35,7 @@ export async function GET(request: NextRequest) {
 }
 
 // Questions solved leaderboard
-async function getQuestionsSolvedLeaderboard(filter: string, limit: number) {
+async function getQuestionsSolvedLeaderboard(filter: string, limit: number, currentUserId?: string) {
   let whereClause = {}
 
   // Apply time filtering to UserStats
@@ -107,5 +113,11 @@ async function getQuestionsSolvedLeaderboard(filter: string, limit: number) {
     }
   })
 
-  return NextResponse.json(leaderboard)
+  // Apply privacy filter before returning response
+  const filteredLeaderboard = filterEmailPrivacy(leaderboard, {
+    currentUserId,
+    preserveEmailForCurrentUser: true
+  })
+
+  return NextResponse.json(filteredLeaderboard)
 }
