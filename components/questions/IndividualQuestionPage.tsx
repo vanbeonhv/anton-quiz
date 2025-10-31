@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { AnswerOption } from './AnswerOption'
 import { LoadingOverlay } from '@/components/shared/LoadingOverlay'
 import { XpGainModal, LevelUpModal } from '@/components/shared'
-import { useSubmitQuestionAttempt } from '@/lib/queries'
+import { useSubmitQuestionAttempt, useNextUnansweredQuestion } from '@/lib/queries'
 import { DAILY_POINTS } from '@/lib/utils/dailyQuestion'
 import { toast } from 'sonner'
 import { MarkdownText } from '@/lib/utils/markdown'
@@ -39,6 +39,7 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
   const [previousTitle, setPreviousTitle] = useState<string>('Newbie')
 
   const submitAttemptMutation = useSubmitQuestionAttempt()
+  const { data: nextQuestionData, refetch: refetchNextQuestion, isFetching: isLoadingNextQuestion } = useNextUnansweredQuestion()
 
   // Calculate daily points based on difficulty
   const dailyPoints = isDailyQuestion ? DAILY_POINTS[question.difficulty] : 0
@@ -108,6 +109,9 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
             userProgress: data.userProgress
           })
 
+          // Refetch next question data since user has now attempted this question
+          refetchNextQuestion()
+
           // Show XP modal first if XP was earned
           if (data.xpEarned > 0) {
             setTimeout(() => setShowXpModal(true), 500)
@@ -133,10 +137,28 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
     router.push(isDailyQuestion ? '/dashboard' : '/questions')
   }
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = async () => {
     // For daily questions, go back to dashboard
-    // For regular questions, go back to questions list
-    router.push(isDailyQuestion ? '/dashboard' : '/questions')
+    if (isDailyQuestion) {
+      router.push('/dashboard')
+      return
+    }
+
+    // For regular questions, try to get next unanswered question
+    try {
+      const { data } = await refetchNextQuestion()
+      if (data?.questionId) {
+        router.push(`/questions/${data.questionId}`)
+      } else {
+        // No more unanswered questions, show success message and go back to questions
+        toast.success('🎉 Congratulations! You have answered all available questions!')
+        router.push('/questions')
+      }
+    } catch (error) {
+      console.error('Failed to get next question:', error)
+      toast.error('Failed to load next question')
+      router.push('/questions')
+    }
   }
 
   const handleXpModalClose = () => {
@@ -335,9 +357,16 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
                     {!isDailyQuestion && (
                       <Button
                         onClick={handleNextQuestion}
-                        className="px-6 py-2 bg-primary-green hover:bg-primary-green/90 text-white"
+                        disabled={isLoadingNextQuestion || (nextQuestionData?.remainingQuestions === 0)}
+                        className="px-6 py-2 bg-primary-green hover:bg-primary-green/90 text-white disabled:opacity-50"
                       >
-                        Next Question
+                        {isLoadingNextQuestion ? 'Loading...' : 
+                          nextQuestionData?.remainingQuestions !== undefined ? 
+                            nextQuestionData.remainingQuestions > 0 ?
+                              `Next Question (${nextQuestionData.remainingQuestions} remaining)` :
+                              'All Questions Completed!' :
+                            'Next Unanswered Question'
+                        }
                       </Button>
                     )}
                   </div>

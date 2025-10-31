@@ -600,3 +600,21 @@ export function useQuestion(id: string) {
     refetchOnWindowFocus: false,
   })
 }
+
+/**
+ * Get the next unanswered question ID
+ */
+export function useNextUnansweredQuestion() {
+  const { isAuthenticated } = useAuth()
+  return useQuery({
+    queryKey: ['next-unanswered-question'],
+    queryFn: async (): Promise<{ questionId: string | null; remainingQuestions: number }> => {
+      const res = await fetch('/api/questions/next-unanswered')
+      if (!res.ok) throw new Error('Failed to fetch next unanswered question')
+      return res.json()
+    },
+    enabled: isAuthenticated,
+    staleTime: 0, // Always fetch fresh data
+    refetchOnWindowFocus: false,
+  })
+}
