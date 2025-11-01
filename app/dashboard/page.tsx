@@ -2,7 +2,8 @@
 
 import { useRouter } from 'next/navigation'
 import { Trophy, HelpCircle } from 'lucide-react'
-import { useRecentScores, useUserStats } from '@/lib/queries'
+import { useRecentScores } from '@/lib/queries'
+import { useUserLevelSafe } from '@/components/providers/UserLevelProvider'
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader'
 import { StatsSection } from '@/components/dashboard/StatsSection'
 import { RecentScoresSection } from '@/components/dashboard/RecentScoresSection'
@@ -11,7 +12,11 @@ import { DailyQuestionButton } from '@/components/dashboard/DailyQuestionButton'
 export default function DashboardPage() {
   const router = useRouter()
   const { data: recentScores, isLoading: scoresLoading } = useRecentScores()
-  const { data: userStats, isLoading: statsLoading } = useUserStats()
+  
+  // Use context for user level information
+  const userLevelContext = useUserLevelSafe()
+  const userStats = userLevelContext?.userStats
+  const statsLoading = userLevelContext?.isLoading || false
 
   const handleViewAllScores = () => {
     router.push('/scoreboard')

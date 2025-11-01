@@ -10,6 +10,7 @@ export {
 } from './Skeleton'
 export { EmptyState } from './EmptyState'
 export { LevelBadge } from './LevelBadge'
+export { LevelDrawer } from './LevelDrawer'
 export { LevelProgress } from './LevelProgress'
 export { RankDisplay } from './RankDisplay'
 export { UserAvatar } from './UserAvatar'

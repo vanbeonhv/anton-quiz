@@ -71,6 +71,7 @@ export function LeaderboardTable({ entries }: LeaderboardTableProps) {
                   title={entry.currentTitle} 
                   size="sm"
                   showIcon={false}
+                  // variant="display-only"
                 />
               </TableCell>
 

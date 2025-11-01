@@ -68,6 +68,7 @@ export function UserWithAvatar({
               size="sm"
               showIcon={false}
               className="mt-1"
+              variant="display-only"
             />
           )}
         </div>
@@ -97,6 +98,7 @@ export function UserWithAvatar({
             size="sm"
             showIcon={false}
             className="mt-1"
+            variant="display-only"
           />
         )}
       </div>
