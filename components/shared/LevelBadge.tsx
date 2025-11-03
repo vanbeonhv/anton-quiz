@@ -25,16 +25,15 @@ export function LevelBadge({
   className,
   variant = 'clickable'
 }: LevelBadgeProps) {
-  // Use context data when available, fallback to props for backward compatibility
+  // Use context data when available, but props take precedence when provided
   const userLevelContext = useUserLevelSafe()
-  
-  // Determine data source - context takes precedence if available and has data
-  const hasContextData = userLevelContext?.userStats?.level && userLevelContext?.userStats?.levelTitle
-  const level = hasContextData ? userLevelContext.userStats.level : propLevel
-  const title = hasContextData ? userLevelContext.userStats.levelTitle : propTitle
+
+  // Determine data source - props take precedence over context
+  const level = propLevel ?? userLevelContext?.userStats?.currentLevel
+  const title = propTitle ?? userLevelContext?.userStats?.currentTitle
   const isLoading = userLevelContext?.isLoading ?? false
-  const hasError = userLevelContext?.error !== null
-  
+  const hasError = userLevelContext?.error !== null && userLevelContext?.error !== undefined
+
   // Handle loading state when context is loading and no props provided
   if (isLoading && !propLevel && !propTitle) {
     return (
@@ -42,9 +41,9 @@ export function LevelBadge({
         variant="outline"
         className={cn(
           'font-semibold flex items-center animate-pulse',
-          size === 'sm' ? 'text-xs px-2 py-1 gap-1' : 
-          size === 'md' ? 'text-sm px-3 py-1.5 gap-1.5' : 
-          'text-base px-4 py-2 gap-2',
+          size === 'sm' ? 'text-xs px-2 py-1 gap-1' :
+            size === 'md' ? 'text-sm px-3 py-1.5 gap-1.5' :
+              'text-base px-4 py-2 gap-2',
           className
         )}
       >
@@ -53,7 +52,7 @@ export function LevelBadge({
       </Badge>
     )
   }
-  
+
   // Handle error state when context has error and no props provided
   if (hasError && !propLevel && !propTitle) {
     return (
@@ -61,9 +60,9 @@ export function LevelBadge({
         variant="outline"
         className={cn(
           'font-semibold flex items-center text-muted-foreground',
-          size === 'sm' ? 'text-xs px-2 py-1 gap-1' : 
-          size === 'md' ? 'text-sm px-3 py-1.5 gap-1.5' : 
-          'text-base px-4 py-2 gap-2',
+          size === 'sm' ? 'text-xs px-2 py-1 gap-1' :
+            size === 'md' ? 'text-sm px-3 py-1.5 gap-1.5' :
+              'text-base px-4 py-2 gap-2',
           className
         )}
       >
@@ -71,26 +70,25 @@ export function LevelBadge({
       </Badge>
     )
   }
-  
+
   // Early return if no level data is available from any source
   if (!level || !title) {
     return null
   }
-  // Handle click to open drawer (only for clickable variant and when context is available)
+  // Handle click to open drawer (only for current user's level, not other users)
   const handleClick = () => {
     if (variant === 'clickable') {
+      console.log(userLevelContext);
+
+      // Only allow opening drawer if we're showing current user's level (no props provided)
       if (userLevelContext?.openDrawer) {
-        console.log('opennn')
         userLevelContext.openDrawer()
       } else {
-        // Fallback behavior when context is not available - could log or show a message
+        // Fallback behavior when context is not available
         console.warn('LevelBadge: UserLevelProvider context not available for drawer functionality')
       }
     }
   }
-  
-  // Determine if the badge should be clickable based on context availability
-  const isClickable = variant === 'clickable' && userLevelContext?.openDrawer
 
   // Determine badge color based on level ranges
   const getBadgeVariant = (level: number) => {
@@ -124,12 +122,11 @@ export function LevelBadge({
       variant={getBadgeVariant(level)}
       className={cn(
         'font-semibold flex items-center transition-all',
-        isClickable && 'cursor-pointer hover:scale-105',
-        (variant === 'display-only' || !isClickable) && 'cursor-default',
+        (variant === 'clickable' ? 'cursor-pointer hover:scale-105' : 'cursor-default'),
         sizeClasses[size],
         className
       )}
-      onClick={isClickable ? handleClick : undefined}
+      onClick={handleClick}
     >
       {showIcon && getIcon(level)}
       <span>Level {level}</span>
