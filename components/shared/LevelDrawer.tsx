@@ -124,8 +124,8 @@ export function LevelDrawer() {
           </DrawerClose>
         </DrawerHeader>
 
-        {/* Content area */}
-        <div className="flex-1 overflow-y-auto scrollbar-hide">
+        {/* Content area with flex layout */}
+        <div className="flex-1 flex flex-col min-h-0">
           {isLoading && (
             <div className="flex items-center justify-center h-32">
               <div className="text-sm text-muted-foreground">Loading level data...</div>
@@ -141,10 +141,10 @@ export function LevelDrawer() {
           )}
 
           {userStats && !isLoading && !error && (
-            <div className="space-y-6">
-              {/* Current Level Header */}
+            <>
+              {/* Current Level Header - Fixed */}
               <div className={cn(
-                'p-6 text-white',
+                'p-6 text-white flex-shrink-0',
                 getHeaderGradient(userStats.currentLevel)
               )}>
                 <div className="flex items-center gap-4">
@@ -183,14 +183,14 @@ export function LevelDrawer() {
                 )}
               </div>
 
-              {/* Level Progression List */}
-              <div className="px-4">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              {/* Level Progression List - Expandable */}
+              <div className="flex-1 flex flex-col min-h-0 px-4 py-4">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 flex-shrink-0">
                   <Target className="w-5 h-5" />
                   All Levels
                 </h3>
                 
-                <div className="space-y-2 max-h-80 overflow-y-auto scrollbar-hide">
+                <div className="flex-1 overflow-y-auto space-y-2">
                   {LEVEL_DATA.map((levelConfig) => {
                     const isCurrentLevel = levelConfig.level === userStats.currentLevel
                     const isPastLevel = levelConfig.level < userStats.currentLevel
@@ -200,10 +200,10 @@ export function LevelDrawer() {
                       <div
                         key={levelConfig.level}
                         className={cn(
-                          'flex items-center justify-between p-3 rounded-lg border transition-all',
-                          isCurrentLevel && 'ring-2 ring-primary bg-primary/5 border-primary',
-                          isPastLevel && 'opacity-60 bg-muted/30',
-                          isFutureLevel && 'hover:bg-muted/50'
+                          'flex items-center justify-between p-3 rounded-lg transition-all',
+                          isCurrentLevel && 'border-2 border-blue-500 bg-blue-50/50',
+                          isPastLevel && 'opacity-60 bg-muted/30 border border-muted',
+                          isFutureLevel && 'hover:bg-muted border border-muted/50 cursor-pointer'
                         )}
                       >
                         <div className="flex items-center gap-3">
@@ -247,8 +247,8 @@ export function LevelDrawer() {
                 </div>
               </div>
 
-              {/* Motivational Footer */}
-              <div className="px-4 pb-4">
+              {/* Motivational Footer - Fixed at bottom */}
+              <div className="flex-shrink-0 px-4 pb-4">
                 <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-4 text-center">
                   <div className="text-sm font-medium text-primary mb-1">
                     {getMotivationalMessage(userStats.currentLevel)}
@@ -258,7 +258,7 @@ export function LevelDrawer() {
                   </div>
                 </div>
               </div>
-            </div>
+            </>
           )}
         </div>
       </DrawerContent>

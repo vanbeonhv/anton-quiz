@@ -127,7 +127,7 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
                     title={entry.currentTitle} 
                     size="sm"
                     showIcon={false}
-                    variant="display-only"
+                    // variant="display-only"
                   />
                 </TableCell>
 
