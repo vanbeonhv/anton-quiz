@@ -16,7 +16,7 @@ import { User, LogOut, Settings, ChevronDown, Menu, X, Star } from 'lucide-react
 import { useAuth } from '@/hooks/useAuth'
 import { isAdmin } from '@/lib/utils/admin'
 import { LevelBadge } from '@/components/shared/LevelBadge'
-import { useUserStats } from '@/lib/queries'
+import { useUserLevelSafe } from '@/components/providers/UserLevelProvider'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 
 export function Header() {
@@ -24,8 +24,9 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
   
-  // Fetch user stats for level information
-  const { data: userStats } = useUserStats()
+  // Use context for user level information
+  const userLevelContext = useUserLevelSafe()
+  const userStats = userLevelContext?.userStats
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -202,13 +203,11 @@ export function Header() {
                           {userStats ? (
                             <div className="space-y-1">
                               <LevelBadge 
-                                level={userStats.currentLevel} 
-                                title={userStats.currentTitle} 
                                 size="sm"
                                 showIcon={false}
                               />
                               <p className="text-xs text-text-muted">
-                                {userStats.totalXp.toLocaleString()} XP
+                                {userStats.totalXp?.toLocaleString() ?? 0} XP
                               </p>
                             </div>
                           ) : (

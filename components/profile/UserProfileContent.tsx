@@ -3,7 +3,7 @@
 import { useAuth } from '@/hooks/useAuth'
 import { useUserProfileStats } from '@/lib/queries'
 import { LoadingState } from '@/components/shared'
-import { 
+import {
   UserProfileHeader,
   StatsOverviewGrid,
   ProgressByTagSection,
@@ -56,19 +56,22 @@ export function UserProfileContent({ userId }: UserProfileContentProps) {
 
   return (
     <div className="space-y-8">
-      <UserProfileHeader 
+      <UserProfileHeader
         userEmail={userStats.userEmail}
         displayName={userStats.displayName}
         avatarUrl={userStats.avatarUrl}
         joinDate={userStats.createdAt}
+        currentLevel={userStats.currentLevel || 1}
+        currentTitle={userStats.currentTitle || "Newbie"}
+        totalXp={userStats.totalXp || 0}
       />
-      
+
       <StatsOverviewGrid userStats={userStats} />
-      
+
       <ProgressByTagSection tagStats={userStats.tagStats} />
-      
+
       <RecentActivityTimeline activities={userStats.recentActivity} />
-      
+
       <AchievementSection />
     </div>
   )

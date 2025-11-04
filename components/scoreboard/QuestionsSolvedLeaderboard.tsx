@@ -3,7 +3,7 @@
 import { useQuestionsSolvedLeaderboard } from '@/lib/queries'
 import { useAuth } from '@/hooks/useAuth'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Target, TrendingUp, Star } from 'lucide-react'
+import { Target, TrendingUp } from 'lucide-react'
 import { LeaderboardSkeleton } from '@/components/shared/LoadingState'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { RankDisplay } from '@/components/shared/RankDisplay'
@@ -127,6 +127,7 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
                     title={entry.currentTitle} 
                     size="sm"
                     showIcon={false}
+                    variant="display-only"
                   />
                 </TableCell>
 

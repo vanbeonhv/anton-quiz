@@ -9,9 +9,9 @@ interface UserProfileHeaderProps {
   displayName?: string | null
   avatarUrl?: string | null
   joinDate: Date
-  currentLevel?: number
-  currentTitle?: string
-  totalXp?: number
+  currentLevel: number
+  currentTitle: string
+  totalXp: number
 }
 
 export function UserProfileHeader({

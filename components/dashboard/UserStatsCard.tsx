@@ -4,9 +4,9 @@ import { LevelBadge } from '@/components/shared/LevelBadge'
 interface UserStatsCardProps {
     dailyPoints: number
     questionsSolved: number
-    currentLevel?: number
-    currentTitle?: string
-    totalXp?: number
+    currentLevel: number
+    currentTitle: string
+    totalXp: number
 }
 
 export function UserStatsCard({ 
@@ -24,7 +24,8 @@ export function UserStatsCard({
                     level={currentLevel} 
                     title={currentTitle} 
                     size="md"
-                    className="bg-white/20 text-white border-white/30 hover:bg-white/30"
+                    className="bg-white/20 text-white border-white/30 hover:bg-white/30 cursor-pointer"
+                    variant='clickable'
                 />
                 <div className="flex items-center gap-1 text-primary-orange-light">
                     <Star className="w-4 h-4" />

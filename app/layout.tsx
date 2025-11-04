@@ -3,6 +3,8 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { UserLevelProviderWithErrorBoundary } from "@/components/providers/UserLevelProvider";
+import { LevelDrawer } from "@/components/shared/LevelDrawer";
 import { Toaster } from "sonner";
 
 const geistSans = localFont({
@@ -68,9 +70,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-bg-peach`}
       >
         <QueryProvider>
-          <Header />
-          {children}
-          <Toaster />
+          <UserLevelProviderWithErrorBoundary>
+            <Header />
+            {children}
+            <LevelDrawer />
+            <Toaster />
+          </UserLevelProviderWithErrorBoundary>
         </QueryProvider>
       </body>
     </html>
