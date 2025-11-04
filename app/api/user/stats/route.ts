@@ -99,8 +99,11 @@ export async function GET() {
         // Calculate XP to next level
         const xpToNextLevel = LevelCalculatorService.calculateXpToNextLevel(userStats.currentLevel, userStats.totalXp)
 
+        // Remove sensitive userEmail field from response
+        const { userEmail, ...statsWithoutEmail } = userStats
+
         return NextResponse.json({
-            ...userStats,
+            ...statsWithoutEmail,
             xpToNextLevel
         })
     } catch (error) {

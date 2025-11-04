@@ -15,7 +15,10 @@ export async function GET(
 
     // Get user stats
     const userStats = await prisma.userStats.findUnique({
-      where: { userId }
+      omit: {
+        userEmail: true
+      },
+      where: { userId },
     })
 
     if (!userStats) {
