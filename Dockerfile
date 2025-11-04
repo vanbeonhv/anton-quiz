@@ -60,6 +60,8 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 
+COPY --from=builder --chown=nextjs:nodejs /app/instrumentation.ts ./
+
 # Chuyển quyền sở hữu cho user nextjs
 RUN chown -R nextjs:nodejs /app
 

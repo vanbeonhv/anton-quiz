@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    instrumentationHook: true,
+  },
   output: 'standalone',  // BẮT BUỘC cho Docker
   // Disable React StrictMode to prevent double API calls in development
   reactStrictMode: false,
@@ -17,6 +20,7 @@ const nextConfig = {
       },
     ],
   },
+
 };
 
 export default nextConfig;

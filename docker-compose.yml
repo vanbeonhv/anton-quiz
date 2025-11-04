@@ -2,10 +2,15 @@ networks:
   app-network:
     driver: bridge
 
+volumes:
+  prometheus_data:
+    driver: local
+
 services:
   app:
     build:
       context: .
+      dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
         NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
@@ -22,7 +27,7 @@ services:
       - DIRECT_URL=${DIRECT_URL}
     restart: unless-stopped
     networks:
-      - monitor-net
+      - app-network
 
   prometheus:
     image: prom/prometheus:latest
