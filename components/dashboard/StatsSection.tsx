@@ -2,7 +2,7 @@ import { UserStats } from '@/types'
 import { UserStatsCard } from './UserStatsCard'
 
 interface StatsSectionProps {
-  data?: UserStats,
+  data?: (UserStats & { xpToNextLevel: number }) | null,
   isLoading: boolean
 }
 
