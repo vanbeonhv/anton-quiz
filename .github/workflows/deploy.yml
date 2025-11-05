@@ -109,15 +109,3 @@ jobs:
         if: always()
         run: |
           rm -f ~/.ssh/id_rsa
-```
-
-## Cần setup GitHub Secrets:
-
-Vào **Settings → Secrets and variables → Actions**, thêm các secrets sau:
-```
-VPS_SSH_KEY=<private key để SSH vào VPS>
-NEXT_PUBLIC_SUPABASE_URL=<từ .env>
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<từ .env>
-NEXT_PUBLIC_ADMIN_EMAILS=<từ .env>
-DATABASE_URL=<từ .env>
-DIRECT_URL=<từ .env>
