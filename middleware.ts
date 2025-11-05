@@ -2,6 +2,12 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  //bypass for prometheous
+  if (request.nextUrl.pathname === '/api/metrics') {
+    return NextResponse.next()
+  }
+
+
   let supabaseResponse = NextResponse.next({
     request,
   })
