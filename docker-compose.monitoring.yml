@@ -9,12 +9,12 @@ volumes:
 services:
   prometheus:
     image: prom/prometheus:latest
-    container_name: prometheus
+    container_name: prometheus-quiz
     volumes:
       - ./monitoring/prometheus/prometheus.local.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     ports:
-      - "9090:9090"
+      - "9091:9090"
     networks:
       - monitoring
     restart: unless-stopped
@@ -27,9 +27,9 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    container_name: grafana
+    container_name: grafana-quiz
     ports:
-      - "3111:3000"
+      - "3200:3000"
     volumes:
       - grafana_data:/var/lib/grafana
     networks:
