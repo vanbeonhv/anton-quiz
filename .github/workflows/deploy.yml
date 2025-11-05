@@ -70,7 +70,14 @@ jobs:
           echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 103.129.127.127 >> ~/.ssh/known_hosts
-      
+      - name: Copy Docker Compose Files to Server
+        run: |
+          # Copy docker-compose.yml và mọi file cấu hình cần thiết (như monitoring/prometheus)
+          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -r \
+            docker-compose.yml \
+            monitoring \
+            root@103.129.127.127:/opt/anton-quiz/
+
       - name: Deploy to server
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@103.129.127.127 << 'EOF'
