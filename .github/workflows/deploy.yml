@@ -74,8 +74,8 @@ jobs:
         run: |
           # Copy docker-compose.yml và mọi file cấu hình cần thiết (như monitoring/prometheus)
           scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -r \
-            docker-compose.yml \
-            monitoring \
+            ./docker-compose.yml \
+            ./monitoring \
             root@103.129.127.127:/opt/anton-quiz/
 
       - name: Deploy to server
