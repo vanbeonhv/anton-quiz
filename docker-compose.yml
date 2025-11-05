@@ -5,6 +5,8 @@ networks:
 volumes:
   prometheus_data:
     driver: local
+  grafana_data:
+    driver: local
 
 services:
   app:
@@ -48,11 +50,15 @@ services:
     container_name: grafana-quiz
     ports:
       - "3200:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
     networks:
       - app-network
     restart: unless-stopped
     depends_on:
       - prometheus
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_SERVER_ROOT_URL=https://quiz.huuvan.dev/monitoring
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true

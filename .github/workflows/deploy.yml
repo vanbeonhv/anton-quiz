@@ -83,6 +83,8 @@ jobs:
           NEXT_PUBLIC_ADMIN_EMAILS=${{ secrets.NEXT_PUBLIC_ADMIN_EMAILS }}
           DATABASE_URL=${{ secrets.DATABASE_URL }}
           DIRECT_URL=${{ secrets.DIRECT_URL }}
+          GRAFANA_ADMIN_USER=${{ secrets.GRAFANA_ADMIN_USER }}
+          GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
           ENVEOF
             
             # Login to GitHub Container Registry
