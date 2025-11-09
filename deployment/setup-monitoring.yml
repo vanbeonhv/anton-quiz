@@ -1,0 +1,87 @@
+---
+- name: Setup monitoring with Grafana
+  hosts: production
+  become: yes
+
+  vars:
+    app_name: grafana-quiz
+    app_port: 3200
+    monitoring_domain_name: monitoring-quiz.huuvan.dev
+    owner_email: nguyenvannhv26@gmail.com
+  
+  tasks:
+    
+    # ==========================
+    # CẤU HÌNH NGINX
+    # ==========================
+    
+    - name: Create Nginx config for app
+      template:
+        content: |
+          server {
+              listen 80;
+              server_name {{ monitoring_domain_name }};
+              
+              location / {
+                  proxy_pass http://localhost:{{ app_port }};
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade $http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host $host;
+                  proxy_cache_bypass $http_upgrade;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+              }
+          }
+        dest: /etc/nginx/sites-available/{{ app_name }}
+        mode: '0644'
+    
+    - name: Enable Nginx site
+      file:
+        src: /etc/nginx/sites-available/{{ app_name }}
+        dest: /etc/nginx/sites-enabled/{{ app_name }}
+        state: link
+    
+    - name: Test Nginx config
+      command: nginx -t
+      changed_when: false
+    
+    - name: Restart Nginx
+      systemd:
+        name: nginx
+        state: restarted
+        enabled: yes
+    
+    # ==========================
+    # CÀI ĐẶT SSL
+    # ==========================
+    
+    - name: Install Certbot
+      apt:
+        name:
+          - certbot
+          - python3-certbot-nginx
+        state: present
+    
+    - name: Obtain SSL certificate
+      command: >
+        certbot --nginx
+        -d {{ monitoring_domain_name }}
+        --non-interactive
+        --agree-tos
+        --email {{ owner_email }}
+        --redirect
+      args:
+        creates: /etc/letsencrypt/live/{{ monitoring_domain_name }}/fullchain.pem
+    
+    - name: Setup SSL auto-renewal cron
+      cron:
+        name: "Renew Let's Encrypt certificates"
+        job: "certbot renew --quiet"
+        minute: "0"
+        hour: "0,12"
+    
+    - name: Display success message
+      debug:
+        msg: "Infrastructure setup completed! You can now run deploy-app.yml for deployments."
