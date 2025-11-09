@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
   //bypass for prometheous
-  if (request.nextUrl.pathname === '/api/metrics') {
+  if (request.nextUrl.pathname === '/api/metrics' || request.nextUrl.pathname === '/api/metrics-debug') {
     return NextResponse.next()
   }
 
