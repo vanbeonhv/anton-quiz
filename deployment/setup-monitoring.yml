@@ -16,7 +16,7 @@
     # ==========================
     
     - name: Create Nginx config for app
-      template:
+      copy:
         content: |
           server {
               listen 80;
@@ -42,6 +42,7 @@
         src: /etc/nginx/sites-available/{{ app_name }}
         dest: /etc/nginx/sites-enabled/{{ app_name }}
         state: link
+        force: yes
     
     - name: Test Nginx config
       command: nginx -t
