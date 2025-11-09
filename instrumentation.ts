@@ -9,7 +9,7 @@ declare global {
 export async function register() {
     console.log(process.env.NEXT_RUNTIME)
     if (process.env.NEXT_RUNTIME === 'nodejs') {
-        console.log("instrumentation...")
+        console.log("instrumentation initializing...")
 
         const { collectDefaultMetrics, Registry } = await import('prom-client');
         const prometheusRegistry = new Registry();
@@ -21,5 +21,7 @@ export async function register() {
         globalThis.metrics = {
             registry: prometheusRegistry
         }
+        
+        console.log("Instrumentation completed");
     }
 }

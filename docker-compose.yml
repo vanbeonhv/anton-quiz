@@ -60,5 +60,5 @@ services:
     environment:
       - GF_SERVER_DOMAIN=monitoring-quiz.huuvan.dev
       - GF_SERVER_ROOT_URL=https://monitoring-quiz.huuvan.dev
-      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
+      - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
