@@ -12,6 +12,7 @@ import { Trash2, Edit, Plus, Tag as TagIcon } from 'lucide-react'
 import { TagWithStats, CreateTagData } from '@/types'
 import { useTagsWithStats, useCreateTag, useUpdateTag, useDeleteTag } from '@/lib/queries'
 import { toast } from 'sonner'
+import { LoadingState } from '@/components/shared/LoadingState'
 
 interface TagManagementProps {
   onTagsChange?: () => void
@@ -114,22 +115,6 @@ export default function TagManagement({ onTagsChange }: TagManagementProps) {
     setEditingTag(null)
   }
 
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TagIcon className="w-5 h-5" />
-            Tag Management
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">Loading tags...</div>
-        </CardContent>
-      </Card>
-    )
-  }
-
   return (
     <Card>
       <CardHeader>
@@ -164,23 +149,22 @@ export default function TagManagement({ onTagsChange }: TagManagementProps) {
                   <Textarea
                     id="description"
                     value={formData.description}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, description: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
                     placeholder="Enter tag description (optional)"
                     rows={3}
                   />
                 </div>
                 <div className="flex justify-end gap-2">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => setIsCreateDialogOpen(false)}
                     disabled={createTagMutation.isPending}
                   >
                     Cancel
                   </Button>
-                  <Button 
-                    onClick={handleCreateTag}
-                    disabled={createTagMutation.isPending}
-                  >
+                  <Button onClick={handleCreateTag} disabled={createTagMutation.isPending}>
                     {createTagMutation.isPending ? 'Creating...' : 'Create Tag'}
                   </Button>
                 </div>
@@ -190,7 +174,9 @@ export default function TagManagement({ onTagsChange }: TagManagementProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {tags.length === 0 ? (
+        {loading ? (
+          <LoadingState message="Loading tags..." />
+        ) : tags.length === 0 ? (
           <div className="text-center py-8 text-text-secondary">
             No tags found. Create your first tag to get started.
           </div>
