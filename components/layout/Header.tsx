@@ -23,7 +23,7 @@ export function Header() {
   const { user, isLoading: loading, logout } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
-  
+
   // Use context for user level information
   const userLevelContext = useUserLevelSafe()
   const userStats = userLevelContext?.userStats
@@ -182,27 +182,39 @@ export function Header() {
                     {/* User Info Header */}
                     <div className="px-2 py-3 border-b border-border">
                       <div className="flex items-center gap-3">
-                        {user.user_metadata?.avatar_url ? (
-                          <Image
-                            src={user.user_metadata.avatar_url}
-                            alt="User avatar"
-                            width={40}
-                            height={40}
-                            className="w-10 h-10 rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-10 h-10 bg-primary-green text-white rounded-full flex items-center justify-center text-sm font-semibold">
-                            {getUserInitials(user)}
-                          </div>
-                        )}
+                        {/* Avatar - Clickable */}
+                        <Link 
+                          href="/profile" 
+                          className="flex-shrink-0 hover:opacity-80 transition-opacity"
+                        >
+                          {user.user_metadata?.avatar_url ? (
+                            <Image
+                              src={user.user_metadata.avatar_url}
+                              alt="User avatar"
+                              width={40}
+                              height={40}
+                              className="w-10 h-10 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 bg-primary-green text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                              {getUserInitials(user)}
+                            </div>
+                          )}
+                        </Link>
 
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-text-primary truncate">
-                            {getDisplayName(user)}
-                          </p>
+                          {/* Display Name - Clickable */}
+                          <Link 
+                            href="/profile"
+                            className="block hover:opacity-80 transition-opacity hover:underline"
+                          >
+                            <p className="text-sm font-semibold text-text-primary truncate">
+                              {getDisplayName(user)}
+                            </p>
+                          </Link>
                           {userStats ? (
                             <div className="space-y-1">
-                              <LevelBadge 
+                              <LevelBadge
                                 size="sm"
                                 showIcon={false}
                               />
