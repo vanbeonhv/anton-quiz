@@ -41,9 +41,9 @@ export async function GET(request: NextRequest) {
     const where: Record<string, any> = {}
     
     if (search) {
-      where.text = {
-        contains: search,
-        mode: 'insensitive'
+      const searchNumber = parseInt(search)
+      if (!isNaN(searchNumber)) {
+        where.number = searchNumber
       }
     }
 

@@ -247,7 +247,7 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
           selectedDifficulty={selectedDifficulty}
           selectedTagId={selectedTagId}
           tags={tags}
-          onSearchChange={setSearchTerm}
+          onSearchSubmit={setSearchTerm}
           onDifficultyChange={setSelectedDifficulty}
           onTagChange={setSelectedTagId}
         />

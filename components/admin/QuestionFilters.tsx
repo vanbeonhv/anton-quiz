@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Search } from 'lucide-react'
@@ -8,7 +9,7 @@ interface QuestionFiltersProps {
   selectedDifficulty: Difficulty | 'all'
   selectedTagId: string
   tags: Tag[]
-  onSearchChange: (value: string) => void
+  onSearchSubmit: (value: string) => void
   onDifficultyChange: (value: Difficulty | 'all') => void
   onTagChange: (value: string) => void
 }
@@ -18,19 +19,28 @@ export function QuestionFilters({
   selectedDifficulty,
   selectedTagId,
   tags,
-  onSearchChange,
+  onSearchSubmit,
   onDifficultyChange,
   onTagChange
 }: QuestionFiltersProps) {
+  const [localSearch, setLocalSearch] = useState(searchTerm)
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      onSearchSubmit(localSearch)
+    }
+  }
+
   return (
     <div className="flex gap-4 mb-6">
       <div className="flex-1">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
-            placeholder="Search questions..."
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Search by question number..."
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
+            onKeyDown={handleKeyDown}
             className="pl-10"
           />
         </div>
