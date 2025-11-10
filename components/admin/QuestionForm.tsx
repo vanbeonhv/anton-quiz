@@ -5,18 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Tag, Difficulty, OptionKey } from '@/types'
+import { QuestionFormData } from '@/lib/utils/question'
 
-interface QuestionFormData {
-  text: string
-  optionA: string
-  optionB: string
-  optionC: string
-  optionD: string
-  correctAnswer: OptionKey
-  explanation: string
-  difficulty: Difficulty
-  tagIds: string[]
-}
 
 interface QuestionFormProps {
   formData: QuestionFormData

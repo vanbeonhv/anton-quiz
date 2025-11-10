@@ -1,18 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Tag, OptionKey, Difficulty } from '@/types'
+import { Tag } from '@/types'
 import { QuestionForm } from '@/components/admin/QuestionForm'
-
-interface QuestionFormData {
-  text: string
-  optionA: string
-  optionB: string
-  optionC: string
-  optionD: string
-  correctAnswer: OptionKey
-  explanation: string
-  difficulty: Difficulty
-  tagIds: string[]
-}
+import { QuestionFormData } from '@/lib/utils/question'
 
 interface QuestionFormDialogProps {
   isOpen: boolean

@@ -1,4 +1,4 @@
-import { Difficulty } from '@/types'
+import { Difficulty, OptionKey } from '@/types'
 
 export function getDifficultyColor(difficulty: Difficulty): string {
   switch (difficulty) {
@@ -19,7 +19,7 @@ export interface QuestionFormData {
   optionB: string
   optionC: string
   optionD: string
-  correctAnswer: string
+  correctAnswer: OptionKey
   explanation: string
   difficulty: Difficulty
   tagIds: string[]
