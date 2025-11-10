@@ -195,6 +195,10 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
             <span className="text-text-primary font-medium">
               Daily Challenge
             </span>
+            <ChevronRight className="w-4 h-4" />
+            <span className="text-text-primary font-medium">
+              Question #{question.number}
+            </span>
           </>
         ) : (
           <>
@@ -354,21 +358,20 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
                     >
                       {isDailyQuestion ? 'Back to Dashboard' : 'Back to Questions'}
                     </Button>
-                    {!isDailyQuestion && (
-                      <Button
-                        onClick={handleNextQuestion}
-                        disabled={isLoadingNextQuestion || (nextQuestionData?.remainingQuestions === 0)}
-                        className="px-6 py-2 bg-primary-green hover:bg-primary-green/90 text-white disabled:opacity-50"
-                      >
-                        {isLoadingNextQuestion ? 'Loading...' : 
-                          nextQuestionData?.remainingQuestions !== undefined ? 
-                            nextQuestionData.remainingQuestions > 0 ?
-                              `Next Question (${nextQuestionData.remainingQuestions} remaining)` :
-                              'All Questions Completed!' :
-                            'Next Unanswered Question'
-                        }
-                      </Button>
-                    )}
+                    <Button
+                      onClick={handleNextQuestion}
+                      disabled={isLoadingNextQuestion || (nextQuestionData?.remainingQuestions === 0)}
+                      className="px-6 py-2 bg-primary-green hover:bg-primary-green/90 text-white disabled:opacity-50"
+                    >
+                      {isLoadingNextQuestion ? 'Loading...' : 
+                        isDailyQuestion ? 'Next Question' :
+                        nextQuestionData?.remainingQuestions !== undefined ? 
+                          nextQuestionData.remainingQuestions > 0 ?
+                            `Next Question (${nextQuestionData.remainingQuestions} remaining)` :
+                            'All Questions Completed!' :
+                          'Next Unanswered Question'
+                      }
+                    </Button>
                   </div>
                 </div>
               )}

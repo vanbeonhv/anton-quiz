@@ -1,6 +1,5 @@
 'use client'
 
-import { Progress } from '@/components/ui/progress'
 import { LevelCalculatorService } from '@/lib/utils/levels'
 import { cn } from '@/lib/utils'
 
@@ -48,10 +47,12 @@ export function LevelProgress({
         )}
       </div>
       
-      <Progress 
-        value={progressPercentage} 
-        className="h-2"
-      />
+      <div className="w-full bg-bg-peach rounded-full h-2">
+        <div
+          className="bg-gradient-to-r from-primary-green to-primary-orange h-2 rounded-full transition-all duration-500 ease-out"
+          style={{ width: `${Math.min(progressPercentage, 100)}%` }}
+        />
+      </div>
       
       {showDetails && !isMaxLevel && (
         <div className="flex justify-between text-xs text-gray-500">
