@@ -18,6 +18,7 @@ import { toast } from 'sonner'
 import BulkTagAssignment from './BulkTagAssignment'
 import BulkQuestionImport from './BulkQuestionImport'
 import { MarkdownText } from '@/lib/utils/markdown'
+import { LoadingState } from '@/components/shared/LoadingState'
 
 interface QuestionManagementProps {
   tags: Tag[]
@@ -195,22 +196,6 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
     }
   }
 
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <HelpCircle className="w-5 h-5" />
-            Question Management
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">Loading questions...</div>
-        </CardContent>
-      </Card>
-    )
-  }
-
   const isAnyMutationLoading = createQuestionMutation.isPending ||
     updateQuestionMutation.isPending ||
     deleteQuestionMutation.isPending
@@ -302,7 +287,9 @@ export default function QuestionManagement({ tags, onRefresh }: QuestionManageme
           </Select>
         </div>
 
-        {questions.length === 0 ? (
+        {loading ? (
+          <LoadingState message="Loading questions..." />
+        ) : questions.length === 0 ? (
           <div className="text-center py-8 text-text-secondary">
             No questions found. Create your first question to get started.
           </div>
