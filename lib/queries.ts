@@ -578,6 +578,7 @@ export function useSubmitQuestionAttempt() {
       queryClient.invalidateQueries({ queryKey: ['user-profile-stats'] })
       queryClient.invalidateQueries({ queryKey: ['questions-solved-leaderboard'] })
       queryClient.invalidateQueries({ queryKey: ['questions'] })
+      queryClient.invalidateQueries({ queryKey: ['daily-question'] })
     },
     onSettled: (data, error, variables) => {
       // Always refetch the specific question after mutation settles
