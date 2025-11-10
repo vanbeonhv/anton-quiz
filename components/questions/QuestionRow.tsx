@@ -164,7 +164,7 @@ export function QuestionRow({ question, className }: QuestionRowProps) {
 
   return (
     <Link href={`/questions/${question.id}`} className={cn("block", className)}>
-      <div className="question-table-grid h-[60px] px-4 py-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 active:bg-gray-100 transition-colors duration-200 cursor-pointer group touch-manipulation" role="row">
+      <div className="question-table-grid h-[42px] px-4 py-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 active:bg-gray-100 transition-colors duration-200 cursor-pointer group touch-manipulation" role="row">
         {/* Status Column - 40px */}
         <div className="flex items-center justify-center" role="cell" aria-label={isSolved ? "Solved" : isAttemptedButNotSolved ? "Attempted but not solved" : "Not attempted"}>
           {isSolved && (

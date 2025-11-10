@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query'
 import { useAuth } from '@/hooks/useAuth'
 import type {
   UserStats,
@@ -64,6 +64,7 @@ export function useUserStats() {
     enabled: isAuthenticated, // Only fetch when user is authenticated
     refetchOnWindowFocus: false, // Disable refetch on window focus
     refetchOnMount: false, // Disable refetch on component mount
+    placeholderData: keepPreviousData, // Keep previous data while fetching new page
   })
 }
 

@@ -14,7 +14,7 @@ interface QuestionTableProps {
 export function QuestionTable({ questions, isLoading = false, className }: QuestionTableProps) {
   if (isLoading) {
     return (
-      <div className={cn("bg-white border border-gray-200 rounded-lg overflow-hidden", className)}>
+      <div className={cn("bg-white border border-gray-200 rounded-lg overflow-hidden min-h-[548px]", className)}>
         <QuestionTableSkeleton />
       </div>
     )
@@ -22,7 +22,7 @@ export function QuestionTable({ questions, isLoading = false, className }: Quest
 
   if (questions.length === 0) {
     return (
-      <div className={cn("bg-white border border-gray-200 rounded-lg p-8 text-center", className)}>
+      <div className={cn("bg-white border border-gray-200 rounded-lg p-8 text-center min-h-[548px] flex items-center justify-center", className)}>
         <p className="text-gray-500">No questions found</p>
       </div>
     )
