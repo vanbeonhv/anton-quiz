@@ -1,12 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
+import { createClient } from '@/lib/supabase/server'
+import { withMetrics } from '@/lib/withMetrics'
+import { Tag } from '@/types'
 import { QuestionsApiResponse, parseQuestionsSearchParams } from '@/types/api'
-import { QuestionWithTags, Tag } from '@/types'
+import { NextRequest, NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
+export const GET = withMetrics(async (request: NextRequest) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -221,4 +222,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})

@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/utils/admin'
 import { Difficulty, OptionKey } from '@/types'
+import { withMetrics } from '@/lib/withMetrics'
 
 interface UpdateQuestionData {
   text?: string
@@ -18,10 +19,10 @@ interface UpdateQuestionData {
 }
 
 // GET /api/admin/questions/[id] - Get single question with tags
-export async function GET(
+export const GET = withMetrics(async (
   request: NextRequest,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -66,13 +67,13 @@ export async function GET(
     }
     return NextResponse.json({ error: 'Failed to fetch question' }, { status: 500 })
   }
-}
+})
 
 // PUT /api/admin/questions/[id] - Update question
-export async function PUT(
+export const PUT = withMetrics(async (
   request: NextRequest,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -176,13 +177,13 @@ export async function PUT(
     }
     return NextResponse.json({ error: 'Failed to update question' }, { status: 500 })
   }
-}
+})
 
 // DELETE /api/admin/questions/[id] - Delete question
-export async function DELETE(
+export const DELETE = withMetrics(async (
   request: NextRequest,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -237,4 +238,4 @@ export async function DELETE(
     }
     return NextResponse.json({ error: 'Failed to delete question' }, { status: 500 })
   }
-}
+})

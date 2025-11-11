@@ -1,9 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { registry } from '@/lib/prometheus';
+import { withMetrics } from '@/lib/withMetrics';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export const GET = withMetrics(async (request: NextRequest) => {
     try {
         // Fallback nếu globalThis.metrics chưa được init
         const metricsRegistry = globalThis?.metrics?.registry || registry;
@@ -33,4 +34,4 @@ export async function GET() {
             { status: 500 }
         );
     }
-}
+})

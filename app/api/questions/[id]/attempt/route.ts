@@ -6,6 +6,7 @@ import { OptionKey, Difficulty } from '@/types'
 import dayjs from '@/lib/dayjs'
 import { getDailyQuestion, hasAttemptedDailyQuestion, getDailyPoints } from '@/lib/utils/dailyQuestion'
 import { LevelCalculatorService } from '@/lib/utils/levels'
+import { withMetrics } from '@/lib/withMetrics'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,10 +32,10 @@ function calculateXpEarned(difficulty: Difficulty, isCorrect: boolean, isFirstCo
 }
 
 // POST /api/questions/[id]/attempt - Submit answer to individual question
-export async function POST(
+export const POST = withMetrics(async (
   request: NextRequest,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -321,4 +322,4 @@ export async function POST(
       { status: 500 }
     )
   }
-}
+})

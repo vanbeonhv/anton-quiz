@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/utils/admin'
 import { Difficulty, OptionKey } from '@/types'
+import { withMetrics } from '@/lib/withMetrics'
 
 interface BulkQuestionData {
   text: string
@@ -74,7 +75,7 @@ function validateQuestion(question: any, index: number): string | null {
 }
 
 // POST /api/admin/questions/bulk - Create multiple questions
-export async function POST(request: NextRequest) {
+export const POST = withMetrics(async (request: NextRequest) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -240,4 +241,4 @@ export async function POST(request: NextRequest) {
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 })
   }
-}
+})

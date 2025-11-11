@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
+import { withMetrics } from '@/lib/withMetrics'
 
 export const dynamic = 'force-dynamic'
 
 // GET /api/tags - Get all available tags with statistics
-export async function GET(request: NextRequest) {
+export const GET = withMetrics(async (request: NextRequest) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -163,4 +164,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})

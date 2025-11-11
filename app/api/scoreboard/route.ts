@@ -4,10 +4,11 @@ import type { ScoreboardType } from '@/types'
 import dayjs from '@/lib/dayjs'
 import { createClient } from '@/lib/supabase/server'
 import { filterEmailPrivacy } from '@/lib/utils/privacy'
+import { withMetrics } from '@/lib/withMetrics'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
+export const GET = withMetrics(async (request: NextRequest) => {
   try {
     // Get current user from Supabase auth
     const supabase = createClient()
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})
 
 // Questions solved leaderboard
 async function getQuestionsSolvedLeaderboard(filter: string, limit: number, currentUserId?: string) {

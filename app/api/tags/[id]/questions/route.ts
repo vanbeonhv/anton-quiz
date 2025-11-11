@@ -2,14 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
 import { Difficulty } from '@/types'
+import { withMetrics } from '@/lib/withMetrics'
 
 export const dynamic = 'force-dynamic'
 
 // GET /api/tags/[id]/questions - Get questions by tag with filtering and pagination
-export async function GET(
+export const GET = withMetrics(async (
   request: NextRequest,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -231,4 +232,4 @@ export async function GET(
       { status: 500 }
     )
   }
-}
+})

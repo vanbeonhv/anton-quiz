@@ -3,12 +3,13 @@ import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/utils/admin'
 import { CreateTagData } from '@/types'
+import { withMetrics } from '@/lib/withMetrics'
 
 // PUT /api/admin/tags/[id] - Update tag
-export async function PUT(
+export const PUT = withMetrics(async (
   request: NextRequest,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -63,13 +64,13 @@ export async function PUT(
     }
     return NextResponse.json({ error: 'Failed to update tag' }, { status: 500 })
   }
-}
+})
 
 // DELETE /api/admin/tags/[id] - Delete tag
-export async function DELETE(
+export const DELETE = withMetrics(async (
   request: NextRequest,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -115,4 +116,4 @@ export async function DELETE(
     }
     return NextResponse.json({ error: 'Failed to delete tag' }, { status: 500 })
   }
-}
+})

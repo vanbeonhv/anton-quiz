@@ -3,9 +3,10 @@ import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/utils/admin'
 import { CreateTagData } from '@/types'
+import { withMetrics } from '@/lib/withMetrics'
 
 // GET /api/admin/tags - Get all tags with stats
-export async function GET() {
+export const GET = withMetrics(async (request: NextRequest) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -42,10 +43,10 @@ export async function GET() {
     }
     return NextResponse.json({ error: 'Failed to fetch tags' }, { status: 500 })
   }
-}
+})
 
 // POST /api/admin/tags - Create new tag
-export async function POST(request: NextRequest) {
+export const POST = withMetrics(async (request: NextRequest) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -87,4 +88,4 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json({ error: 'Failed to create tag' }, { status: 500 })
   }
-}
+})

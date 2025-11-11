@@ -3,13 +3,14 @@ import { prisma } from '@/lib/db'
 import type { UserStatsWithComputed, TagStats } from '@/types'
 import dayjs from '@/lib/dayjs'
 import { LevelCalculatorService } from '@/lib/utils/levels'
+import { withMetrics } from '@/lib/withMetrics'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(
+export const GET = withMetrics(async (
   request: NextRequest,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
     const userId = params.id
 
@@ -89,7 +90,7 @@ export async function GET(
       { status: 500 }
     )
   }
-}
+})
 
 async function getTagStatsByUser(userId: string): Promise<TagStats[]> {
   // Get all tags with question counts

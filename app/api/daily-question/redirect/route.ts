@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getDailyQuestion } from '@/lib/utils/dailyQuestion'
+import { withMetrics } from '@/lib/withMetrics'
 
 export const dynamic = 'force-dynamic'
 
@@ -8,7 +9,7 @@ export const dynamic = 'force-dynamic'
  * API endpoint that redirects to the current daily question
  * Useful for external sharing or programmatic access
  */
-export async function GET(request: NextRequest) {
+export const GET = withMetrics(async (request: NextRequest) => {
   let user: any = null
 
   try {
@@ -51,4 +52,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})

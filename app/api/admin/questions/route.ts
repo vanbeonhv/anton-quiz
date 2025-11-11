@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/utils/admin'
 import { Difficulty, OptionKey } from '@/types'
+import { withMetrics } from '@/lib/withMetrics'
 
 interface CreateQuestionData {
   text: string
@@ -17,7 +18,7 @@ interface CreateQuestionData {
 }
 
 // GET /api/admin/questions - Get all questions with tags and stats
-export async function GET(request: NextRequest) {
+export const GET = withMetrics(async (request: NextRequest) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -107,10 +108,10 @@ export async function GET(request: NextRequest) {
     }
     return NextResponse.json({ error: 'Failed to fetch questions' }, { status: 500 })
   }
-}
+})
 
 // POST /api/admin/questions - Create new question
-export async function POST(request: NextRequest) {
+export const POST = withMetrics(async (request: NextRequest) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -201,4 +202,4 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json({ error: 'Failed to create question' }, { status: 500 })
   }
-}
+})

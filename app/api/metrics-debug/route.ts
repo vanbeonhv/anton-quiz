@@ -1,10 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { withMetrics } from '@/lib/withMetrics';
 
-export async function GET() {
+export const GET = withMetrics(async (request: NextRequest) => {
     return NextResponse.json({
         hasGlobalMetrics: !!globalThis?.metrics,
         hasRegistry: !!globalThis?.metrics?.registry,
         runtime: process.env.NEXT_RUNTIME,
         nodeEnv: process.env.NODE_ENV,
     });
-}
+})

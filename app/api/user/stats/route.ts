@@ -1,12 +1,13 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
 import dayjs from '@/lib/dayjs'
 import { LevelCalculatorService } from '@/lib/utils/levels'
+import { withMetrics } from '@/lib/withMetrics'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export const GET = withMetrics(async (request: NextRequest) => {
     try {
         const supabase = await createClient()
         const { data: { user } } = await supabase.auth.getUser()
@@ -113,4 +114,4 @@ export async function GET() {
             { status: 500 }
         )
     }
-}
+})

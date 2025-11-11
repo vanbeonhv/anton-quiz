@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/utils/admin'
+import { withMetrics } from '@/lib/withMetrics'
 
 interface BulkTagAssignmentData {
   questionIds: string[]
@@ -10,7 +11,7 @@ interface BulkTagAssignmentData {
 }
 
 // POST /api/admin/tags/bulk - Bulk tag operations
-export async function POST(request: NextRequest) {
+export const POST = withMetrics(async (request: NextRequest) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -107,4 +108,4 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json({ error: 'Failed to perform bulk tag operation' }, { status: 500 })
   }
-}
+})
