@@ -12,12 +12,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { User, LogOut, Settings, ChevronDown, Menu, X, Star } from 'lucide-react'
+import { User, LogOut, Settings, ChevronDown, Menu, X, Star, BarChart3 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { isAdmin } from '@/lib/utils/admin'
 import { LevelBadge } from '@/components/shared/LevelBadge'
 import { useUserLevelSafe } from '@/components/providers/UserLevelProvider'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
+
+const MONITORING_URL = 'https://monitoring-quiz.huuvan.dev/public-dashboards/2035ffafbf4741e584b40584a924a3c1?from=now-6h&to=now&timezone=browser&refresh=5s'
 
 export function Header() {
   const { user, isLoading: loading, logout } = useAuth()
@@ -121,6 +123,17 @@ export function Header() {
                     <Menu className="w-5 h-5" />
                   )}
                 </Button>
+
+                {/* Monitoring Link */}
+                <a
+                  href={MONITORING_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 hover:shadow-sm hover:scale-105"
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  <span className="hidden sm:inline">Monitoring</span>
+                </a>
 
                 {/* Admin Link (if admin) */}
                 {isAdmin(user.email || '') && (
@@ -294,6 +307,16 @@ export function Header() {
             >
               Profile & Stats
             </Link>
+            <a
+              href={MONITORING_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all duration-200 relative text-blue-600 hover:text-blue-700 hover:bg-blue-50 hover:shadow-sm hover:scale-105 border-l-4 border-transparent hover:border-blue-600"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <BarChart3 className="w-4 h-4" />
+              Monitoring
+            </a>
             {isAdmin(user.email || '') && (
               <Link
                 href="/admin"
