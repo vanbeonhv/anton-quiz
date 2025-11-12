@@ -322,4 +322,4 @@ export const POST = withMetrics(async (
       { status: 500 }
     )
   }
-})
+}, '/api/questions/[id]/attempt')

@@ -74,4 +74,4 @@ export const GET = withMetrics(async (
       { status: 500 }
     )
   }
-})
+}, '/api/questions/[id]')

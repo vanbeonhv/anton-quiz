@@ -20,10 +20,23 @@ const nextConfig = {
       },
     ],
   },
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     config.cache = {
       type: "memory",
     };
+
+    // Exclude Node.js built-in modules from client bundle
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        os: false,
+        perf_hooks: false,
+        cluster: false,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
 
     return config;
   },

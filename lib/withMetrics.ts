@@ -2,12 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 type Handler = (request: NextRequest, context: any) => Promise<NextResponse>;
 
-export function withMetrics(handler: Handler) {
+export function withMetrics(handler: Handler, routePattern?: string) {
 	return async (request: NextRequest, context: any) => {
 		const start = Date.now();
 		const method = request.method;
-		const route = request.nextUrl.pathname;
-		console.log('📊 Metrics - Start:', { method, route });
+		const route = routePattern || request.nextUrl.pathname;
 
 		try {
 			const response = await handler(request, context);
@@ -26,7 +25,6 @@ export function withMetrics(handler: Handler) {
 		} catch (error) {
 			const duration = (Date.now() - start) / 1000;
 			const statusCode = '500';
-			console.log('📊 Metrics - Error:', { method, route, statusCode, duration });
 
 			globalThis.metrics?.httpRequestDuration.labels(method, route, statusCode).observe(duration);
 			globalThis.metrics?.httpRequestTotal.labels(method, route, statusCode).inc();

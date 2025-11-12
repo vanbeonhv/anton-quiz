@@ -64,7 +64,7 @@ export const PUT = withMetrics(async (
     }
     return NextResponse.json({ error: 'Failed to update tag' }, { status: 500 })
   }
-})
+}, '/api/admin/tags/[id]')
 
 // DELETE /api/admin/tags/[id] - Delete tag
 export const DELETE = withMetrics(async (
@@ -116,4 +116,4 @@ export const DELETE = withMetrics(async (
     }
     return NextResponse.json({ error: 'Failed to delete tag' }, { status: 500 })
   }
-})
+}, '/api/admin/tags/[id]')

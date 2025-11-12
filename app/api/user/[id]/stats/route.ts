@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import type { UserStatsWithComputed, TagStats } from '@/types'
+import type { TagStats } from '@/types'
 import dayjs from '@/lib/dayjs'
 import { LevelCalculatorService } from '@/lib/utils/levels'
 import { withMetrics } from '@/lib/withMetrics'
@@ -8,7 +8,7 @@ import { withMetrics } from '@/lib/withMetrics'
 export const dynamic = 'force-dynamic'
 
 export const GET = withMetrics(async (
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) => {
   try {
@@ -90,7 +90,7 @@ export const GET = withMetrics(async (
       { status: 500 }
     )
   }
-})
+}, '/api/user/[id]/stats')
 
 async function getTagStatsByUser(userId: string): Promise<TagStats[]> {
   // Get all tags with question counts

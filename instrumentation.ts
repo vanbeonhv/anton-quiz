@@ -1,19 +1,20 @@
-import { Counter, Histogram, Registry } from "prom-client";
+import type { Counter, Gauge, Histogram, Registry } from "prom-client";
 
 declare global {
     var metrics: {
-        registry: Registry,
+        registry: Registry;
         httpRequestDuration: Histogram<string>;
         httpRequestTotal: Counter<string>;
         httpRequestErrors: Counter<string>;
-    }
+        systemInfo: Gauge<string>;
+    };
 }
 
 export async function register() {
     if (process.env.NEXT_RUNTIME === 'nodejs') {
         console.log("instrumentation initializing...")
 
-        const { collectDefaultMetrics, Registry, Counter, Histogram } = await import('prom-client');
+        const { collectDefaultMetrics, Registry, Counter, Histogram, Gauge } = await import('prom-client');
         const prometheusRegistry = new Registry();
 
         collectDefaultMetrics({
@@ -43,12 +44,28 @@ export async function register() {
             registers: [prometheusRegistry],
         });
 
+        const systemInfo = new Gauge({
+            name: 'system_info',
+            help: 'System information (CPU cores, total memory)',
+            labelNames: ['type'],
+            registers: [prometheusRegistry],
+        });
+
+         // Set system metrics
+        const os = await import('os');
+        const cpuCores = os.cpus().length;
+        const totalMemory = os.totalmem();
+        systemInfo.labels('cpu_cores').set(cpuCores);
+        systemInfo.labels('total_memory_bytes').set(totalMemory);
+        
+
         // Store everything globally
         globalThis.metrics = {
             registry: prometheusRegistry,
             httpRequestDuration,
             httpRequestTotal,
             httpRequestErrors,
+            systemInfo
         }
 
         console.log("Instrumentation completed");

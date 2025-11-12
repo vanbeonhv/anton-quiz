@@ -67,7 +67,7 @@ export const GET = withMetrics(async (
     }
     return NextResponse.json({ error: 'Failed to fetch question' }, { status: 500 })
   }
-})
+}, '/api/admin/questions/[id]')
 
 // PUT /api/admin/questions/[id] - Update question
 export const PUT = withMetrics(async (
@@ -177,7 +177,7 @@ export const PUT = withMetrics(async (
     }
     return NextResponse.json({ error: 'Failed to update question' }, { status: 500 })
   }
-})
+}, '/api/admin/questions/[id]')
 
 // DELETE /api/admin/questions/[id] - Delete question
 export const DELETE = withMetrics(async (
@@ -238,4 +238,4 @@ export const DELETE = withMetrics(async (
     }
     return NextResponse.json({ error: 'Failed to delete question' }, { status: 500 })
   }
-})
+}, '/api/admin/questions/[id]')

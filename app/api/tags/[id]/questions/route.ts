@@ -232,4 +232,4 @@ export const GET = withMetrics(async (
       { status: 500 }
     )
   }
-})
+}, '/api/tags/[id]/questions')
