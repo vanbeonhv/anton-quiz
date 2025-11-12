@@ -9,11 +9,12 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { AnswerOption } from './AnswerOption'
 import { LoadingOverlay } from '@/components/shared/LoadingOverlay'
-import { XpGainModal, LevelUpModal } from '@/components/shared'
+import { XpGainModal, LevelUpModal, AuthPromptModal } from '@/components/shared'
 import { useSubmitQuestionAttempt, useNextUnansweredQuestion } from '@/lib/queries'
 import { DAILY_POINTS } from '@/lib/utils/dailyQuestion'
 import { toast } from 'sonner'
 import { MarkdownText } from '@/lib/utils/markdown'
+import { useAuth } from '@/hooks/useAuth'
 
 interface IndividualQuestionPageProps {
   question: QuestionWithTags
@@ -31,12 +32,15 @@ interface QuestionResult {
 
 export function IndividualQuestionPage({ question, isDailyQuestion = false }: IndividualQuestionPageProps) {
   const router = useRouter()
+  const { user } = useAuth()
   const [selectedAnswer, setSelectedAnswer] = useState<OptionKey | null>(null)
   const [result, setResult] = useState<QuestionResult | null>(null)
   const [showXpModal, setShowXpModal] = useState(false)
   const [showLevelUpModal, setShowLevelUpModal] = useState(false)
   const [previousLevel, setPreviousLevel] = useState<number>(1)
   const [previousTitle, setPreviousTitle] = useState<string>('Newbie')
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [pendingAnswer, setPendingAnswer] = useState<OptionKey | null>(null)
 
   const submitAttemptMutation = useSubmitQuestionAttempt()
   const { data: nextQuestionData, refetch: refetchNextQuestion, isFetching: isLoadingNextQuestion } = useNextUnansweredQuestion()
@@ -79,6 +83,13 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
 
   const handleSubmit = () => {
     if (!selectedAnswer || submitAttemptMutation.isPending || result) return
+
+    // Check authentication before submission
+    if (!user) {
+      setPendingAnswer(selectedAnswer)
+      setShowAuthModal(true)
+      return
+    }
 
     submitAttemptMutation.mutate(
       {
@@ -171,6 +182,41 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
 
   const handleLevelUpModalClose = () => {
     setShowLevelUpModal(false)
+  }
+
+  const handleAuthModalClose = () => {
+    setShowAuthModal(false)
+    setPendingAnswer(null)
+  }
+
+  const handleLogin = () => {
+    // Store pending answer in session storage
+    if (pendingAnswer) {
+      sessionStorage.setItem('pendingAnswer', JSON.stringify({
+        questionId: question.id,
+        answer: pendingAnswer,
+        isDailyQuestion
+      }))
+    }
+
+    // Redirect to login with return URL
+    const returnUrl = encodeURIComponent(window.location.pathname)
+    router.push(`/login?returnUrl=${returnUrl}`)
+  }
+
+  const handleSignup = () => {
+    // Store pending answer in session storage
+    if (pendingAnswer) {
+      sessionStorage.setItem('pendingAnswer', JSON.stringify({
+        questionId: question.id,
+        answer: pendingAnswer,
+        isDailyQuestion
+      }))
+    }
+
+    // Redirect to login page (which handles both login and signup)
+    const returnUrl = encodeURIComponent(window.location.pathname)
+    router.push(`/login?returnUrl=${returnUrl}`)
   }
 
   // Check if user has already attempted this question
@@ -400,6 +446,14 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
           previousTitle={previousTitle}
         />
       )}
+
+      {/* Auth Prompt Modal */}
+      <AuthPromptModal
+        isOpen={showAuthModal}
+        onClose={handleAuthModalClose}
+        onLogin={handleLogin}
+        onSignup={handleSignup}
+      />
     </div>
   )
 }

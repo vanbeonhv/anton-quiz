@@ -1,12 +1,57 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Define public routes that don't require authentication
+const publicRoutes = [
+  '/',
+  '/questions',
+  '/scoreboard',
+  '/login',
+  '/auth'
+]
+
+// Define public API routes that don't require authentication
+const publicApiRoutes = [
+  '/api/questions',
+  '/api/scoreboard',
+  '/api/tags',
+  '/api/metrics',
+  '/api/metrics-debug',
+  '/api/daily-question'
+]
+
+// Check if a pathname is a public route
+function isPublicRoute(pathname: string): boolean {
+  // Check exact matches for public routes
+  if (publicRoutes.includes(pathname)) {
+    return true
+  }
+  
+  // Check if pathname starts with any public route (for dynamic routes)
+  if (pathname.startsWith('/questions/')) {
+    return true
+  }
+  
+  // Check if pathname starts with auth routes
+  if (pathname.startsWith('/auth/')) {
+    return true
+  }
+  
+  // Check public API routes
+  if (publicApiRoutes.some(route => pathname.startsWith(route))) {
+    return true
+  }
+  
+  return false
+}
+
 export async function middleware(request: NextRequest) {
-  //bypass for prometheous
-  if (request.nextUrl.pathname === '/api/metrics' || request.nextUrl.pathname === '/api/metrics-debug') {
+  const pathname = request.nextUrl.pathname
+
+  // Check if this is a public route
+  if (isPublicRoute(pathname)) {
     return NextResponse.next()
   }
-
 
   let supabaseResponse = NextResponse.next({
     request,
@@ -41,12 +86,8 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/auth')
-  ) {
-    // no user, potentially respond by redirecting the user to the login page
+  // For protected routes, redirect to login if no user
+  if (!user) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)

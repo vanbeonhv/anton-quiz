@@ -1,13 +1,20 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Github, Loader2 } from 'lucide-react'
+
+interface PendingAnswer {
+  questionId: string
+  answer: string
+  isDailyQuestion: boolean
+  timestamp: number
+}
 
 export default function LoginForm() {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -17,6 +24,7 @@ export default function LoginForm() {
   const [message, setMessage] = useState('')
 
   const searchParams = useSearchParams()
+  const router = useRouter()
   const supabase = createClient()
 
   // Check for error message in URL
@@ -26,6 +34,52 @@ export default function LoginForm() {
       setMessage(decodeURIComponent(urlMessage))
     }
   }, [searchParams])
+
+  // Handle redirect after successful authentication
+  useEffect(() => {
+    const checkAuthAndRedirect = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        // Get return URL from query params
+        const returnUrl = searchParams.get('returnUrl')
+        
+        // Check session storage for pending answer
+        const pendingAnswerData = sessionStorage.getItem('pendingAnswer')
+        
+        if (pendingAnswerData) {
+          try {
+            const pendingAnswer: PendingAnswer = JSON.parse(pendingAnswerData)
+            
+            // Clear session storage after reading
+            sessionStorage.removeItem('pendingAnswer')
+            
+            // Redirect to question page with auto-submit parameters
+            const questionType = pendingAnswer.isDailyQuestion ? 'daily' : 'regular'
+            router.push(
+              `/questions/${pendingAnswer.questionId}?autoSubmit=true&answer=${pendingAnswer.answer}&type=${questionType}`
+            )
+          } catch (error) {
+            console.error('Failed to parse pending answer:', error)
+            // Fall back to return URL or dashboard
+            if (returnUrl) {
+              router.push(returnUrl)
+            } else {
+              router.push('/dashboard')
+            }
+          }
+        } else if (returnUrl) {
+          // Redirect to return URL if no pending answer
+          router.push(returnUrl)
+        } else {
+          // Default redirect to dashboard
+          router.push('/dashboard')
+        }
+      }
+    }
+    
+    checkAuthAndRedirect()
+  }, [searchParams, router, supabase])
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -38,7 +92,7 @@ export default function LoginForm() {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`
+            emailRedirectTo: `${globalThis.location.origin}/auth/callback`
           }
         })
         if (error) throw error
@@ -49,7 +103,7 @@ export default function LoginForm() {
           password
         })
         if (error) throw error
-        window.location.href = '/dashboard'
+        // Redirect will be handled by the useEffect hook
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'An error occurred')
@@ -61,10 +115,17 @@ export default function LoginForm() {
   const handleGithubAuth = async () => {
     setLoading(true)
     try {
+      // Preserve return URL in OAuth redirect
+      const returnUrl = searchParams.get('returnUrl')
+      const redirectUrl = new URL(`${globalThis.location.origin}/auth/callback`)
+      if (returnUrl) {
+        redirectUrl.searchParams.set('next', returnUrl)
+      }
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: redirectUrl.toString()
         }
       })
       if (error) throw error
