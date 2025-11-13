@@ -4,6 +4,10 @@ const options = {
   max: 500,
   // for use with tracking overall storage size
   maxSize: 5000,
+  // Calculate size of each entry (rough estimate based on JSON string length)
+  sizeCalculation: (value: unknown) => {
+    return JSON.stringify(value).length
+  },
   // how long to live in ms
   ttl: 1000 * 60 * 60, // 1 hour
   // return stale items before removing from cache?
