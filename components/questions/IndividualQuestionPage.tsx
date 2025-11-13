@@ -399,10 +399,10 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
 
       {/* Question Content */}
       <Card className="bg-bg-white border-bg-peach">
-        <CardContent className="p-8">
+        <CardContent className="p-4 sm:p-8">
           {/* Question Text */}
           <div className="mb-8">
-            <h2 className="text-lg text-text-primary leading-relaxed">
+            <h2 className="text-lg text-text-primary leading-relaxed break-words">
               <MarkdownText>{question.text}</MarkdownText>
             </h2>
           </div>
@@ -474,11 +474,11 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
 
                   {/* Explanation */}
                   {result.explanation && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                      <h3 className="font-semibold text-blue-900 mb-2">Explanation</h3>
-                      <p className="text-blue-800 leading-relaxed">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6">
+                      <h3 className="font-semibold text-blue-900 mb-3">Explanation</h3>
+                      <div className="text-blue-800 leading-relaxed break-words">
                         <MarkdownText>{result.explanation}</MarkdownText>
-                      </p>
+                      </div>
                     </div>
                   )}
 
