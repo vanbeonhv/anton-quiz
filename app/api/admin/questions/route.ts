@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/utils/admin'
 import { Difficulty, OptionKey } from '@/types'
 import { withMetrics } from '@/lib/withMetrics'
+import { cache, getCacheKey } from '@/lib/cache'
 
 interface CreateQuestionData {
   text: string
@@ -19,7 +20,14 @@ interface CreateQuestionData {
 
 // GET /api/admin/questions - Get all questions with tags and stats
 export const GET = withMetrics(async (request: NextRequest) => {
+  const cacheKey = getCacheKey(request)
+
   try {
+    const cachedData = cache.get(cacheKey)
+    if (cachedData) {
+      return NextResponse.json(cachedData)
+    }
+
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -39,7 +47,7 @@ export const GET = withMetrics(async (request: NextRequest) => {
     const skip = (page - 1) * pageSize
 
     // Build where clause
-    const where: Record<string, any> = {}
+    const where: Record<string, string | number | { some: { tagId: string } }> = {}
     
     if (search) {
       const searchNumber = parseInt(search)
@@ -90,7 +98,7 @@ export const GET = withMetrics(async (request: NextRequest) => {
       attemptCount: question._count.questionAttempts
     }))
 
-    return NextResponse.json({
+    const response = {
       data: questionsWithTags,
       pagination: {
         page,
@@ -100,7 +108,11 @@ export const GET = withMetrics(async (request: NextRequest) => {
         hasNext: page * pageSize < total,
         hasPrev: page > 1
       }
-    })
+    }
+
+    cache.set(cacheKey, response)
+
+    return NextResponse.json(response)
   } catch (error) {
     console.error('Error fetching questions:', error)
     if (error instanceof Error && error.message === 'Admin access required') {
