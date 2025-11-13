@@ -8,7 +8,7 @@ import { withMetrics } from '@/lib/withMetrics'
 // GET /api/admin/tags - Get all tags with stats
 export const GET = withMetrics(async (request: NextRequest) => {
   try {
-    const supabase = await createClient()
+    const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user?.email) {
@@ -48,7 +48,7 @@ export const GET = withMetrics(async (request: NextRequest) => {
 // POST /api/admin/tags - Create new tag
 export const POST = withMetrics(async (request: NextRequest) => {
   try {
-    const supabase = await createClient()
+    const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user?.email) {

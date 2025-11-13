@@ -11,12 +11,8 @@ export const GET = withMetrics(async (
   { params }: { params: { id: string } }
 ) => {
   try {
-    const supabase = await createClient()
+    const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     const questionId = params.id
 
@@ -31,11 +27,13 @@ export const GET = withMetrics(async (
             tag: true
           }
         },
-        questionAttempts: {
-          where: { userId: user.id },
-          orderBy: { answeredAt: 'desc' },
-          take: 1
-        }
+        ...(user && {
+          questionAttempts: {
+            where: { userId: user.id },
+            orderBy: { answeredAt: 'desc' },
+            take: 1
+          }
+        })
       }
     })
 
@@ -47,6 +45,8 @@ export const GET = withMetrics(async (
     }
 
     // Transform the data
+    // Note: correctAnswer and explanation are NOT included for unauthenticated users
+    // They are only revealed after submission via the attempt API
     const transformedQuestion = {
       id: question.id,
       number: question.number,
@@ -56,14 +56,17 @@ export const GET = withMetrics(async (
       optionC: question.optionC,
       optionD: question.optionD,
       difficulty: question.difficulty,
-      explanation: question.explanation,
+      // Only include explanation if user has attempted the question
+      ...(user && question.questionAttempts?.[0] && {
+        explanation: question.explanation
+      }),
       createdAt: question.createdAt,
       updatedAt: question.updatedAt,
       tags: question.tags.map(qt => qt.tag),
-      userAttempt: question.questionAttempts[0] || null,
-      // Add computed fields for UI
-      isSolved: question.questionAttempts.length > 0 && question.questionAttempts[0].isCorrect,
-      hasAttempted: question.questionAttempts.length > 0
+      userAttempt: user && question.questionAttempts?.[0] ? question.questionAttempts[0] : null,
+      // Add computed fields for UI (only if authenticated)
+      isSolved: user && question.questionAttempts?.length > 0 && question.questionAttempts[0].isCorrect,
+      hasAttempted: user && question.questionAttempts?.length > 0
     }
 
     return NextResponse.json(transformedQuestion)

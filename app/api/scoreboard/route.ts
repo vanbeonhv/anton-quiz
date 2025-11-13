@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 
 export const GET = withMetrics(async (request: NextRequest) => {
   try {
-    // Get current user from Supabase auth
+    // Get current user from Supabase auth (optional for public access)
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 

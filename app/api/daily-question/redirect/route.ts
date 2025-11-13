@@ -14,7 +14,7 @@ export const GET = withMetrics(async (request: NextRequest) => {
 
   try {
     // Authenticate user
-    const supabase = await createClient()
+    const supabase = createClient()
     const { data: { user: authUser } } = await supabase.auth.getUser()
     user = authUser
 

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { ChevronRight, ArrowLeft, Trophy } from 'lucide-react'
 import { QuestionWithTags, OptionKey, Difficulty, UserProgress } from '@/types'
 import { Card, CardContent } from '@/components/ui/card'
@@ -9,11 +9,13 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { AnswerOption } from './AnswerOption'
 import { LoadingOverlay } from '@/components/shared/LoadingOverlay'
-import { XpGainModal, LevelUpModal } from '@/components/shared'
+import { XpGainModal, LevelUpModal, AuthPromptModal } from '@/components/shared'
 import { useSubmitQuestionAttempt, useNextUnansweredQuestion } from '@/lib/queries'
 import { DAILY_POINTS } from '@/lib/utils/dailyQuestion'
 import { toast } from 'sonner'
 import { MarkdownText } from '@/lib/utils/markdown'
+import { useAuth } from '@/hooks/useAuth'
+import { storePendingAnswer } from '@/lib/utils/sessionStorage'
 
 interface IndividualQuestionPageProps {
   question: QuestionWithTags
@@ -31,18 +33,109 @@ interface QuestionResult {
 
 export function IndividualQuestionPage({ question, isDailyQuestion = false }: IndividualQuestionPageProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const { user } = useAuth()
   const [selectedAnswer, setSelectedAnswer] = useState<OptionKey | null>(null)
   const [result, setResult] = useState<QuestionResult | null>(null)
   const [showXpModal, setShowXpModal] = useState(false)
   const [showLevelUpModal, setShowLevelUpModal] = useState(false)
   const [previousLevel, setPreviousLevel] = useState<number>(1)
   const [previousTitle, setPreviousTitle] = useState<string>('Newbie')
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [pendingAnswer, setPendingAnswer] = useState<OptionKey | null>(null)
+  const [isAutoSubmitting, setIsAutoSubmitting] = useState(false)
 
   const submitAttemptMutation = useSubmitQuestionAttempt()
   const { data: nextQuestionData, refetch: refetchNextQuestion, isFetching: isLoadingNextQuestion } = useNextUnansweredQuestion()
 
   // Calculate daily points based on difficulty
   const dailyPoints = isDailyQuestion ? DAILY_POINTS[question.difficulty] : 0
+
+  // Handle auto-submit after login redirect
+  useEffect(() => {
+    const autoSubmit = searchParams.get('autoSubmit')
+    const answer = searchParams.get('answer')
+    const questionType = searchParams.get('type')
+
+    // Only auto-submit if user is authenticated and parameters are present
+    if (autoSubmit === 'true' && answer && user && !result && !isAutoSubmitting) {
+      // Validate answer is a valid option
+      const validAnswers: OptionKey[] = ['A', 'B', 'C', 'D']
+      if (!validAnswers.includes(answer as OptionKey)) {
+        console.error('Invalid answer option:', answer)
+        // Clear URL parameters
+        router.replace(window.location.pathname)
+        return
+      }
+
+      setIsAutoSubmitting(true)
+      const answerKey = answer as OptionKey
+      setSelectedAnswer(answerKey)
+
+      // Determine if this is a daily question from the type parameter
+      const isDaily = questionType === 'daily'
+
+      // Submit the answer
+      submitAttemptMutation.mutate(
+        {
+          questionId: question.id,
+          data: {
+            selectedAnswer: answerKey,
+            ...(isDaily && { isDailyQuestion: true })
+          }
+        },
+        {
+          onSuccess: (data) => {
+            // Store previous level info for level-up modal
+            if (data.userProgress) {
+              setPreviousLevel(data.userProgress.leveledUp ? data.userProgress.currentLevel - 1 : data.userProgress.currentLevel)
+              setPreviousTitle(data.userProgress.leveledUp && data.userProgress.newTitle ?
+                data.userProgress.currentLevel === 2 ? 'Newbie' : 'Previous Title' :
+                data.userProgress.currentTitle
+              )
+            }
+
+            setResult({
+              selectedAnswer: data.selectedAnswer,
+              isCorrect: data.isCorrect,
+              correctAnswer: data.question.correctAnswer,
+              explanation: data.question.explanation,
+              xpEarned: data.xpEarned,
+              userProgress: data.userProgress
+            })
+
+            // Refetch next question data
+            refetchNextQuestion()
+
+            // Show XP modal if XP was earned
+            if (data.xpEarned > 0) {
+              setTimeout(() => setShowXpModal(true), 500)
+            }
+
+            // Show success message
+            if (isDaily && data.isCorrect) {
+              toast.success(`🎉 Daily Challenge Complete! +${DAILY_POINTS[question.difficulty]} points`)
+            } else {
+              toast.success(data.isCorrect ? 'Correct answer! 🎉' : 'Answer submitted')
+            }
+
+            // Clear URL parameters after successful submission
+            router.replace(window.location.pathname)
+            setIsAutoSubmitting(false)
+          },
+          onError: (error) => {
+            console.error('Error auto-submitting answer:', error)
+            const errorMessage = error instanceof Error ? error.message : 'Failed to submit answer'
+            toast.error(errorMessage)
+            
+            // Clear URL parameters even on error
+            router.replace(window.location.pathname)
+            setIsAutoSubmitting(false)
+          }
+        }
+      )
+    }
+  }, [searchParams, user, question.id, question.difficulty, result, isAutoSubmitting, submitAttemptMutation, refetchNextQuestion, router])
 
   const getDifficultyColor = (difficulty: Difficulty) => {
     switch (difficulty) {
@@ -79,6 +172,13 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
 
   const handleSubmit = () => {
     if (!selectedAnswer || submitAttemptMutation.isPending || result) return
+
+    // Check authentication before submission
+    if (!user) {
+      setPendingAnswer(selectedAnswer)
+      setShowAuthModal(true)
+      return
+    }
 
     submitAttemptMutation.mutate(
       {
@@ -171,6 +271,39 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
 
   const handleLevelUpModalClose = () => {
     setShowLevelUpModal(false)
+  }
+
+  const handleAuthModalClose = () => {
+    setShowAuthModal(false)
+    setPendingAnswer(null)
+  }
+
+  const handleLogin = () => {
+    // Store pending answer in session storage using utility
+    if (pendingAnswer) {
+      const stored = storePendingAnswer(question.id, pendingAnswer, isDailyQuestion)
+      if (!stored) {
+        console.warn('Failed to store pending answer, proceeding with login anyway')
+      }
+    }
+
+    // Redirect to login with return URL
+    const returnUrl = encodeURIComponent(window.location.pathname)
+    router.push(`/login?returnUrl=${returnUrl}`)
+  }
+
+  const handleSignup = () => {
+    // Store pending answer in session storage using utility
+    if (pendingAnswer) {
+      const stored = storePendingAnswer(question.id, pendingAnswer, isDailyQuestion)
+      if (!stored) {
+        console.warn('Failed to store pending answer, proceeding with signup anyway')
+      }
+    }
+
+    // Redirect to login page (which handles both login and signup)
+    const returnUrl = encodeURIComponent(window.location.pathname)
+    router.push(`/login?returnUrl=${returnUrl}`)
   }
 
   // Check if user has already attempted this question
@@ -291,7 +424,7 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
           </div>
 
           {/* Submit Button and Result Area with Loading Overlay */}
-          <LoadingOverlay isLoading={submitAttemptMutation.isPending}>
+          <LoadingOverlay isLoading={submitAttemptMutation.isPending || isAutoSubmitting}>
             <div className="space-y-6">
               {/* Submit Button */}
               {!result && !hasAttempted && (
@@ -400,6 +533,14 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
           previousTitle={previousTitle}
         />
       )}
+
+      {/* Auth Prompt Modal */}
+      <AuthPromptModal
+        isOpen={showAuthModal}
+        onClose={handleAuthModalClose}
+        onLogin={handleLogin}
+        onSignup={handleSignup}
+      />
     </div>
   )
 }

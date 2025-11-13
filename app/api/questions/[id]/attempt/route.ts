@@ -37,11 +37,14 @@ export const POST = withMetrics(async (
   { params }: { params: { id: string } }
 ) => {
   try {
-    const supabase = await createClient()
+    const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ 
+        error: 'Authentication required to submit answers',
+        code: 'AUTH_REQUIRED'
+      }, { status: 401 })
     }
 
     const questionId = params.id
