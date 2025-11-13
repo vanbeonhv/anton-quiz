@@ -118,7 +118,7 @@ export const PUT = withMetrics(async (
     }
 
     // Prepare update data
-    const updateData: Record<string, string | boolean | undefined> = {}
+    const updateData: Record<string, string | boolean | null | undefined> = {}
     if (body.text !== undefined) updateData.text = body.text.trim()
     if (body.optionA !== undefined) updateData.optionA = body.optionA.trim()
     if (body.optionB !== undefined) updateData.optionB = body.optionB.trim()
@@ -172,7 +172,7 @@ export const PUT = withMetrics(async (
 
     // Invalidate the cache for this question
     // Clear all cached variants of this question (with different query params)
-    for (const key of cache.keys()) {
+    for (const key of Array.from(cache.keys())) {
       if (key.includes(`/api/questions/${params.id}`)) {
         cache.delete(key)
       }
