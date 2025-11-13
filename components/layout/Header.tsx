@@ -299,28 +299,29 @@ export function Header() {
 
                 {/* Auth Buttons for Unauthenticated Users */}
                 <div className="hidden md:flex items-center gap-2">
-                  <Link href="/login">
-                    <Button 
-                      variant="ghost"
-                      className="text-text-primary hover:text-primary-green hover:bg-primary-green-light px-4 py-2 rounded-lg font-medium transition-all duration-200"
-                    >
+                  <Button 
+                    asChild
+                    variant="ghost"
+                    className="text-text-primary hover:text-primary-green hover:bg-primary-green-light px-4 py-2 rounded-lg font-medium transition-all duration-200"
+                  >
+                    <Link href="/login">
                       Log In
-                    </Button>
-                  </Link>
-                  <Link href="/login">
-                    <Button className="bg-primary-green hover:bg-primary-green-dark text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200">
+                    </Link>
+                  </Button>
+                  <Button asChild className="bg-primary-green hover:bg-primary-green-dark text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200">
+                    <Link href="/login">
                       Sign Up
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                 </div>
 
                 {/* Mobile Auth Buttons */}
                 <div className="md:hidden flex items-center gap-2">
-                  <Link href="/login">
-                    <Button className="bg-primary-green hover:bg-primary-green-dark text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 text-sm">
+                  <Button asChild className="bg-primary-green hover:bg-primary-green-dark text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 text-sm">
+                    <Link href="/login">
                       Sign Up
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                 </div>
               </>
             )}
