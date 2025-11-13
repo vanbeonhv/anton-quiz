@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
 import { withMetrics } from '@/lib/withMetrics'
-import { cache, getCacheKey } from '@/lib/cache'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,14 +10,7 @@ export const GET = withMetrics(async (
   request: NextRequest,
   { params }: { params: { id: string } }
 ) => {
-  const cacheKey = getCacheKey(request)
-
   try {
-    const cachedData = cache.get(cacheKey)
-    if (cachedData) {
-      return NextResponse.json(cachedData)
-    }
-
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -76,8 +68,6 @@ export const GET = withMetrics(async (
       isSolved: user && question.questionAttempts?.length > 0 && question.questionAttempts[0].isCorrect,
       hasAttempted: user && question.questionAttempts?.length > 0
     }
-
-    cache.set(cacheKey, transformedQuestion)
 
     return NextResponse.json(transformedQuestion)
   } catch (error) {

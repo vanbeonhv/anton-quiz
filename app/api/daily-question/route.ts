@@ -2,25 +2,26 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getDailyQuestion, hasAttemptedDailyQuestion } from '@/lib/utils/dailyQuestion'
 import { withMetrics } from '@/lib/withMetrics'
-import { cache, getCacheKey } from '@/lib/cache'
+import { cache } from '@/lib/cache'
 
 export const dynamic = 'force-dynamic'
 
+// Cache key for daily question (same for all users)
+const DAILY_QUESTION_CACHE_KEY = 'daily-question-result'
+
 export const GET = withMetrics(async (request: NextRequest) => {
-  const cacheKey = getCacheKey(request)
-
   try {
-    const cachedData = cache.get(cacheKey)
-    if (cachedData) {
-      return NextResponse.json(cachedData)
-    }
-
     // Get user if authenticated (optional for public access)
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
-    // Get today's daily question
-    const dailyQuestionResult = await getDailyQuestion()
+    // Get today's daily question (cached, same for all users)
+    let dailyQuestionResult = cache.get(DAILY_QUESTION_CACHE_KEY) as Awaited<ReturnType<typeof getDailyQuestion>> | undefined
+    
+    if (!dailyQuestionResult) {
+      dailyQuestionResult = await getDailyQuestion()
+      cache.set(DAILY_QUESTION_CACHE_KEY, dailyQuestionResult)
+    }
 
     // Check if daily question could not be determined
     if (!dailyQuestionResult.questionId || !dailyQuestionResult.question) {
@@ -73,7 +74,7 @@ export const GET = withMetrics(async (request: NextRequest) => {
       }
     }
 
-    // Return daily question metadata
+    // Return daily question metadata (computed fresh per request for user-specific fields)
     const response = {
       id: dailyQuestionResult.questionId,
       number: dailyQuestionResult.questionNumber,
@@ -83,8 +84,6 @@ export const GET = withMetrics(async (request: NextRequest) => {
       hasAttempted,
       isCompleted,
     }
-
-    cache.set(cacheKey, response)
 
     return NextResponse.json(response)
   } catch (error) {

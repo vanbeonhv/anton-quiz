@@ -23,9 +23,12 @@ export const GET = withMetrics(async (request: NextRequest) => {
   const cacheKey = getCacheKey(request)
 
   try {
-    const cachedData = cache.get(cacheKey)
-    if (cachedData) {
-      return NextResponse.json(cachedData)
+    // Only use cache if cacheKey is not null (non-user-specific routes)
+    if (cacheKey) {
+      const cachedData = cache.get(cacheKey)
+      if (cachedData) {
+        return NextResponse.json(cachedData)
+      }
     }
 
     const supabase = createClient()
@@ -110,7 +113,10 @@ export const GET = withMetrics(async (request: NextRequest) => {
       }
     }
 
-    cache.set(cacheKey, response)
+    // Only cache if cacheKey is not null (non-user-specific routes)
+    if (cacheKey) {
+      cache.set(cacheKey, response)
+    }
 
     return NextResponse.json(response)
   } catch (error) {
