@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/utils/admin'
 import { Difficulty, OptionKey } from '@/types'
 import { withMetrics } from '@/lib/withMetrics'
+import { cache } from '@/lib/cache'
 
 interface UpdateQuestionData {
   text?: string
@@ -117,7 +118,7 @@ export const PUT = withMetrics(async (
     }
 
     // Prepare update data
-    const updateData: Record<string, any> = {}
+    const updateData: Record<string, string | boolean | null | undefined> = {}
     if (body.text !== undefined) updateData.text = body.text.trim()
     if (body.optionA !== undefined) updateData.optionA = body.optionA.trim()
     if (body.optionB !== undefined) updateData.optionB = body.optionB.trim()
@@ -129,7 +130,7 @@ export const PUT = withMetrics(async (
     if (body.isActive !== undefined) updateData.isActive = body.isActive
 
     // Update question
-    const updatedQuestion = await prisma.question.update({
+    await prisma.question.update({
       where: { id: params.id },
       data: updateData
     })
@@ -167,6 +168,14 @@ export const PUT = withMetrics(async (
     const result = {
       ...questionWithTags,
       tags: questionWithTags?.tags.map(qt => qt.tag) || []
+    }
+
+    // Invalidate the cache for this question
+    // Clear all cached variants of this question (with different query params)
+    for (const key of Array.from(cache.keys())) {
+      if (key.includes(`/api/questions/${params.id}`)) {
+        cache.delete(key)
+      }
     }
 
     return NextResponse.json(result)
@@ -220,6 +229,10 @@ export const DELETE = withMetrics(async (
         data: { isActive: false }
       })
 
+      // Invalidate the cache for this question
+      const cacheKey = `/api/questions/${params.id}`
+      cache.delete(cacheKey)
+
       return NextResponse.json({ 
         message: 'Question has been deactivated instead of deleted due to existing attempts' 
       })
@@ -229,6 +242,10 @@ export const DELETE = withMetrics(async (
     await prisma.question.delete({
       where: { id: params.id }
     })
+
+    // Invalidate the cache for this question
+    const cacheKey = `/api/questions/${params.id}`
+    cache.delete(cacheKey)
 
     return NextResponse.json({ message: 'Question deleted successfully' })
   } catch (error) {
