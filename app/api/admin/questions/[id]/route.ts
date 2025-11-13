@@ -171,8 +171,12 @@ export const PUT = withMetrics(async (
     }
 
     // Invalidate the cache for this question
-    const cacheKey = `/api/questions/${params.id}`
-    cache.delete(cacheKey)
+    // Clear all cached variants of this question (with different query params)
+    for (const key of cache.keys()) {
+      if (key.includes(`/api/questions/${params.id}`)) {
+        cache.delete(key)
+      }
+    }
 
     return NextResponse.json(result)
   } catch (error) {
