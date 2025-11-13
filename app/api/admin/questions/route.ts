@@ -20,7 +20,7 @@ interface CreateQuestionData {
 // GET /api/admin/questions - Get all questions with tags and stats
 export const GET = withMetrics(async (request: NextRequest) => {
   try {
-    const supabase = await createClient()
+    const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user?.email) {
@@ -113,7 +113,7 @@ export const GET = withMetrics(async (request: NextRequest) => {
 // POST /api/admin/questions - Create new question
 export const POST = withMetrics(async (request: NextRequest) => {
   try {
-    const supabase = await createClient()
+    const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user?.email) {

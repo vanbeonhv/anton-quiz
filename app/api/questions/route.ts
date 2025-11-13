@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 
 export const GET = withMetrics(async (request: NextRequest) => {
   try {
-    const supabase = await createClient()
+    const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     const { searchParams } = new URL(request.url)

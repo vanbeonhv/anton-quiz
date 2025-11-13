@@ -77,7 +77,7 @@ function validateQuestion(question: any, index: number): string | null {
 // POST /api/admin/questions/bulk - Create multiple questions
 export const POST = withMetrics(async (request: NextRequest) => {
   try {
-    const supabase = await createClient()
+    const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user?.email) {
