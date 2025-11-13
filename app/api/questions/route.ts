@@ -12,10 +12,6 @@ export const GET = withMetrics(async (request: NextRequest) => {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const { searchParams } = new URL(request.url)
 
     // Parse and validate query parameters
@@ -82,9 +78,9 @@ export const GET = withMetrics(async (request: NextRequest) => {
       }
     }
 
-    // Get user's question attempts for status filtering
+    // Get user's question attempts for status filtering (only if authenticated)
     let userAttemptedQuestionIds: string[] = []
-    if (status !== 'all') {
+    if (user && status !== 'all') {
       const userAttempts = await prisma.questionAttempt.findMany({
         where: {
           userId: user.id,
@@ -96,10 +92,10 @@ export const GET = withMetrics(async (request: NextRequest) => {
       userAttemptedQuestionIds = userAttempts.map(attempt => attempt.questionId)
     }
 
-    // Apply status filter
-    if (status === 'solved') {
+    // Apply status filter (only if authenticated)
+    if (user && status === 'solved') {
       whereClause.id = { in: userAttemptedQuestionIds }
-    } else if (status === 'unsolved') {
+    } else if (user && status === 'unsolved') {
       whereClause.id = { notIn: userAttemptedQuestionIds }
     }
 
@@ -131,11 +127,13 @@ export const GET = withMetrics(async (request: NextRequest) => {
               tag: true
             }
           },
-          questionAttempts: {
-            where: { userId: user.id },
-            orderBy: { answeredAt: 'desc' },
-            take: 1
-          }
+          ...(user && {
+            questionAttempts: {
+              where: { userId: user.id },
+              orderBy: { answeredAt: 'desc' },
+              take: 1
+            }
+          })
         }
       })
 
@@ -156,11 +154,13 @@ export const GET = withMetrics(async (request: NextRequest) => {
                 tag: true
               }
             },
-            questionAttempts: {
-              where: { userId: user.id },
-              orderBy: { answeredAt: 'desc' },
-              take: 1
-            }
+            ...(user && {
+              questionAttempts: {
+                where: { userId: user.id },
+                orderBy: { answeredAt: 'desc' },
+                take: 1
+              }
+            })
           },
           orderBy,
           skip,
@@ -184,10 +184,10 @@ export const GET = withMetrics(async (request: NextRequest) => {
       createdAt: question.createdAt,
       updatedAt: question.updatedAt,
       tags: question.tags.map(qt => qt.tag) as Tag[],
-      userAttempt: question.questionAttempts[0] || null,
-      // Add computed fields for UI
-      isSolved: question.questionAttempts.length > 0 && question.questionAttempts[0].isCorrect,
-      hasAttempted: question.questionAttempts.length > 0
+      userAttempt: user && question.questionAttempts?.[0] ? question.questionAttempts[0] : null,
+      // Add computed fields for UI (only if authenticated)
+      isSolved: user && question.questionAttempts?.length > 0 && question.questionAttempts[0].isCorrect,
+      hasAttempted: user && question.questionAttempts?.length > 0
     }))
 
     // Calculate pagination metadata

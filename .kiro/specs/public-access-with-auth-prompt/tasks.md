@@ -114,7 +114,7 @@
     - Handle case where no pending answer exists
     - _Requirements: 4.3, 4.4_
 
-- [ ] 5. Add auto-submit handling to question page
+- [x] 5. Add auto-submit handling to question page
   - Check for `autoSubmit` query parameter on mount
   - Extract answer and question type from URL parameters
   - Automatically trigger answer submission if parameters present
@@ -122,8 +122,8 @@
   - Show loading state during auto-submission
   - _Requirements: 4.4_
 
-- [ ] 6. Create landing page for unauthenticated users
-  - [ ] 6.1 Build landing page structure
+- [x] 6. Create landing page for unauthenticated users
+  - [x] 6.1 Build landing page structure
     - Create or update `app/page.tsx` for landing page
     - Implement hero section with logo, tagline, and CTAs
     - Create features section with three feature cards
@@ -131,57 +131,57 @@
     - Add final call-to-action section
     - _Requirements: 1.1, 1.3_
   
-  - [ ] 6.2 Add authentication-based routing
+  - [x] 6.2 Add authentication-based routing
     - Check authentication state on page mount
     - Redirect authenticated users to `/dashboard`
     - Display landing page for unauthenticated users
     - _Requirements: 5.4_
   
-  - [ ] 6.3 Implement responsive design
+  - [x] 6.3 Implement responsive design
     - Apply mobile-first responsive layout
     - Use design system colors and typography
     - Ensure proper spacing and alignment
     - Test on mobile, tablet, and desktop viewports
     - _Requirements: 1.1_
 
-- [ ] 7. Update API endpoints for public access
-  - [ ] 7.1 Verify questions API allows unauthenticated access
+- [x] 7. Update API endpoints for public access
+  - [x] 7.1 Verify questions API allows unauthenticated access
     - Review `app/api/questions/route.ts` to ensure no auth requirement
     - Test GET requests without authentication
     - Ensure correct answers are not exposed in response
     - _Requirements: 6.6, 9.1, 9.5_
   
-  - [ ] 7.2 Verify individual question API allows unauthenticated access
+  - [x] 7.2 Verify individual question API allows unauthenticated access
     - Review `app/api/questions/[id]/route.ts` to ensure no auth requirement
     - Test GET requests without authentication
     - Ensure correct answers and explanations are not exposed
     - _Requirements: 6.6, 9.1, 9.5_
   
-  - [ ] 7.3 Verify scoreboard API allows unauthenticated access
+  - [x] 7.3 Verify scoreboard API allows unauthenticated access
     - Review `app/api/scoreboard/route.ts` to ensure no auth requirement
     - Test GET requests without authentication
     - Ensure only public leaderboard data is returned
     - _Requirements: 6.6, 9.3, 9.5_
   
-  - [ ] 7.4 Verify attempt API requires authentication
+  - [x] 7.4 Verify attempt API requires authentication
     - Review `app/api/questions/[id]/attempt/route.ts` for auth check
     - Ensure 401 response for unauthenticated POST requests
     - Verify error message is clear and actionable
     - _Requirements: 9.2, 9.4_
   
-  - [ ] 7.5 Verify tags API allows unauthenticated access
+  - [x] 7.5 Verify tags API allows unauthenticated access
     - Review `app/api/tags/route.ts` to ensure no auth requirement
     - Test GET requests without authentication
     - _Requirements: 6.6_
 
-- [ ] 8. Update header navigation for unauthenticated users
+- [x] 8. Update header navigation for unauthenticated users
   - Modify header component to show different navigation for unauthenticated users
   - Add "Log In" and "Sign Up" buttons for unauthenticated users
   - Show existing user menu for authenticated users
   - Ensure navigation links work for both auth states
   - _Requirements: 1.1, 1.2, 2.1, 2.2_
 
-- [ ] 9. Add session storage utilities
+- [x] 9. Add session storage utilities
   - Create utility functions for pending answer storage
   - Implement expiration logic (30 minutes)
   - Add validation for pending answer data

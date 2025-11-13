@@ -11,10 +11,6 @@ export const GET = withMetrics(async (request: NextRequest) => {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const { searchParams } = new URL(request.url)
     const includeStats = searchParams.get('includeStats') === 'true'
     const includeUserProgress = searchParams.get('includeUserProgress') === 'true'
@@ -43,8 +39,8 @@ export const GET = withMetrics(async (request: NextRequest) => {
       questionCount: tag.questions.length
     }))
 
-    // Add user progress statistics if requested
-    if (includeUserProgress) {
+    // Add user progress statistics if requested (only if authenticated)
+    if (includeUserProgress && user) {
       const tagsWithProgress = await Promise.all(
         transformedTags.map(async (tag) => {
           // Get questions for this tag

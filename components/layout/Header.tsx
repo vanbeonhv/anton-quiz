@@ -61,7 +61,7 @@ export function Header() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link
-            href="/dashboard"
+            href={user ? "/dashboard" : "/"}
             className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-200"
           >
             <div className="relative">
@@ -265,69 +265,159 @@ export function Header() {
                 </DropdownMenu>
               </>
             ) : (
-              <Link href="/login">
-                <Button className="bg-primary-green hover:bg-primary-green-dark text-white px-6 py-2 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200">
-                  Sign In
+              <>
+                {/* Main Navigation Links for Unauthenticated Users - Desktop */}
+                <div className="hidden md:flex items-center gap-1 mr-2">
+                  <Link
+                    href="/questions"
+                    className={getNavLinkClasses('/questions')}
+                  >
+                    Questions
+                  </Link>
+                  <Link
+                    href="/scoreboard"
+                    className={getNavLinkClasses('/scoreboard')}
+                  >
+                    Scoreboard
+                  </Link>
+                </div>
+
+                {/* Mobile Menu Button for Unauthenticated Users */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="md:hidden p-2"
+                  onClick={toggleMobileMenu}
+                  aria-label="Toggle mobile menu"
+                >
+                  {isMobileMenuOpen ? (
+                    <X className="w-5 h-5" />
+                  ) : (
+                    <Menu className="w-5 h-5" />
+                  )}
                 </Button>
-              </Link>
+
+                {/* Auth Buttons for Unauthenticated Users */}
+                <div className="hidden md:flex items-center gap-2">
+                  <Link href="/login">
+                    <Button 
+                      variant="ghost"
+                      className="text-text-primary hover:text-primary-green hover:bg-primary-green-light px-4 py-2 rounded-lg font-medium transition-all duration-200"
+                    >
+                      Log In
+                    </Button>
+                  </Link>
+                  <Link href="/login">
+                    <Button className="bg-primary-green hover:bg-primary-green-dark text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </div>
+
+                {/* Mobile Auth Buttons */}
+                <div className="md:hidden flex items-center gap-2">
+                  <Link href="/login">
+                    <Button className="bg-primary-green hover:bg-primary-green-dark text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 text-sm">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </div>
+              </>
             )}
           </nav>
         </div>
       </div>
 
       {/* Mobile Navigation Menu */}
-      {user && isMobileMenuOpen && (
+      {isMobileMenuOpen && (
         <div className="md:hidden bg-bg-white border-b border-bg-peach shadow-lg">
           <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
-            <Link
-              href="/dashboard"
-              className={`block ${getNavLinkClasses('/dashboard', true)}`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/questions"
-              className={`block ${getNavLinkClasses('/questions', true)}`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Questions
-            </Link>
-            <Link
-              href="/scoreboard"
-              className={`block ${getNavLinkClasses('/scoreboard', true)}`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Scoreboard
-            </Link>
-            <Link
-              href="/profile"
-              className={`block ${getNavLinkClasses('/profile', true)}`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Profile & Stats
-            </Link>
-            <a
-              href={MONITORING_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all duration-200 relative text-blue-600 hover:text-blue-700 hover:bg-blue-50 hover:shadow-sm hover:scale-105 border-l-4 border-transparent hover:border-blue-600"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <BarChart3 className="w-4 h-4" />
-              Monitoring
-            </a>
-            {isAdmin(user.email || '') && (
-              <Link
-                href="/admin"
-                className={`block ${isActiveRoute('/admin')
-                  ? 'px-3 py-2 rounded-lg font-medium transition-all duration-200 relative text-primary-orange bg-primary-orange-light shadow-sm border-l-4 border-primary-orange'
-                  : 'px-3 py-2 rounded-lg font-medium transition-all duration-200 relative text-primary-orange hover:text-primary-orange-dark hover:bg-primary-orange-light hover:shadow-sm hover:scale-105'
-                  }`}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Admin
-              </Link>
+            {user ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  className={`block ${getNavLinkClasses('/dashboard', true)}`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/questions"
+                  className={`block ${getNavLinkClasses('/questions', true)}`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Questions
+                </Link>
+                <Link
+                  href="/scoreboard"
+                  className={`block ${getNavLinkClasses('/scoreboard', true)}`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Scoreboard
+                </Link>
+                <Link
+                  href="/profile"
+                  className={`block ${getNavLinkClasses('/profile', true)}`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Profile & Stats
+                </Link>
+                <a
+                  href={MONITORING_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all duration-200 relative text-blue-600 hover:text-blue-700 hover:bg-blue-50 hover:shadow-sm hover:scale-105 border-l-4 border-transparent hover:border-blue-600"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  Monitoring
+                </a>
+                {isAdmin(user.email || '') && (
+                  <Link
+                    href="/admin"
+                    className={`block ${isActiveRoute('/admin')
+                      ? 'px-3 py-2 rounded-lg font-medium transition-all duration-200 relative text-primary-orange bg-primary-orange-light shadow-sm border-l-4 border-primary-orange'
+                      : 'px-3 py-2 rounded-lg font-medium transition-all duration-200 relative text-primary-orange hover:text-primary-orange-dark hover:bg-primary-orange-light hover:shadow-sm hover:scale-105'
+                      }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Admin
+                  </Link>
+                )}
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/questions"
+                  className={`block ${getNavLinkClasses('/questions', true)}`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Questions
+                </Link>
+                <Link
+                  href="/scoreboard"
+                  className={`block ${getNavLinkClasses('/scoreboard', true)}`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Scoreboard
+                </Link>
+                <div className="pt-2 border-t border-bg-peach space-y-2">
+                  <Link
+                    href="/login"
+                    className="block px-3 py-2 rounded-lg font-medium transition-all duration-200 text-text-primary hover:text-primary-green hover:bg-primary-green-light border-l-4 border-transparent hover:border-primary-green"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Log In
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="block px-3 py-2 rounded-lg font-medium transition-all duration-200 bg-primary-green text-white hover:bg-primary-green-dark shadow-sm"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              </>
             )}
           </div>
         </div>

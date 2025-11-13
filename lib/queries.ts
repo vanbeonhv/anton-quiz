@@ -88,7 +88,6 @@ export function useUserProfileStats(userId?: string) {
 
 // Fetch questions with filters
 export function useQuestions(filters: any) {
-  const { isAuthenticated } = useAuth()
   return useQuery<QuestionsApiResponse>({
     queryKey: ['questions', filters],
     queryFn: async () => {
@@ -106,7 +105,6 @@ export function useQuestions(filters: any) {
       if (!res.ok) throw new Error('Failed to fetch questions')
       return res.json();
     },
-    enabled: isAuthenticated,
     staleTime: 2 * 60 * 1000, // 2 minutes
     refetchOnWindowFocus: false,
   })

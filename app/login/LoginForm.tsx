@@ -8,13 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Github, Loader2 } from 'lucide-react'
-
-interface PendingAnswer {
-  questionId: string
-  answer: string
-  isDailyQuestion: boolean
-  timestamp: number
-}
+import { getPendingAnswer, clearPendingAnswer } from '@/lib/utils/sessionStorage'
 
 export default function LoginForm() {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -44,30 +38,18 @@ export default function LoginForm() {
         // Get return URL from query params
         const returnUrl = searchParams.get('returnUrl')
         
-        // Check session storage for pending answer
-        const pendingAnswerData = sessionStorage.getItem('pendingAnswer')
+        // Check session storage for pending answer using utility
+        const pendingAnswer = getPendingAnswer()
         
-        if (pendingAnswerData) {
-          try {
-            const pendingAnswer: PendingAnswer = JSON.parse(pendingAnswerData)
-            
-            // Clear session storage after reading
-            sessionStorage.removeItem('pendingAnswer')
-            
-            // Redirect to question page with auto-submit parameters
-            const questionType = pendingAnswer.isDailyQuestion ? 'daily' : 'regular'
-            router.push(
-              `/questions/${pendingAnswer.questionId}?autoSubmit=true&answer=${pendingAnswer.answer}&type=${questionType}`
-            )
-          } catch (error) {
-            console.error('Failed to parse pending answer:', error)
-            // Fall back to return URL or dashboard
-            if (returnUrl) {
-              router.push(returnUrl)
-            } else {
-              router.push('/dashboard')
-            }
-          }
+        if (pendingAnswer) {
+          // Clear session storage after reading
+          clearPendingAnswer()
+          
+          // Redirect to question page with auto-submit parameters
+          const questionType = pendingAnswer.isDailyQuestion ? 'daily' : 'regular'
+          router.push(
+            `/questions/${pendingAnswer.questionId}?autoSubmit=true&answer=${pendingAnswer.answer}&type=${questionType}`
+          )
         } else if (returnUrl) {
           // Redirect to return URL if no pending answer
           router.push(returnUrl)
