@@ -7,13 +7,9 @@ export const dynamic = 'force-dynamic'
 
 export const GET = withMetrics(async (request: NextRequest) => {
   try {
-    // Authenticate user
+    // Get user if authenticated (optional for public access)
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     // Get today's daily question
     const dailyQuestionResult = await getDailyQuestion()
@@ -26,43 +22,47 @@ export const GET = withMetrics(async (request: NextRequest) => {
       )
     }
 
-    // Check if user has already attempted today's daily question
-    const hasAttempted = await hasAttemptedDailyQuestion(
-      user.id,
-      dailyQuestionResult.questionId
-    )
-
-    // Check if the attempt was correct (completed)
+    // Check if user has already attempted today's daily question (only if authenticated)
+    let hasAttempted = false
     let isCompleted = false
-    if (hasAttempted) {
-      const { prisma } = await import('@/lib/db')
-      const dayjs = (await import('@/lib/dayjs')).default
-      const { DAILY_QUESTION_CONFIG } = await import('@/lib/utils/dailyQuestion')
+    
+    if (user) {
+      hasAttempted = await hasAttemptedDailyQuestion(
+        user.id,
+        dailyQuestionResult.questionId
+      )
 
-      // Get start of today in GMT+7
-      const todayStart = dayjs()
-        .tz(DAILY_QUESTION_CONFIG.timezone)
-        .startOf('day')
-        .toDate()
+      // Check if the attempt was correct (completed)
+      if (hasAttempted) {
+        const { prisma } = await import('@/lib/db')
+        const dayjs = (await import('@/lib/dayjs')).default
+        const { DAILY_QUESTION_CONFIG } = await import('@/lib/utils/dailyQuestion')
 
-      // Get end of today in GMT+7
-      const todayEnd = dayjs()
-        .tz(DAILY_QUESTION_CONFIG.timezone)
-        .endOf('day')
-        .toDate()
+        // Get start of today in GMT+7
+        const todayStart = dayjs()
+          .tz(DAILY_QUESTION_CONFIG.timezone)
+          .startOf('day')
+          .toDate()
 
-      const attempt = await prisma.questionAttempt.findFirst({
-        where: {
-          userId: user.id,
-          questionId: dailyQuestionResult.questionId,
-          answeredAt: {
-            gte: todayStart,
-            lte: todayEnd,
+        // Get end of today in GMT+7
+        const todayEnd = dayjs()
+          .tz(DAILY_QUESTION_CONFIG.timezone)
+          .endOf('day')
+          .toDate()
+
+        const attempt = await prisma.questionAttempt.findFirst({
+          where: {
+            userId: user.id,
+            questionId: dailyQuestionResult.questionId,
+            answeredAt: {
+              gte: todayStart,
+              lte: todayEnd,
+            },
           },
-        },
-      })
+        })
 
-      isCompleted = attempt?.isCorrect || false
+        isCompleted = attempt?.isCorrect || false
+      }
     }
 
     // Return daily question metadata

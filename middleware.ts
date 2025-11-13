@@ -20,8 +20,23 @@ const publicApiRoutes = [
   '/api/daily-question'
 ]
 
+// Define protected API route patterns that require authentication
+const protectedApiPatterns = [
+  /^\/api\/questions\/[^\/]+\/attempt$/,     // /api/questions/[id]/attempt
+  /^\/api\/questions\/next-unanswered$/,     // /api/questions/next-unanswered
+  /^\/api\/daily-question\/redirect$/,       // /api/daily-question/redirect (requires auth)
+  /^\/api\/user\//,                          // /api/user/* (all user endpoints)
+  /^\/api\/admin\//,                         // /api/admin/* (all admin endpoints)
+  /^\/api\/tags\/[^\/]+\/questions$/,        // /api/tags/[id]/questions
+]
+
 // Check if a pathname is a public route
 function isPublicRoute(pathname: string): boolean {
+  // First check if pathname matches a protected route pattern
+  if (protectedApiPatterns.some(pattern => pattern.test(pathname))) {
+    return false
+  }
+  
   // Check exact matches for public routes
   if (publicRoutes.includes(pathname)) {
     return true

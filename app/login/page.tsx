@@ -5,7 +5,7 @@ import { LoadingState } from '@/components/shared'
 import LoginForm from './LoginForm'
 
 export default async function LoginPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   // Check if user is already authenticated
   const { data: { user } } = await supabase.auth.getUser()
