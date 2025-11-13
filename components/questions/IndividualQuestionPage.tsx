@@ -238,9 +238,25 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
   }
 
   const handleNextQuestion = async () => {
-    // For daily questions, go back to dashboard
+    // For daily questions, navigate to a random question
     if (isDailyQuestion) {
-      router.push('/dashboard')
+      try {
+        const response = await fetch('/api/questions?random=true&limit=1')
+        if (!response.ok) {
+          throw new Error('Failed to fetch random question')
+        }
+        const data = await response.json()
+        if (data.questions && data.questions.length > 0) {
+          router.push(`/questions/${data.questions[0].id}`)
+        } else {
+          toast.info('No questions available')
+          router.push('/dashboard')
+        }
+      } catch (error) {
+        console.error('Failed to get random question:', error)
+        toast.error('Failed to load next question')
+        router.push('/dashboard')
+      }
       return
     }
 
