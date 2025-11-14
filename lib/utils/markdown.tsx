@@ -6,53 +6,117 @@ import React from 'react'
 function processInlineFormatting(text: string): React.ReactNode[] {
     if (!text) return [text]
 
-    // Split by markdown patterns: **bold**, *italic*, _italic_, `code`
-    // Pattern matches bold first (to avoid conflict with italic), then italic, then code
-    // For italic with *, require non-space content and no adjacent alphanumeric to avoid math expressions
-    // For italic with _, require word boundaries to avoid matching variable_names
-    const parts = text.split(/(\*\*[^*]+\*\*|(?<!\w)\*[^\s*][^*]*?\*(?!\w)|(?<!\w)_[^\s_][^_]*?_(?!\w)|`[^`]+`)/g)
+    const result: React.ReactNode[] = []
+    let currentIndex = 0
+    let keyCounter = 0
 
-    return parts.map((part, index) => {
-        // Skip undefined parts from regex groups
-        if (part === undefined) return null
+    while (currentIndex < text.length) {
+        let matched = false
 
-        // Handle bold text **text**
-        if (part.startsWith('**') && part.endsWith('**')) {
-            const content = part.slice(2, -2)
-            return (
-                <strong key={index} className="font-bold">
-                    {content}
-                </strong>
-            )
+        // Try to match **bold**
+        if (text.slice(currentIndex, currentIndex + 2) === '**') {
+            const endIndex = text.indexOf('**', currentIndex + 2)
+            if (endIndex !== -1 && endIndex > currentIndex + 2) {
+                const content = text.slice(currentIndex + 2, endIndex)
+                result.push(
+                    <strong key={keyCounter++} className="font-bold">
+                        {content}
+                    </strong>
+                )
+                currentIndex = endIndex + 2
+                matched = true
+            }
         }
 
-        // Handle italic text *text* or _text_
-        if ((part.startsWith('*') && part.endsWith('*') && !part.startsWith('**')) ||
-            (part.startsWith('_') && part.endsWith('_'))) {
-            const content = part.slice(1, -1)
-            return (
-                <em key={index} className="italic">
-                    {content}
-                </em>
-            )
+        // Try to match `code`
+        if (!matched && text[currentIndex] === '`') {
+            const endIndex = text.indexOf('`', currentIndex + 1)
+            if (endIndex !== -1 && endIndex > currentIndex + 1) {
+                const content = text.slice(currentIndex + 1, endIndex)
+                result.push(
+                    <code
+                        key={keyCounter++}
+                        className="bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-sm font-mono"
+                    >
+                        {content}
+                    </code>
+                )
+                currentIndex = endIndex + 1
+                matched = true
+            }
         }
 
-        // Handle code text `text`
-        if (part.startsWith('`') && part.endsWith('`')) {
-            const content = part.slice(1, -1)
-            return (
-                <code
-                    key={index}
-                    className="bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-sm font-mono"
-                >
-                    {content}
-                </code>
-            )
+        // Try to match *italic* (avoid matching if preceded/followed by word character)
+        if (!matched && text[currentIndex] === '*') {
+            const prevChar = currentIndex > 0 ? text[currentIndex - 1] : ' '
+            const isPrevWordChar = /\w/.test(prevChar)
+            
+            if (!isPrevWordChar) {
+                const endIndex = text.indexOf('*', currentIndex + 1)
+                if (endIndex !== -1 && endIndex > currentIndex + 1) {
+                    const nextChar = endIndex + 1 < text.length ? text[endIndex + 1] : ' '
+                    const isNextWordChar = /\w/.test(nextChar)
+                    const content = text.slice(currentIndex + 1, endIndex)
+                    
+                    // Ensure content doesn't start with space and next char isn't a word char
+                    if (!isNextWordChar && !/^\s/.test(content)) {
+                        result.push(
+                            <em key={keyCounter++} className="italic">
+                                {content}
+                            </em>
+                        )
+                        currentIndex = endIndex + 1
+                        matched = true
+                    }
+                }
+            }
         }
 
-        // Regular text
-        return part
-    })
+        // Try to match _italic_ (avoid matching if preceded/followed by word character)
+        if (!matched && text[currentIndex] === '_') {
+            const prevChar = currentIndex > 0 ? text[currentIndex - 1] : ' '
+            const isPrevWordChar = /\w/.test(prevChar)
+            
+            if (!isPrevWordChar) {
+                const endIndex = text.indexOf('_', currentIndex + 1)
+                if (endIndex !== -1 && endIndex > currentIndex + 1) {
+                    const nextChar = endIndex + 1 < text.length ? text[endIndex + 1] : ' '
+                    const isNextWordChar = /\w/.test(nextChar)
+                    const content = text.slice(currentIndex + 1, endIndex)
+                    
+                    // Ensure content doesn't start with space and next char isn't a word char
+                    if (!isNextWordChar && !/^\s/.test(content)) {
+                        result.push(
+                            <em key={keyCounter++} className="italic">
+                                {content}
+                            </em>
+                        )
+                        currentIndex = endIndex + 1
+                        matched = true
+                    }
+                }
+            }
+        }
+
+        // If no pattern matched, accumulate plain text
+        if (!matched) {
+            let plainTextEnd = currentIndex + 1
+            
+            // Find the next potential markdown character
+            while (plainTextEnd < text.length) {
+                const char = text[plainTextEnd]
+                if (char === '*' || char === '_' || char === '`') {
+                    break
+                }
+                plainTextEnd++
+            }
+            
+            result.push(text.slice(currentIndex, plainTextEnd))
+            currentIndex = plainTextEnd
+        }
+    }
+
+    return result
 }
 
 /**
