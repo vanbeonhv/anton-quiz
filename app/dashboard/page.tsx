@@ -1,13 +1,16 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Trophy, HelpCircle } from 'lucide-react'
 import { useRecentScores } from '@/lib/queries'
 import { useUserLevelSafe } from '@/components/providers/UserLevelProvider'
+import { useDisplayNameCheck } from '@/hooks/useDisplayNameCheck'
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader'
 import { StatsSection } from '@/components/dashboard/StatsSection'
 import { RecentScoresSection } from '@/components/dashboard/RecentScoresSection'
 import { DailyQuestionButton } from '@/components/dashboard/DailyQuestionButton'
+import { DisplayNameSetupModal } from '@/components/dashboard/DisplayNameSetupModal'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -17,6 +20,28 @@ export default function DashboardPage() {
   const userLevelContext = useUserLevelSafe()
   const userStats = userLevelContext?.userStats
   const statsLoading = userLevelContext?.isLoading || false
+
+  // Display name check and modal state
+  const { needsDisplayName, isLoading: checkingDisplayName, user } = useDisplayNameCheck()
+  const [showModal, setShowModal] = useState(false)
+
+  // Show modal when display name is needed
+  useEffect(() => {
+    if (!checkingDisplayName && needsDisplayName) {
+      setShowModal(true)
+    }
+  }, [checkingDisplayName, needsDisplayName])
+
+  // Generate default display name from user ID
+  const defaultDisplayName = user?.id 
+    ? `User-${user.id.substring(0, 8)}` 
+    : 'User'
+
+  const handleDisplayNameSuccess = () => {
+    setShowModal(false)
+    // Refresh page to update user data
+    router.refresh()
+  }
 
   const handleViewAllScores = () => {
     router.push('/scoreboard')
@@ -70,6 +95,16 @@ export default function DashboardPage() {
           onViewAll={handleViewAllScores}
         />
       </div>
+
+      {/* Display Name Setup Modal */}
+      {user && (
+        <DisplayNameSetupModal
+          isOpen={showModal}
+          userId={user.id}
+          defaultDisplayName={defaultDisplayName}
+          onSuccess={handleDisplayNameSuccess}
+        />
+      )}
     </div>
   )
 }
