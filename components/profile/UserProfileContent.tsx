@@ -57,7 +57,7 @@ export function UserProfileContent({ userId }: UserProfileContentProps) {
   return (
     <div className="space-y-8">
       <UserProfileHeader
-        userEmail={userStats.userEmail}
+        userEmail={user?.email || ''}
         displayName={userStats.displayName}
         avatarUrl={userStats.avatarUrl}
         joinDate={userStats.createdAt}
