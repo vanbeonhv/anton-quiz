@@ -28,7 +28,7 @@ export function UserProfileHeader({
   }
 
   // Use display name if available, otherwise fall back to email username
-  const preferredName = displayName || userEmail.split('@')[0]
+  const preferredName = displayName || (userEmail ? userEmail.split('@')[0] : 'User')
 
   return (
     <div className="bg-white rounded-lg shadow-sm border p-6">
