@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -29,37 +29,15 @@ export default function LoginForm() {
     }
   }, [searchParams])
 
-  // Handle redirect after successful authentication
+  // Handle redirect if user is already authenticated
   useEffect(() => {
     const checkAuthAndRedirect = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      
       if (user) {
-        // Get return URL from query params
-        const returnUrl = searchParams.get('returnUrl')
-        
-        // Check session storage for pending answer using utility
-        const pendingAnswer = getPendingAnswer()
-        
-        if (pendingAnswer) {
-          // Clear session storage after reading
-          clearPendingAnswer()
-          
-          // Redirect to question page with auto-submit parameters
-          const questionType = pendingAnswer.isDailyQuestion ? 'daily' : 'regular'
-          router.push(
-            `/questions/${pendingAnswer.questionId}?autoSubmit=true&answer=${pendingAnswer.answer}&type=${questionType}`
-          )
-        } else if (returnUrl) {
-          // Redirect to return URL if no pending answer
-          router.push(returnUrl)
-        } else {
-          // Default redirect to dashboard
-          router.push('/dashboard')
-        }
+        handleRedirect()
       }
     }
-    
+
     checkAuthAndRedirect()
   }, [searchParams, router, supabase])
 
@@ -70,27 +48,65 @@ export default function LoginForm() {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        // Sign up the user
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: `${globalThis.location.origin}/auth/callback`
           }
         })
-        if (error) throw error
-        setMessage('Check your email for verification link!')
+
+        if (signUpError) throw signUpError
+
+        // If session exists, user is signed in immediately (email confirmation disabled)
+        if (signUpData.session) {
+          handleRedirect()
+          return
+        }
+
+        // If no session, email confirmation is required
+        if (signUpData.user && !signUpData.session) {
+          setMessage('Account created! Please check your email to verify your account.')
+          return
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password
         })
         if (error) throw error
-        // Redirect will be handled by the useEffect hook
+        handleRedirect()
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'An error occurred')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleRedirect = () => {
+    // Get return URL from query params
+    const returnUrl = searchParams.get('returnUrl')
+
+    // Check session storage for pending answer using utility
+    const pendingAnswer = getPendingAnswer()
+
+    if (pendingAnswer) {
+      // Clear session storage after reading
+      clearPendingAnswer()
+
+      // Redirect to question page with auto-submit parameters
+      const questionType = pendingAnswer.isDailyQuestion ? 'daily' : 'regular'
+      router.push(
+        `/questions/${pendingAnswer.questionId}?autoSubmit=true&answer=${pendingAnswer.answer}&type=${questionType}`
+      )
+    } else if (returnUrl) {
+      // Redirect to return URL if no pending answer
+      router.push(returnUrl)
+    } else {
+      // Default redirect to dashboard
+      router.push('/dashboard')
     }
   }
 
@@ -103,7 +119,7 @@ export default function LoginForm() {
       if (returnUrl) {
         redirectUrl.searchParams.set('next', returnUrl)
       }
-      
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
@@ -122,22 +138,21 @@ export default function LoginForm() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-text-primary">
-            {isSignUp ? 'Sign Up' : 'Sign In'}
+            {isSignUp ? 'Sign Up' : 'Login'}
           </CardTitle>
           <CardDescription className="text-text-secondary">
-            {isSignUp 
+            {isSignUp
               ? 'Create an account to start taking quizzes'
-              : 'Welcome back! Please sign in to continue'
+              : 'Welcome back! Please login to continue'
             }
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {message && (
-            <div className={`p-3 rounded-md text-sm ${
-              message.includes('Check your email') 
-                ? 'bg-primary-green-light text-primary-green-dark'
-                : 'bg-accent-red/10 text-accent-red'
-            }`}>
+            <div className={`p-3 rounded-md text-sm ${message.includes('Check your email')
+              ? 'bg-primary-green-light text-primary-green-dark'
+              : 'bg-accent-red/10 text-accent-red'
+              }`}>
               {message}
             </div>
           )}
@@ -165,13 +180,13 @@ export default function LoginForm() {
                 required
               />
             </div>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full bg-primary-green hover:bg-primary-green-dark"
               disabled={loading}
             >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {loading ? 'Signing in...' : (isSignUp ? 'Sign Up' : 'Sign In')}
+              {loading ? 'Logging in...' : (isSignUp ? 'Sign Up' : 'Login')}
             </Button>
           </form>
 
@@ -201,8 +216,8 @@ export default function LoginForm() {
               className="text-sm text-primary-green hover:text-primary-green-dark"
               onClick={() => setIsSignUp(!isSignUp)}
             >
-              {isSignUp 
-                ? 'Already have an account? Sign in'
+              {isSignUp
+                ? 'Already have an account? Login'
                 : "Don't have an account? Sign up"
               }
             </button>
