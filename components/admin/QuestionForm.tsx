@@ -4,6 +4,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { MarkdownEditor } from '@/components/shared/MarkdownEditor'
 import { Tag, Difficulty, OptionKey } from '@/types'
 import { QuestionFormData } from '@/lib/utils/question'
 
@@ -115,17 +116,20 @@ export function QuestionForm({
         </div>
       </div>
 
-      <div>
-        <Label htmlFor="explanation">Explanation</Label>
-        <Textarea
+      <div className="space-y-1">
+        <MarkdownEditor
           id="explanation"
+          label="Explanation"
           value={formData.explanation}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-            setFormData({ ...formData, explanation: e.target.value })
+          onChange={(value) =>
+            setFormData({ ...formData, explanation: value })
           }
           placeholder="Explain why this is the correct answer (optional)"
-          rows={3}
+          minHeight="150px"
         />
+        <p className="text-sm text-muted-foreground">
+          Supports markdown: <strong>**bold**</strong>, <em>*italic*</em>, <code>`code`</code>, lists (- or 1.), and line breaks
+        </p>
       </div>
 
       <div>
