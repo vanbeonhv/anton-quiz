@@ -18,13 +18,20 @@ const geistMono = localFont({
   weight: "100 900",
 });
 const DOMAIN = 'https://quiz.huuvan.dev';
-const TITLE = "Anton Quiz - App Trắc Nghiệm Nâng Cao Kiến Thức Developer Chỉ 5 Phút/Ngày"
-const DESCRIPTION = "Mệt mỏi vì kiến thức bị mai một? Cần ôn luyện 'thực chiến' cho phỏng vấn cấp cao hay dự án phức tạp? Anton Quiz là giải pháp Micro-Learning được thiết kế đặc biệt cho Developer chuyên nghiệp. Biến 5 phút rảnh rỗi thành lợi thế cạnh tranh của bạn.";
+const TITLE = "Anton Questions - Practice, Learn, and Level Up"
+const DESCRIPTION = "Master your knowledge with thousands of questions across multiple topics and difficulty levels. Track your progress, earn XP, and compete on leaderboards.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(DOMAIN || 'http://localhost:4000'),
-  title: TITLE,
+  title: {
+    default: TITLE,
+    template: '%s | Anton Questions'
+  },
   description: DESCRIPTION,
+  keywords: ['quiz app', 'practice questions', 'learning platform', 'knowledge assessment', 'skill development', 'leaderboard', 'progress tracking'],
+  authors: [{ name: 'Anton Questions Team' }],
+  creator: 'Anton Questions',
+  publisher: 'Anton Questions',
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
@@ -37,12 +44,15 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     type: "website",
+    url: DOMAIN,
+    siteName: 'Anton Questions',
+    locale: 'en_US',
     images: [
       {
-        url: `${DOMAIN}/logo.png`,
+        url: `${DOMAIN}/screenshots/question.png`,
         width: 1200,
         height: 630,
-        alt: 'Anton Quiz Logo',
+        alt: 'Anton Questions - Interactive question interface with multiple choice options',
       },
     ],
   },
@@ -50,7 +60,24 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
-    images: [`${DOMAIN}/logo.png`],
+    creator: '@antonquestions',
+    images: [`${DOMAIN}/screenshots/question.png`],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    // Add your verification tokens here when available
+    // google: 'your-google-verification-token',
+    // yandex: 'your-yandex-verification-token',
   },
 };
 
