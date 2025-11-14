@@ -170,10 +170,19 @@ export const PUT = withMetrics(async (
       tags: questionWithTags?.tags.map(qt => qt.tag) || []
     }
 
-    // Invalidate the cache for this question
-    // Clear all cached variants of this question (with different query params)
+    // Invalidate all relevant caches
+    // Clear individual question cache
     for (const key of Array.from(cache.keys())) {
-      if (key.includes(`/api/questions/${params.id}`)) {
+      const keyStr = String(key)
+      if (keyStr.includes(`/api/questions/${params.id}`)) {
+        cache.delete(key)
+      }
+    }
+    
+    // Clear admin questions list cache (all variants with different filters/pagination)
+    for (const key of Array.from(cache.keys())) {
+      const keyStr = String(key)
+      if (keyStr.includes('/api/admin/questions')) {
         cache.delete(key)
       }
     }
@@ -229,9 +238,13 @@ export const DELETE = withMetrics(async (
         data: { isActive: false }
       })
 
-      // Invalidate the cache for this question
-      const cacheKey = `/api/questions/${params.id}`
-      cache.delete(cacheKey)
+      // Invalidate all relevant caches
+      for (const key of Array.from(cache.keys())) {
+        const keyStr = String(key)
+        if (keyStr.includes(`/api/questions/${params.id}`) || keyStr.includes('/api/admin/questions')) {
+          cache.delete(key)
+        }
+      }
 
       return NextResponse.json({ 
         message: 'Question has been deactivated instead of deleted due to existing attempts' 
@@ -243,9 +256,13 @@ export const DELETE = withMetrics(async (
       where: { id: params.id }
     })
 
-    // Invalidate the cache for this question
-    const cacheKey = `/api/questions/${params.id}`
-    cache.delete(cacheKey)
+    // Invalidate all relevant caches
+    for (const key of Array.from(cache.keys())) {
+      const keyStr = String(key)
+      if (keyStr.includes(`/api/questions/${params.id}`) || keyStr.includes('/api/admin/questions')) {
+        cache.delete(key)
+      }
+    }
 
     return NextResponse.json({ message: 'Question deleted successfully' })
   } catch (error) {

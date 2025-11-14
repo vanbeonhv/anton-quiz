@@ -212,6 +212,14 @@ export const POST = withMetrics(async (request: NextRequest) => {
       tags: questionWithTags?.tags.map(qt => qt.tag) || []
     }
 
+    // Clear admin questions list cache to reflect the new question
+    for (const key of Array.from(cache.keys())) {
+      const keyStr = String(key)
+      if (keyStr.includes('/api/admin/questions')) {
+        cache.delete(key)
+      }
+    }
+
     return NextResponse.json(result, { status: 201 })
   } catch (error) {
     console.error('Error creating question:', error)

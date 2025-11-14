@@ -71,10 +71,10 @@ export default function AdminPage() {
           </p>
         </div>
 
-        <Tabs defaultValue="tags" className="space-y-6">
+        <Tabs defaultValue="questions" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="tags">Tag Management</TabsTrigger>
             <TabsTrigger value="questions">Question Management</TabsTrigger>
+            <TabsTrigger value="tags">Tag Management</TabsTrigger>
           </TabsList>
 
           <TabsContent value="tags" className="space-y-6">
