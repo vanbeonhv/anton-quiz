@@ -33,36 +33,38 @@ export function FeatureCard({ icon, title, description, accentColor }: FeatureCa
     <div
       className={cn(
         'group',
-        'bg-white rounded-lg border-2 border-gray-200 p-6 md:p-8',
-        'transition-all duration-200 ease-in-out',
-        'hover:scale-[1.02] hover:shadow-xl hover:-translate-y-1',
+        'bg-gradient-to-br from-white to-bg-cream/30 rounded-xl border-2 border-gray-200 p-6 md:p-8',
+        'transition-all duration-300 ease-out',
+        'hover:scale-[1.03] hover:shadow-2xl hover:-translate-y-2',
         colors.hoverBorder,
-        'cursor-default'
+        'cursor-default',
+        'backdrop-blur-sm'
       )}
     >
       <div className="flex flex-col items-center text-center space-y-3 md:space-y-4">
         {/* Icon */}
         <div
           className={cn(
-            'w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center',
-            'transition-transform duration-200',
-            'group-hover:scale-110',
-            colors.iconBg
+            'w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center',
+            'transition-all duration-300',
+            'group-hover:scale-110 group-hover:rotate-3',
+            colors.iconBg,
+            'shadow-md group-hover:shadow-lg'
           )}
           aria-hidden="true"
         >
-          <div className={cn('w-7 h-7 md:w-8 md:h-8 transition-transform duration-200', colors.iconColor)}>
+          <div className={cn('w-8 h-8 md:w-10 md:h-10 transition-transform duration-300', colors.iconColor)}>
             {icon}
           </div>
         </div>
 
         {/* Title */}
-        <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 transition-colors duration-200">
+        <h3 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-gray-900 transition-colors duration-200 font-heading">
           {title}
         </h3>
 
         {/* Description */}
-        <p className="text-sm md:text-base text-gray-600 leading-relaxed">
+        <p className="text-sm md:text-base lg:text-lg text-gray-600 leading-relaxed font-light">
           {description}
         </p>
       </div>

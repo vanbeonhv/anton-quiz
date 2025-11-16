@@ -9,6 +9,11 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+  		fontFamily: {
+  			sans: ['var(--font-dm-sans)', 'var(--font-geist-sans)', 'system-ui', 'sans-serif'],
+  			heading: ['var(--font-space-grotesk)', 'var(--font-geist-sans)', 'system-ui', 'sans-serif'],
+  			mono: ['var(--font-jetbrains-mono)', 'var(--font-geist-mono)', 'monospace'],
+  		},
   		colors: {
   			// Quiz App Custom Colors
   			'primary-green': {

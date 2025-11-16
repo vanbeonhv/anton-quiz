@@ -64,17 +64,17 @@ export function HeroSection({ onTryDemo }: HeroSectionProps) {
             </div>
 
             {/* Headline */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary mb-4 md:mb-6 animate-fade-in animation-delay-100">
+            <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-text-primary mb-4 md:mb-6 animate-fade-in animation-delay-100 tracking-tight leading-tight font-heading">
               Practice, Learn, and Level Up
             </h1>
 
             {/* Subheadline */}
-            <p className="text-lg md:text-xl lg:text-2xl text-text-secondary mb-6 md:mb-8 animate-fade-in animation-delay-200">
+            <p className="text-lg md:text-xl lg:text-2xl text-text-secondary mb-6 md:mb-8 animate-fade-in animation-delay-200 font-medium">
               Master your knowledge with thousands of questions across multiple topics and difficulty levels
             </p>
 
             {/* Description */}
-            <p className="text-base md:text-lg text-text-secondary/80 mb-8 md:mb-10 animate-fade-in animation-delay-300">
+            <p className="text-base md:text-lg text-text-secondary/80 mb-8 md:mb-10 animate-fade-in animation-delay-300 font-light">
               Track your progress, earn XP, and compete on leaderboards while improving your skills
             </p>
 
@@ -83,7 +83,7 @@ export function HeroSection({ onTryDemo }: HeroSectionProps) {
               <Button
                 asChild={!onTryDemo}
                 size="lg"
-                className="bg-primary-green hover:bg-primary-green/90 text-white px-6 py-3 sm:px-8 sm:py-6 text-base sm:text-lg min-h-[48px] min-w-[48px] landing-button focus:ring-2 focus:ring-primary-green focus:ring-offset-2"
+                className="bg-primary-green hover:bg-primary-green/90 text-white px-6 py-3 sm:px-8 sm:py-6 text-base sm:text-lg font-semibold min-h-[48px] min-w-[48px] landing-button focus:ring-2 focus:ring-primary-green focus:ring-offset-2 transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95"
                 onClick={onTryDemo ? handleTryQuestion : undefined}
                 onKeyDown={onTryDemo ? handleKeyDown : undefined}
                 aria-label="Try a sample question"
@@ -104,7 +104,7 @@ export function HeroSection({ onTryDemo }: HeroSectionProps) {
               <Button
                 asChild
                 size="lg"
-                className="bg-primary-orange hover:bg-primary-orange/90 text-white px-6 py-3 sm:px-8 sm:py-6 text-base sm:text-lg min-h-[48px] min-w-[48px] landing-button focus:ring-2 focus:ring-primary-orange focus:ring-offset-2"
+                className="bg-primary-orange hover:bg-primary-orange/90 text-white px-6 py-3 sm:px-8 sm:py-6 text-base sm:text-lg font-semibold min-h-[48px] min-w-[48px] landing-button focus:ring-2 focus:ring-primary-orange focus:ring-offset-2 transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95"
                 aria-label="Sign up for free account"
               >
                 <Link href="/login" className="flex items-center justify-center">
@@ -117,7 +117,7 @@ export function HeroSection({ onTryDemo }: HeroSectionProps) {
           {/* Right column: Screenshot */}
           <div className="relative animate-fade-in-right animation-delay-200">
             <div 
-              className={`relative w-full aspect-[4/3] transition-opacity duration-500 ${
+              className={`relative w-full aspect-[4/3] transition-all duration-500 hover:scale-[1.02] ${
                 imageLoaded ? 'opacity-100' : 'opacity-0'
               }`}
             >
@@ -125,7 +125,7 @@ export function HeroSection({ onTryDemo }: HeroSectionProps) {
                 src="/screenshots/question.png"
                 alt="Question interface showing multiple choice options with difficulty levels and tags"
                 fill
-                className="object-contain rounded-lg md:shadow-2xl"
+                className="object-contain rounded-lg md:shadow-2xl transition-shadow duration-300 hover:shadow-3xl"
                 priority
                 onLoad={() => setImageLoaded(true)}
                 sizes="(max-width: 640px) 95vw, (max-width: 1024px) 50vw, 600px"

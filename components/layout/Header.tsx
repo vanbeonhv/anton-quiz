@@ -61,7 +61,7 @@ export function Header() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link
-            href={user ? "/dashboard" : "/"}
+            href={user ? "/dashboard" : "/landing"}
             className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-200"
           >
             <div className="relative">

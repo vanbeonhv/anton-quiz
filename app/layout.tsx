@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Space_Grotesk, DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { QueryProvider } from "@/components/providers/QueryProvider";
@@ -7,6 +8,29 @@ import { UserLevelProviderWithErrorBoundary } from "@/components/providers/UserL
 import { LevelDrawer } from "@/components/shared/LevelDrawer";
 import { Toaster } from "sonner";
 
+// Google Fonts for better aesthetics
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-dm-sans",
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+// Keep Geist fonts as fallback
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -94,7 +118,8 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.ico" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-bg-peach`}
+        className={`${spaceGrotesk.variable} ${dmSans.variable} ${jetbrainsMono.variable} ${geistSans.variable} ${geistMono.variable} antialiased bg-bg-peach font-sans`}
+        style={{ fontFamily: 'var(--font-dm-sans), var(--font-geist-sans), system-ui, sans-serif' }}
       >
         <QueryProvider>
           <UserLevelProviderWithErrorBoundary>
