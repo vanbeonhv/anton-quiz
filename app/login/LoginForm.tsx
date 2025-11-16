@@ -98,9 +98,12 @@ export default function LoginForm() {
 
       // Redirect to question page with auto-submit parameters
       const questionType = pendingAnswer.isDailyQuestion ? 'daily' : 'regular'
-      router.push(
-        `/questions/${pendingAnswer.questionId}?autoSubmit=true&answer=${pendingAnswer.answer}&type=${questionType}`
-      )
+      const params = new URLSearchParams({
+        autoSubmit: 'true',
+        answer: pendingAnswer.answer,
+        type: questionType
+      })
+      router.push(`/questions/${pendingAnswer.questionId}?${params.toString()}`)
     } else if (returnUrl) {
       // Redirect to return URL if no pending answer
       router.push(returnUrl)

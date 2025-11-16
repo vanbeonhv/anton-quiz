@@ -107,7 +107,7 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
                         userId={entry.userId}
                         userEmail={entry.userEmail}
                         avatarUrl={entry.avatarUrl}
-                        displayName={entry.displayName || entry.userEmail.split('@')[0]}
+                        displayName={entry.displayName ?? entry.userEmail?.split('@')[0] ?? 'Anonymous User'}
                         rank={entry.rank}
                         className={isCurrentUser ? 'text-primary-green font-semibold' : ''}
                       />

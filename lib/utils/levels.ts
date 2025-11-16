@@ -22,7 +22,7 @@ export const LEVEL_DATA: readonly LevelConfig[] = [
   {
     level: 2,
     title: "Intern",
-    cumulativeXpNeeded: 50
+    cumulativeXpNeeded: 20
   },
   {
     level: 3,
