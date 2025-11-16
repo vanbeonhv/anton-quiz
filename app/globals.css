@@ -75,6 +75,34 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Smooth scroll behavior for the entire page */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Respect user's motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* Visible focus indicators for all interactive elements */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid #4CAF50;
+    outline-offset: 2px;
+  }
+
+  /* Remove default focus outline but keep for keyboard navigation */
+  *:focus:not(:focus-visible) {
+    outline: none;
+  }
 }
 
 /* Question Table Grid Layout */
@@ -155,5 +183,297 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+}
+
+/* Landing Page Gradient Backgrounds */
+@layer components {
+  /* Hero gradient - Radial gradient from center */
+  .hero-gradient {
+    background: radial-gradient(
+      circle at 30% 20%,
+      rgba(255, 245, 240, 1) 0%,
+      rgba(255, 251, 247, 1) 50%,
+      rgba(255, 255, 255, 0.8) 100%
+    );
+  }
+
+  /* Feature gradient - Linear gradient diagonal */
+  .feature-gradient {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 251, 247, 1) 0%,
+      rgba(255, 245, 240, 1) 100%
+    );
+  }
+
+  /* CTA gradient - Vibrant gradient with accent colors */
+  .cta-gradient {
+    background: linear-gradient(
+      135deg,
+      rgba(232, 245, 233, 0.3) 0%,
+      rgba(255, 243, 224, 0.3) 100%
+    );
+  }
+}
+
+/* Landing Page Animations */
+@layer utilities {
+  /* Fade in animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes fadeInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Animation classes */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  .animate-fade-in-left {
+    animation: fadeInLeft 0.6s ease-out forwards;
+  }
+
+  .animate-fade-in-right {
+    animation: fadeInRight 0.6s ease-out forwards;
+  }
+
+  /* Staggered animation delays */
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2000ms;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4000ms;
+  }
+
+  /* Blob animation for organic shapes */
+  @keyframes blob {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+    }
+    25% {
+      transform: translate(20px, -20px) scale(1.1);
+    }
+    50% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+    75% {
+      transform: translate(20px, 20px) scale(1.05);
+    }
+  }
+
+  .animate-blob {
+    animation: blob 20s ease-in-out infinite;
+  }
+
+  /* Initial state for animations */
+  .animate-on-scroll {
+    opacity: 0;
+  }
+
+  .animate-on-scroll.visible {
+    opacity: 1;
+  }
+
+  /* Respect reduced motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in,
+    .animate-fade-in-up,
+    .animate-fade-in-left,
+    .animate-fade-in-right {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+    
+    .animate-on-scroll {
+      opacity: 1;
+    }
+  }
+}
+
+/* Landing Page Hover Effects and Transitions */
+@layer components {
+  /* Smooth transitions for all interactive elements */
+  .landing-button {
+    transition: all 0.2s ease-in-out;
+  }
+
+  .landing-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  }
+
+  .landing-button:active {
+    transform: scale(0.98);
+  }
+
+  /* Visible focus indicators for accessibility */
+  .landing-button:focus-visible {
+    outline: 3px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  /* Disable hover effects on touch devices */
+  @media (hover: none) and (pointer: coarse) {
+    .landing-button:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  /* Card hover effects */
+  .landing-card {
+    transition: all 0.2s ease-in-out;
+  }
+
+  .landing-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Disable card hover on touch devices */
+  @media (hover: none) and (pointer: coarse) {
+    .landing-card:hover {
+      transform: none;
+    }
+  }
+
+  /* Link hover effects */
+  .landing-link {
+    transition: color 0.15s ease-in-out;
+  }
+
+  /* Image hover effects */
+  .landing-image {
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .landing-image:hover {
+    transform: scale(1.02);
+  }
+
+  /* Respect reduced motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .landing-button:hover,
+    .landing-card:hover,
+    .landing-image:hover {
+      transform: none;
+    }
+    
+    .landing-button,
+    .landing-card,
+    .landing-link,
+    .landing-image {
+      transition: none;
+    }
+  }
+}
+
+/* Mobile-specific responsive utilities */
+@layer utilities {
+  /* Ensure minimum touch target size on mobile */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Mobile-friendly text sizes */
+  @media (max-width: 640px) {
+    .text-mobile-sm {
+      font-size: 0.875rem; /* 14px */
+      line-height: 1.25rem; /* 20px */
+    }
+
+    .text-mobile-base {
+      font-size: 1rem; /* 16px */
+      line-height: 1.5rem; /* 24px */
+    }
+
+    .text-mobile-lg {
+      font-size: 1.125rem; /* 18px */
+      line-height: 1.75rem; /* 28px */
+    }
+  }
+
+  /* Prevent text from being too small on mobile */
+  @media (max-width: 640px) {
+    body {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+  }
+
+  /* Image optimization for mobile */
+  @media (max-width: 640px) {
+    /* Reduce image quality slightly on mobile for faster loading */
+    img {
+      image-rendering: crisp-edges;
+    }
+  }
+
+  /* Lazy loading optimization */
+  img[loading="lazy"] {
+    content-visibility: auto;
   }
 }

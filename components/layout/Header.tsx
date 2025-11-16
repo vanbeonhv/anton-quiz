@@ -61,7 +61,7 @@ export function Header() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link
-            href={user ? "/dashboard" : "/"}
+            href={user ? "/dashboard" : "/landing"}
             className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-200"
           >
             <div className="relative">
@@ -73,9 +73,9 @@ export function Header() {
                 className="w-10 h-10 drop-shadow-sm"
               />
             </div>
-            <h1 className="text-2xl font-bold text-text-primary tracking-tight">
+            <span className="text-2xl font-bold text-text-primary tracking-tight">
               Anton Questions
-            </h1>
+            </span>
           </Link>
 
           {/* Navigation */}
@@ -113,7 +113,7 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="md:hidden p-2"
+                  className="md:hidden p-3 min-h-[48px] min-w-[48px]"
                   onClick={toggleMobileMenu}
                   aria-label="Toggle mobile menu"
                 >
@@ -286,7 +286,7 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="md:hidden p-2"
+                  className="md:hidden p-3 min-h-[48px] min-w-[48px]"
                   onClick={toggleMobileMenu}
                   aria-label="Toggle mobile menu"
                 >
