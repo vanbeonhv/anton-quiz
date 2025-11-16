@@ -32,6 +32,7 @@ export function FeatureCard({ icon, title, description, accentColor }: FeatureCa
   return (
     <div
       className={cn(
+        'group',
         'bg-white rounded-lg border-2 border-gray-200 p-6 md:p-8',
         'transition-all duration-200 ease-in-out',
         'hover:scale-[1.02] hover:shadow-xl hover:-translate-y-1',

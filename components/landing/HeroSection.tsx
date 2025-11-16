@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type MouseEvent, type KeyboardEvent } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -14,14 +14,14 @@ interface HeroSectionProps {
 export function HeroSection({ onTryDemo }: HeroSectionProps) {
   const [imageLoaded, setImageLoaded] = useState(false)
 
-  const handleTryQuestion = (e: React.MouseEvent | React.KeyboardEvent) => {
+  const handleTryQuestion = (e: MouseEvent | KeyboardEvent) => {
     if (onTryDemo) {
       e.preventDefault()
       onTryDemo()
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: KeyboardEvent) => {
     // Handle Enter and Space keys for accessibility
     if (e.key === 'Enter' || e.key === ' ') {
       handleTryQuestion(e)
@@ -89,7 +89,7 @@ export function HeroSection({ onTryDemo }: HeroSectionProps) {
                 aria-label="Try a sample question"
               >
                 {onTryDemo ? (
-                  <span className="flex items-center justify-center">
+                  <span className="group flex items-center justify-center">
                     Try a Question
                     <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:translate-x-1" />
                   </span>

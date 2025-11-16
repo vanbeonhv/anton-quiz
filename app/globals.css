@@ -440,7 +440,6 @@
   @media (max-width: 640px) {
     /* Reduce image quality slightly on mobile for faster loading */
     img {
-      image-rendering: -webkit-optimize-contrast;
       image-rendering: crisp-edges;
     }
   }
