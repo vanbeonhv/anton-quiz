@@ -14,6 +14,23 @@ export async function register() {
     if (process.env.NEXT_RUNTIME === 'nodejs') {
         console.log("instrumentation initializing...")
 
+        // Auto-run database migrations in production
+        if (process.env.NODE_ENV === 'production' && process.env.AUTO_MIGRATE !== 'false') {
+            console.log('🔄 Running database migrations...')
+            try {
+                const { execSync } = await import('child_process')
+                execSync('npx prisma migrate deploy', { 
+                    stdio: 'inherit',
+                    env: process.env 
+                })
+                console.log('✅ Database migrations completed successfully')
+            } catch (error) {
+                console.error('❌ Migration failed:', error)
+                // Don't exit - let app start anyway for debugging
+                console.warn('⚠️  Application starting despite migration failure')
+            }
+        }
+
         const { collectDefaultMetrics, Registry, Counter, Histogram, Gauge } = await import('prom-client');
         const prometheusRegistry = new Registry();
 

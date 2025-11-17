@@ -64,12 +64,8 @@ COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 COPY --from=builder --chown=nextjs:nodejs /app/instrumentation.ts ./
 
-# Copy startup script
-COPY --chown=nextjs:nodejs docker-entrypoint.sh ./
-
 # Chuyển quyền sở hữu cho user nextjs
 RUN chown -R nextjs:nodejs /app
-RUN chmod +x docker-entrypoint.sh
 
 USER nextjs
 
@@ -78,4 +74,6 @@ EXPOSE 4000
 ENV PORT=4000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["./docker-entrypoint.sh"]
+# Auto-migration is handled by instrumentation.ts
+# Set AUTO_MIGRATE=false to disable
+CMD ["node", "server.js"]
