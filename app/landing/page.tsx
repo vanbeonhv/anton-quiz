@@ -14,7 +14,6 @@ export default function LandingPage() {
 
   // Preload critical images for better performance
   useEffect(() => {
-    // Preload hero image
     const link = document.createElement('link')
     link.rel = 'preload'
     link.as = 'image'
@@ -23,7 +22,7 @@ export default function LandingPage() {
     document.head.appendChild(link)
 
     return () => {
-      document.head.removeChild(link)
+      link.remove()
     }
   }, [])
 

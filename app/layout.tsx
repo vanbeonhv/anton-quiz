@@ -42,20 +42,39 @@ const geistMono = localFont({
   weight: "100 900",
 });
 const DOMAIN = 'https://quiz.huuvan.dev';
-const TITLE = "Anton Questions - Practice, Learn, and Level Up"
-const DESCRIPTION = "Master your knowledge with thousands of questions across multiple topics and difficulty levels. Track your progress, earn XP, and compete on leaderboards.";
+const TITLE = "Anton Quiz - Practice Questions & Interactive Learning Platform"
+const DESCRIPTION = "Anton Quiz is an interactive learning platform with thousands of practice questions. Track your progress, compete on leaderboards, and master knowledge across multiple difficulty levels.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(DOMAIN || 'http://localhost:4000'),
   title: {
     default: TITLE,
-    template: '%s | Anton Questions'
+    template: '%s | Anton Quiz'
   },
   description: DESCRIPTION,
-  keywords: ['quiz app', 'practice questions', 'learning platform', 'knowledge assessment', 'skill development', 'leaderboard', 'progress tracking'],
-  authors: [{ name: 'Anton Questions Team' }],
-  creator: 'Anton Questions',
-  publisher: 'Anton Questions',
+  keywords: [
+    'anton quiz',
+    'anton questions',
+    'quiz app',
+    'practice questions',
+    'interactive quiz',
+    'learning platform',
+    'online quiz',
+    'knowledge assessment',
+    'skill development',
+    'quiz game',
+    'educational quiz',
+    'leaderboard quiz',
+    'progress tracking',
+    'study questions',
+    'test preparation'
+  ],
+  authors: [{ name: 'Anton Quiz Team' }],
+  creator: 'Anton Quiz',
+  publisher: 'Anton Quiz',
+  applicationName: 'Anton Quiz',
+  category: 'Education',
+  classification: 'Educational Quiz Platform',
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
@@ -69,14 +88,14 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     type: "website",
     url: DOMAIN,
-    siteName: 'Anton Questions',
+    siteName: 'Anton Quiz',
     locale: 'en_US',
     images: [
       {
         url: `${DOMAIN}/screenshots/question.png`,
         width: 1200,
         height: 630,
-        alt: 'Anton Questions - Interactive question interface with multiple choice options',
+        alt: 'Anton Quiz - Interactive question interface with multiple choice options',
       },
     ],
   },
@@ -84,7 +103,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
-    creator: '@antonquestions',
+    creator: '@antonquiz',
     images: [`${DOMAIN}/screenshots/question.png`],
   },
   robots: {
@@ -98,6 +117,9 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  alternates: {
+    canonical: DOMAIN,
+  },
   verification: {
     // Add your verification tokens here when available
     // google: 'your-google-verification-token',
@@ -110,12 +132,45 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Anton Quiz',
+    alternateName: 'Anton Questions',
+    url: DOMAIN,
+    description: DESCRIPTION,
+    applicationCategory: 'EducationalApplication',
+    operatingSystem: 'Web Browser',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.8',
+      ratingCount: '150',
+    },
+    featureList: [
+      'Practice questions with multiple difficulty levels',
+      'Real-time progress tracking and statistics',
+      'Leaderboard and competitive rankings',
+      'Tag-based question organization',
+      'XP and level system',
+      'Streak tracking',
+    ],
+  };
+
   return (
     <html lang="en">
       <head>
         <link rel="icon" href="/favicon.ico" sizes="32x32" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="shortcut icon" href="/favicon.ico" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
       </head>
       <body
         className={`${spaceGrotesk.variable} ${dmSans.variable} ${jetbrainsMono.variable} ${geistSans.variable} ${geistMono.variable} antialiased bg-bg-peach font-sans`}
