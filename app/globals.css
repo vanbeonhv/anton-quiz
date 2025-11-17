@@ -30,7 +30,7 @@
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
+    --ring: 162 56% 40%;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -91,12 +91,31 @@
   /* Visible focus indicators for all interactive elements */
   a:focus-visible,
   button:focus-visible,
-  input:focus-visible,
-  textarea:focus-visible,
   select:focus-visible,
   [tabindex]:focus-visible {
     outline: 2px solid #4CAF50;
     outline-offset: 2px;
+  }
+
+  /* Enhanced focus styles for inputs and textareas with theme colors */
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: none;
+    border-color: #2D9F7C;
+    box-shadow: 0 0 0 3px rgba(45, 159, 124, 0.1);
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+
+  /* Add smooth transition to all inputs and textareas */
+  input,
+  textarea {
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, outline 0.2s ease-in-out;
+  }
+  
+  /* Ensure ring transitions are smooth */
+  input:focus-visible,
+  textarea:focus-visible {
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, outline 0.2s ease-in-out;
   }
 
   /* Remove default focus outline but keep for keyboard navigation */
