@@ -7,6 +7,7 @@ import { FeaturesSection } from '@/components/landing/FeaturesSection'
 import { DemoQuestion } from '@/components/landing/DemoQuestion'
 import { StatsSection } from '@/components/landing/StatsSection'
 import { CTASection } from '@/components/landing/CTASection'
+import { ScrollToTop } from '@/components/landing/ScrollToTop'
 
 export default function LandingPage() {
   const demoRef = useRef<HTMLElement>(null)
@@ -95,6 +96,9 @@ export default function LandingPage() {
           <p>&copy; {new Date().getFullYear()} Anton Questions App. All rights reserved.</p>
         </div>
       </footer>
+
+      {/* Scroll to Top Button */}
+      <ScrollToTop />
     </div>
   )
 }

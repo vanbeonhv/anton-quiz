@@ -44,10 +44,10 @@ export function StatsSection() {
   return (
     <section 
       ref={ref} 
-      className="py-12 md:py-16 lg:py-20 bg-gradient-to-br from-bg-cream to-bg-peach"
+      className="py-12 md:py-16 lg:py-20 bg-gradient-to-br from-bg-cream to-bg-peach min-h-[550px] flex items-center"
       aria-label="Platform statistics"
     >
-      <div className="container mx-auto px-4 max-w-6xl">
+      <div className="container mx-auto px-4 max-w-6xl w-full">
         <div className={`text-center mb-8 md:mb-12 transition-all duration-500 ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
         }`}>
