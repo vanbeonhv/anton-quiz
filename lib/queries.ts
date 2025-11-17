@@ -9,7 +9,10 @@ import type {
   QuestionWithTags,
   PaginatedResponse,
   Difficulty,
-  CreateQuestionData
+  CreateQuestionData,
+  QuestionCommentWithAuthor,
+  CreateCommentData,
+  UpdateCommentData
 } from '@/types'
 import { QuestionsApiResponse } from '@/types/api'
 import { questionApi, type UpdateQuestionData, type QuestionAttemptData } from '@/lib/api/questions'
@@ -616,5 +619,226 @@ export function useNextUnansweredQuestion() {
     enabled: isAuthenticated,
     staleTime: 0, // Always fetch fresh data
     refetchOnWindowFocus: false,
+  })
+}
+
+// ============================================================================
+// COMMENT HOOKS
+// ============================================================================
+
+/**
+ * Fetch comments for a specific question
+ */
+export function useComments(questionId: string) {
+  return useQuery({
+    queryKey: ['comments', questionId],
+    queryFn: async (): Promise<QuestionCommentWithAuthor[]> => {
+      const res = await fetch(`/api/questions/${questionId}/comments`)
+      if (!res.ok) throw new Error('Failed to fetch comments')
+      const data = await res.json()
+      // Dates come as strings from JSON, keep them as-is for compatibility
+      return data
+    },
+    enabled: !!questionId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+  })
+}
+
+/**
+ * Create a new comment on a question
+ */
+export function useCreateComment(questionId: string) {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+  
+  return useMutation({
+    mutationFn: async (data: CreateCommentData): Promise<any> => {
+      if (!user) {
+        throw new Error('Authentication required to create comment')
+      }
+      
+      const res = await fetch(`/api/questions/${questionId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.error || 'Failed to create comment')
+      }
+      // Dates come as strings from JSON
+      return res.json()
+    },
+    onMutate: async (newCommentData) => {
+      // Ensure user is authenticated before optimistic update
+      if (!user) {
+        throw new Error('Authentication required to create comment')
+      }
+      
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['comments', questionId] })
+
+      // Snapshot the previous value
+      const previousComments = queryClient.getQueryData<any[]>(['comments', questionId])
+
+      // Optimistically update to the new value
+      if (previousComments) {
+        const now = new Date().toISOString()
+        const optimisticComment: any = {
+          id: 'optimistic-' + Date.now(),
+          questionId,
+          userId: user.id,
+          userEmail: user.email || '',
+          content: newCommentData.content,
+          createdAt: now,
+          updatedAt: now,
+          author: {
+            displayName: user.user_metadata?.preferred_username || user.user_metadata?.full_name || null,
+            avatarUrl: user.user_metadata?.avatar_url || null,
+          },
+          isEdited: false,
+        }
+
+        queryClient.setQueryData<any[]>(
+          ['comments', questionId],
+          [...previousComments, optimisticComment]
+        )
+      }
+
+      return { previousComments }
+    },
+    onError: (err, variables, context) => {
+      // Roll back optimistic update on error
+      if (context?.previousComments) {
+        queryClient.setQueryData(['comments', questionId], context.previousComments)
+      }
+      const errorContext = createErrorContext('useCreateComment', 'mutation')
+      console.error('Failed to create comment:', handleMutationError(err, errorContext))
+    },
+    onSuccess: () => {
+      // Invalidate to get fresh data from server
+      queryClient.invalidateQueries({ queryKey: ['comments', questionId] })
+    },
+    retry: (failureCount, error) => shouldRetryWithConfig(error, failureCount),
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
+  })
+}
+
+/**
+ * Update an existing comment
+ */
+export function useUpdateComment(questionId: string) {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async ({ commentId, data }: { commentId: string; data: UpdateCommentData }): Promise<any> => {
+      const res = await fetch(`/api/comments/${commentId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.error || 'Failed to update comment')
+      }
+      // Dates come as strings from JSON
+      return res.json()
+    },
+    onMutate: async ({ commentId, data }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['comments', questionId] })
+
+      // Snapshot the previous value
+      const previousComments = queryClient.getQueryData<any[]>(['comments', questionId])
+
+      // Optimistically update to the new value
+      if (previousComments) {
+        const updatedComments = previousComments.map(comment =>
+          comment.id === commentId
+            ? {
+                ...comment,
+                content: data.content,
+                updatedAt: new Date().toISOString(),
+                isEdited: true,
+              }
+            : comment
+        )
+
+        queryClient.setQueryData<any[]>(
+          ['comments', questionId],
+          updatedComments
+        )
+      }
+
+      return { previousComments }
+    },
+    onError: (err, variables, context) => {
+      // Roll back optimistic update on error
+      if (context?.previousComments) {
+        queryClient.setQueryData(['comments', questionId], context.previousComments)
+      }
+      const errorContext = createErrorContext('useUpdateComment', 'mutation')
+      console.error('Failed to update comment:', handleMutationError(err, errorContext))
+    },
+    onSuccess: () => {
+      // Invalidate to get fresh data from server
+      queryClient.invalidateQueries({ queryKey: ['comments', questionId] })
+    },
+    retry: (failureCount, error) => shouldRetryWithConfig(error, failureCount),
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
+  })
+}
+
+/**
+ * Delete a comment
+ */
+export function useDeleteComment(questionId: string) {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async (commentId: string): Promise<{ success: boolean }> => {
+      const res = await fetch(`/api/comments/${commentId}`, {
+        method: 'DELETE',
+      })
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.error || 'Failed to delete comment')
+      }
+      return res.json()
+    },
+    onMutate: async (commentId) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['comments', questionId] })
+
+      // Snapshot the previous value
+      const previousComments = queryClient.getQueryData<any[]>(['comments', questionId])
+
+      // Optimistically update to the new value
+      if (previousComments) {
+        const updatedComments = previousComments.filter(comment => comment.id !== commentId)
+
+        queryClient.setQueryData<any[]>(
+          ['comments', questionId],
+          updatedComments
+        )
+      }
+
+      return { previousComments }
+    },
+    onError: (err, variables, context) => {
+      // Roll back optimistic update on error
+      if (context?.previousComments) {
+        queryClient.setQueryData(['comments', questionId], context.previousComments)
+      }
+      const errorContext = createErrorContext('useDeleteComment', 'mutation')
+      console.error('Failed to delete comment:', handleMutationError(err, errorContext))
+    },
+    onSuccess: () => {
+      // Invalidate to get fresh data from server
+      queryClient.invalidateQueries({ queryKey: ['comments', questionId] })
+    },
+    retry: (failureCount, error) => shouldRetryWithConfig(error, failureCount),
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
   })
 }

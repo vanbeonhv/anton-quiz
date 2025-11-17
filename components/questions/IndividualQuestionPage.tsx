@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { AnswerOption } from './AnswerOption'
+import { QuestionComments } from './QuestionComments'
 import { LoadingOverlay } from '@/components/shared/LoadingOverlay'
 import { XpGainModal, LevelUpModal, AuthPromptModal } from '@/components/shared'
 import { useSubmitQuestionAttempt, useNextUnansweredQuestion } from '@/lib/queries'
@@ -528,6 +529,13 @@ export function IndividualQuestionPage({ question, isDailyQuestion = false }: In
           </LoadingOverlay>
         </CardContent>
       </Card>
+
+      {/* Question Comments Section */}
+      <QuestionComments
+        questionId={question.id}
+        isAuthenticated={!!user}
+        currentUserId={user?.id}
+      />
 
       {/* XP Gain Modal */}
       {result?.xpEarned !== undefined && result?.userProgress && (

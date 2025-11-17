@@ -1,4 +1,15 @@
 // ============================================
+// CONSTANTS
+// ============================================
+
+/**
+ * Time threshold in seconds for determining if a comment has been edited.
+ * Comments are marked as edited if updatedAt > createdAt + this threshold.
+ * This grace period prevents marking comments as edited due to minor timing differences.
+ */
+export const COMMENT_EDIT_THRESHOLD_SECONDS = 60
+
+// ============================================
 // ENUMS
 // ============================================
 
@@ -75,6 +86,16 @@ export interface UserStats {
   updatedAt: Date
 }
 
+export interface QuestionComment {
+  id: string
+  questionId: string
+  userId: string
+  userEmail: string
+  content: string
+  createdAt: Date
+  updatedAt: Date
+}
+
 // ============================================
 // EXTENDED TYPES (with relations)
 // ============================================
@@ -85,6 +106,20 @@ export interface QuestionWithTags extends Question {
   userAttempt?: QuestionAttempt, // If user has attempted this question
   isSolved?: boolean,
   hasAttempted?: boolean
+}
+
+export interface QuestionCommentWithAuthor extends QuestionComment {
+  author: {
+    displayName: string | null
+    avatarUrl: string | null
+  }
+  isEdited: boolean // Computed: updatedAt > createdAt + COMMENT_EDIT_THRESHOLD_SECONDS
+}
+
+// API response type where dates are serialized as strings
+export interface QuestionCommentWithAuthorResponse extends Omit<QuestionCommentWithAuthor, 'createdAt' | 'updatedAt'> {
+  createdAt: string | Date
+  updatedAt: string | Date
 }
 
 export interface TagWithStats extends Tag {
@@ -164,6 +199,19 @@ export interface CreateTagData {
 export interface SubmitQuestionAttemptData {
   questionId: string
   selectedAnswer: OptionKey
+}
+
+export interface CreateCommentData {
+  content: string
+}
+
+export interface UpdateCommentData {
+  content: string
+}
+
+export interface CommentValidationResult {
+  isValid: boolean
+  error?: string
 }
 
 export interface QuestionFilters {

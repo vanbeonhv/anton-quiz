@@ -1,7 +1,7 @@
 {
   "enabled": true,
   "name": "Code Quality Analyzer",
-  "description": "Monitors source code files for changes and provides suggestions for code quality improvements, including identifying code smells, design patterns, best practices, and recommending file splits when files exceed 300 lines",
+  "description": "Monitors source code files for changes and provides suggestions for code quality improvements, including identifying code smells, design patterns, best practices, and recommending file splits when files exceed 250 lines",
   "version": "1",
   "when": {
     "type": "fileEdited",
@@ -28,6 +28,6 @@
   },
   "then": {
     "type": "askAgent",
-    "prompt": "Analyze the modified code files for potential improvements. Focus on:\n\n1. **Code Smells**: Identify any code smells such as duplicated code, long methods, large classes, excessive parameters, or complex conditionals\n2. **Design Patterns**: Suggest appropriate design patterns that could improve the code structure\n3. **Best Practices**: Check for adherence to React, TypeScript, and Next.js best practices\n4. **Readability**: Evaluate code clarity, naming conventions, and comment quality\n5. **Maintainability**: Assess modularity, coupling, and cohesion\n6. **Performance**: Identify potential performance optimizations (unnecessary re-renders, inefficient algorithms, etc.)\n7. **File Structure**: Check if any file exceeds 300 lines of code (LOC). If so, suggest how to split it into smaller, well-organized modules while maintaining proper folder structure\n\nFor each issue found:\n- Explain the problem clearly\n- Provide specific, actionable suggestions\n- Include code examples where helpful\n- Prioritize suggestions by impact (high/medium/low)\n\nMaintain the existing functionality - do not suggest changes that would break current behavior. Focus on improvements that enhance code quality while preserving features."
+    "prompt": "Analyze the modified code files for potential improvements. Focus on:\n\n1. **Code Smells**: Identify any code smells such as duplicated code, long methods, large classes, excessive parameters, or complex conditionals\n2. **Design Patterns**: Suggest appropriate design patterns that could improve the code structure\n3. **Best Practices**: Check for adherence to React, TypeScript, and Next.js best practices\n4. **Readability**: Evaluate code clarity, naming conventions, and comment quality\n5. **Maintainability**: Assess modularity, coupling, and cohesion\n6. **Performance**: Identify potential performance optimizations (unnecessary re-renders, inefficient algorithms, etc.)\n7. **File Structure**: Check if any file exceeds 250 lines of code (LOC). If so, suggest how to split it into smaller, well-organized modules while maintaining proper folder structure\n\nFor each issue found:\n- Explain the problem clearly\n- Provide specific, actionable suggestions\n- Include code examples where helpful\n- Prioritize suggestions by impact (high/medium/low)\n\nMaintain the existing functionality - do not suggest changes that would break current behavior. Focus on improvements that enhance code quality while preserving features."
   }
 }
