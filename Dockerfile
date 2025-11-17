@@ -59,11 +59,17 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 COPY --from=builder --chown=nextjs:nodejs /app/instrumentation.ts ./
 
+# Copy startup script
+COPY --chown=nextjs:nodejs docker-entrypoint.sh ./
+
 # Chuyển quyền sở hữu cho user nextjs
 RUN chown -R nextjs:nodejs /app
+RUN chmod +x docker-entrypoint.sh
 
 USER nextjs
 
@@ -72,4 +78,4 @@ EXPOSE 4000
 ENV PORT=4000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["./docker-entrypoint.sh"]
