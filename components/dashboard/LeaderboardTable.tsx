@@ -1,13 +1,22 @@
+import { useState } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Trophy } from 'lucide-react'
 import { QuestionsSolvedLeaderboardEntry } from '@/types'
 import { RankDisplay } from '@/components/shared/RankDisplay'
 import { UserWithAvatar } from '@/components/shared/UserWithAvatar'
 import { LevelBadge } from '@/components/shared/LevelBadge'
+import { LevelDrawer } from '@/components/shared/LevelDrawer'
 import dayjs from '@/lib/dayjs'
 
 interface LeaderboardTableProps {
   entries: QuestionsSolvedLeaderboardEntry[]
+}
+
+interface SelectedUserLevel {
+  level: number
+  title: string
+  totalXp: number
+  userEmail: string
 }
 
 /**
@@ -19,8 +28,19 @@ interface LeaderboardTableProps {
  * @returns A JSX element rendering the leaderboard table or the empty-state message when there are no entries.
  */
 export function LeaderboardTable({ entries }: LeaderboardTableProps) {
+  const [selectedUserLevel, setSelectedUserLevel] = useState<SelectedUserLevel | null>(null)
+
   const formatDate = (date: Date) => {
     return dayjs(date).format('MMM D, HH:mm')
+  }
+
+  const handleLevelBadgeClick = (entry: QuestionsSolvedLeaderboardEntry) => {
+    setSelectedUserLevel({
+      level: entry.currentLevel,
+      title: entry.currentTitle,
+      totalXp: entry.totalXp,
+      userEmail: entry.userEmail
+    })
   }
 
   if (entries.length === 0) {
@@ -33,6 +53,7 @@ export function LeaderboardTable({ entries }: LeaderboardTableProps) {
   }
 
   return (
+    <>
     <div className="bg-bg-cream rounded-lg border border-bg-peach">
       <Table>
         <TableHeader>
@@ -68,10 +89,12 @@ export function LeaderboardTable({ entries }: LeaderboardTableProps) {
               <TableCell className="hidden lg:table-cell">
                 <LevelBadge 
                   level={entry.currentLevel} 
-                  title={entry.currentTitle} 
+                  title={entry.currentTitle}
+                  totalXp={entry.totalXp}
                   size="sm"
                   showIcon={false}
-                  variant="display-only"
+                  variant="clickable"
+                  onClick={() => handleLevelBadgeClick(entry)}
                 />
               </TableCell>
 
@@ -100,5 +123,18 @@ export function LeaderboardTable({ entries }: LeaderboardTableProps) {
         </TableBody>
       </Table>
     </div>
+
+    {/* Level Drawer for viewing other users' levels */}
+    {selectedUserLevel && (
+      <LevelDrawer
+        isOpen={!!selectedUserLevel}
+        onClose={() => setSelectedUserLevel(null)}
+        level={selectedUserLevel.level}
+        title={selectedUserLevel.title}
+        totalXp={selectedUserLevel.totalXp}
+        userEmail={selectedUserLevel.userEmail}
+      />
+    )}
+    </>
   )
 }

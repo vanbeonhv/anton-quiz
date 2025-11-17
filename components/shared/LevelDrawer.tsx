@@ -83,12 +83,44 @@ function getMotivationalMessage(level: number) {
   return "🌱 Every expert was once a beginner!"
 }
 
+interface LevelDrawerProps {
+  isOpen?: boolean
+  onClose?: () => void
+  level?: number
+  title?: string
+  totalXp?: number
+  userEmail?: string
+}
+
 /**
  * LevelDrawer component that displays comprehensive user level information
- * Uses the UserLevelProvider context for data and state management
+ * Can use UserLevelProvider context or accept props for viewing other users' levels
  */
-export function LevelDrawer() {
-  const { isDrawerOpen, closeDrawer, userStats, isLoading, error } = useUserLevel()
+export function LevelDrawer({
+  isOpen: externalIsOpen,
+  onClose: externalOnClose,
+  level: externalLevel,
+  title: externalTitle,
+  totalXp: externalTotalXp,
+  userEmail: externalUserEmail
+}: LevelDrawerProps = {}) {
+  const context = useUserLevel()
+  
+  // Use external props if provided, otherwise use context
+  const isDrawerOpen = externalIsOpen !== undefined ? externalIsOpen : context.isDrawerOpen
+  const closeDrawer = externalOnClose || context.closeDrawer
+  const isLoading = externalLevel === undefined ? context.isLoading : false
+  const error = externalLevel === undefined ? context.error : null
+  
+  // Build userStats from external props or context
+  const userStats = externalLevel !== undefined && externalTitle !== undefined && externalTotalXp !== undefined
+    ? {
+        currentLevel: externalLevel,
+        currentTitle: externalTitle,
+        totalXp: externalTotalXp,
+        xpToNextLevel: LevelCalculatorService.calculateXpToNextLevel(externalLevel, externalTotalXp)
+      }
+    : context.userStats
 
   // Handle escape key press
   React.useEffect(() => {
@@ -114,7 +146,11 @@ export function LevelDrawer() {
         <DrawerHeader className="flex items-center justify-between border-b">
           <div>
             <DrawerTitle>Level Progression</DrawerTitle>
-            <DrawerDescription>Your journey to mastery</DrawerDescription>
+            <DrawerDescription>
+              {externalUserEmail 
+                ? `${externalUserEmail.split('@')[0]}'s journey` 
+                : 'Your journey to mastery'}
+            </DrawerDescription>
           </div>
           <DrawerClose asChild>
             <Button variant="ghost" size="sm" className="h-8 w-8 p-0">

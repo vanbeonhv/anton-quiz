@@ -14,6 +14,7 @@ export interface LevelConfig {
  * Converted from docs/Level-exp.json for better type safety and performance
  */
 export const LEVEL_DATA: readonly LevelConfig[] = [
+  // Beginner tier - Easy progression to encourage new users
   {
     level: 1,
     title: "Newbie",
@@ -22,97 +23,104 @@ export const LEVEL_DATA: readonly LevelConfig[] = [
   {
     level: 2,
     title: "Intern",
-    cumulativeXpNeeded: 20
+    cumulativeXpNeeded: 20 // +20
   },
   {
     level: 3,
     title: "Senior Intern",
-    cumulativeXpNeeded: 150
+    cumulativeXpNeeded: 50 // +30
   },
+  // First tier jump - Requires more effort
   {
     level: 4,
     title: "Fresher",
-    cumulativeXpNeeded: 300
+    cumulativeXpNeeded: 120 // +70 (tier jump)
   },
+  // Junior tier - Moderate progression within tier (+20 XP more per level)
   {
     level: 5,
     title: "Junior Dev I",
-    cumulativeXpNeeded: 500
+    cumulativeXpNeeded: 190 // +70
   },
   {
     level: 6,
     title: "Junior Dev II",
-    cumulativeXpNeeded: 750
+    cumulativeXpNeeded: 270 // +80
   },
   {
     level: 7,
     title: "Junior Dev III",
-    cumulativeXpNeeded: 1050
+    cumulativeXpNeeded: 360 // +90
   },
   {
     level: 8,
     title: "Junior Dev IV",
-    cumulativeXpNeeded: 1400
+    cumulativeXpNeeded: 460 // +100
   },
   {
     level: 9,
     title: "Junior Dev V",
-    cumulativeXpNeeded: 1800
+    cumulativeXpNeeded: 570 // +110
   },
+  // Mid-level tier jump - Significant effort required
   {
     level: 10,
     title: "Mid-Level Dev I",
-    cumulativeXpNeeded: 2500
+    cumulativeXpNeeded: 740 // +170 (tier jump)
   },
+  // Mid-level tier - Steady progression (+20 XP more per level)
   {
     level: 11,
     title: "Mid-Level Dev II",
-    cumulativeXpNeeded: 3300
+    cumulativeXpNeeded: 890 // +150
   },
   {
     level: 12,
     title: "Mid-Level Dev III",
-    cumulativeXpNeeded: 4200
+    cumulativeXpNeeded: 1060 // +170
   },
   {
     level: 13,
     title: "Mid-Level Dev IV",
-    cumulativeXpNeeded: 5200
+    cumulativeXpNeeded: 1250 // +190
   },
   {
     level: 14,
     title: "Mid-Level Dev V",
-    cumulativeXpNeeded: 6300
+    cumulativeXpNeeded: 1460 // +210
   },
+  // Senior tier jump - Major milestone
   {
     level: 15,
     title: "Senior Dev I",
-    cumulativeXpNeeded: 8000
+    cumulativeXpNeeded: 1730 // +270 (tier jump)
   },
+  // Senior tier - Challenging progression (+20 XP more per level)
   {
     level: 16,
     title: "Senior Dev II",
-    cumulativeXpNeeded: 9800
+    cumulativeXpNeeded: 1970 // +240
   },
   {
     level: 17,
     title: "Senior Dev III",
-    cumulativeXpNeeded: 11700
+    cumulativeXpNeeded: 2240 // +270
   },
   {
     level: 18,
     title: "Senior Dev IV",
-    cumulativeXpNeeded: 13700
+    cumulativeXpNeeded: 2540 // +300
   },
   {
     level: 19,
     title: "Senior Dev V",
-    cumulativeXpNeeded: 15800
+    cumulativeXpNeeded: 2870 // +330
   },
+  // Ultimate achievement
   {
     level: 20,
     title: "Solution Architect",
-    cumulativeXpNeeded: 20000
+    cumulativeXpNeeded: 3290 // +420 (ultimate tier)
   }
 ] as const;
 

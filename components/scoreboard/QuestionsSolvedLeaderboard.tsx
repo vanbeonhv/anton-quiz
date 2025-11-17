@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useQuestionsSolvedLeaderboard } from '@/lib/queries'
 import { useAuth } from '@/hooks/useAuth'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -9,9 +10,17 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { RankDisplay } from '@/components/shared/RankDisplay'
 import { UserWithAvatar } from '@/components/shared/UserWithAvatar'
 import { LevelBadge } from '@/components/shared/LevelBadge'
+import { LevelDrawer } from '@/components/shared/LevelDrawer'
 
 interface QuestionsSolvedLeaderboardProps {
   timeFilter: string
+}
+
+interface SelectedUserLevel {
+  level: number
+  title: string
+  totalXp: number
+  userEmail: string
 }
 
 /**
@@ -27,11 +36,21 @@ interface QuestionsSolvedLeaderboardProps {
 export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeaderboardProps) {
   const { user } = useAuth()
   const { data: leaderboard, isLoading, error } = useQuestionsSolvedLeaderboard(timeFilter)
+  const [selectedUserLevel, setSelectedUserLevel] = useState<SelectedUserLevel | null>(null)
 
   const getAccuracyColor = (accuracy: number) => {
     if (accuracy >= 80) return 'text-primary-green-dark'
     if (accuracy >= 60) return 'text-orange-600'
     return 'text-red-600'
+  }
+
+  const handleLevelBadgeClick = (entry: any) => {
+    setSelectedUserLevel({
+      level: entry.currentLevel,
+      title: entry.currentTitle,
+      totalXp: entry.totalXp,
+      userEmail: entry.userEmail
+    })
   }
 
   if (isLoading) {
@@ -60,16 +79,17 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
   }
 
   return (
-    <div className="bg-bg-cream rounded-lg border border-bg-peach">
-      <div className="p-4 bg-bg-peach/50 border-b border-bg-peach">
-        <h2 className="text-lg font-semibold text-text-primary flex items-center gap-2">
-          <Target className="w-5 h-5 text-primary-green" />
-          Questions Solved Leaderboard
-        </h2>
-        <p className="text-sm text-text-secondary mt-1">
-          Total questions answered correctly across all activities
-        </p>
-      </div>
+    <>
+      <div className="bg-bg-cream rounded-lg border border-bg-peach">
+        <div className="p-4 bg-bg-peach/50 border-b border-bg-peach">
+          <h2 className="text-lg font-semibold text-text-primary flex items-center gap-2">
+            <Target className="w-5 h-5 text-primary-green" />
+            Questions Solved Leaderboard
+          </h2>
+          <p className="text-sm text-text-secondary mt-1">
+            Total questions answered correctly across all activities
+          </p>
+        </div>
 
       <Table>
         <TableHeader>
@@ -124,10 +144,12 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
                 <TableCell className="text-center hidden lg:table-cell">
                   <LevelBadge 
                     level={entry.currentLevel} 
-                    title={entry.currentTitle} 
+                    title={entry.currentTitle}
+                    totalXp={entry.totalXp}
                     size="sm"
                     showIcon={false}
-                    variant="display-only"
+                    variant="clickable"
+                    onClick={() => handleLevelBadgeClick(entry)}
                   />
                 </TableCell>
 
@@ -167,5 +189,18 @@ export function QuestionsSolvedLeaderboard({ timeFilter }: QuestionsSolvedLeader
         </TableBody>
       </Table>
     </div>
+
+    {/* Level Drawer for viewing other users' levels */}
+    {selectedUserLevel && (
+      <LevelDrawer
+        isOpen={!!selectedUserLevel}
+        onClose={() => setSelectedUserLevel(null)}
+        level={selectedUserLevel.level}
+        title={selectedUserLevel.title}
+        totalXp={selectedUserLevel.totalXp}
+        userEmail={selectedUserLevel.userEmail}
+      />
+    )}
+    </>
   )
 }
